@@ -1,7 +1,6 @@
 #Python script for the model_bci to execute sklearn functions
 #Examples: SVC, RandomForestClassifier, GradientBoosting Classifier  KNeighborsClassifier, GaussianNB, MLPClassifier, LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
-import sklearn
 from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.svm import SVC
