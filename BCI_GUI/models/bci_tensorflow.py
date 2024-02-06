@@ -1,22 +1,11 @@
 #Python script for the model_bci to execute tensorflow functions
+import pandas as pd
+import os
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
 
-# def BCI_tensorflow(model, data, labels):
-#     #Split data into training and testing sets
-#     X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=42)
-#     #Compile model
-#     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-#     #Train model
-#     model.fit(X_train, y_train, epochs=10, batch_size=32, verbose=2)
-#     #Evaluate model
-#     test_loss, test_acc = model.evaluate(X_test, y_test, verbose=2)
-#     print('\nTest accuracy:', test_acc)
-#     #Return model
-#     return model
-
-def BCI_tensorflow_sequential(data, labels):
+def BCI_tensorflow_sequential(data, labels, name):
     #Split data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=42)
     model = keras.Sequential([
@@ -53,3 +42,14 @@ def BCI_tensorflow_sequential(data, labels):
         else:
             continue
     print('Test accuracy:', correctTest/len(testPred))
+
+    #Save the model
+    model.save(name, '_model.h5')
+
+# #Need to go back 1 directory to get to the data
+# os.chdir("/BCI_GUI/data/processed")
+
+# data = pd.read_csv('blinksFiltered.csv')
+# labels = pd.read_csv('blinksFilteredLabels.csv')
+
+# BCI_tensorflow_sequential(data, labels, 'test')
