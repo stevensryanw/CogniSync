@@ -1,7 +1,7 @@
 #Script for gui_bci to model data in the gui, using our own models
 from models.bci_sklearn import *
-from models.bci_pytorch import *
-from models.bci_tensorflow import *
+#from models.bci_pytorch import *
+#from models.bci_tensorflow import *
 # from models.bci_tensorflow import *
 
 #Sklearn models
