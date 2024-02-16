@@ -1,7 +1,7 @@
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk
-from plot_bci import *
+#from plot_bci import *
 from model_bci import *
 from gameMod import *
 import os
