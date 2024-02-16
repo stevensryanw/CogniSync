@@ -151,7 +151,7 @@ class SnakeGame:
         print("setup done")
 
     def move(self, direction):
-        print("move")
+        #print("move")
         global active
         if active:
             change_direction(direction)
