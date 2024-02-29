@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 
-#import models.bci_tensorflow as bci_tf
+import models.bci_tensorflow as bci_tf
 
 #Window for selecting the model then training and testing it
 
