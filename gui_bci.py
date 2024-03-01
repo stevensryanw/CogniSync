@@ -173,7 +173,6 @@ class Recorded(ctk.CTkFrame):
         self.start_button.configure(state=ctk.NORMAL)
         self.stop_button.configure(state=ctk.DISABLED)
         self.instructions_label.configure(text="Training canceled!")
-
         self.current_movement_index = 0
         self.shuffle_movements()
         self.prepare_time = 5
@@ -206,7 +205,6 @@ class Recorded(ctk.CTkFrame):
             f = open("tempVal.txt", "a")
             f.write(self.current_movement)
             f.close()
-            #makes 
             self.canvas.create_text(100, 100, text=self.current_movement)
             self.canvas.after(1000 * self.hold_time, self.show_rest_period)
         else:
@@ -241,19 +239,14 @@ class Recorded(ctk.CTkFrame):
         info_eeg = StreamInfo('OpenBCIEEG', 'EEG', 8, 250, 'float32', 'OpenBCItestEEG')
         print("Creating LSL stream for AUX. \nName: OpenBCIAUX\nID: OpenBCItestEEG\n")
         info_aux = StreamInfo('OpenBCIAUX', 'AUX', 3, 250, 'float32', 'OpenBCItestAUX')
-
         outlet_eeg = StreamOutlet(info_eeg)
         outlet_aux = StreamOutlet(info_aux)
-
         file_out = open('newest_rename.csv', 'a')
         file_out.truncate(0)
-        #tempVal = open('tempVal.txt', 'r')
-
         def lsl_streamers(sample):
             file_in = open('tempVal.txt', 'r')
             input = file_in.readline()
             lbl = ''
-            #print(file_in.readline())
             if input != '':
                 lbl = input
             else:
@@ -267,7 +260,6 @@ class Recorded(ctk.CTkFrame):
                 file_out.write(str(dataj*SCALE_FACTOR_AUX) + ',')
             file_out.write(str(lbl) + '\n')
             file_in.close()
-
         board = OpenBCICyton()
         board.start_stream(lsl_streamers)
         file_out.close()
