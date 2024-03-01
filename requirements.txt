@@ -1,0 +1,32 @@
+pandas 
+numpy 
+matplotlib 
+scikit-learn
+tensorflow-macos 
+tensorflow-metal 
+pyOpenBCI 
+pylsl 
+pyserial 
+bitstring 
+xmltodict 
+requests
+
+#May need to reinstall python-tk to run gui
+#sudo apt-get install python3-tk
+
+#Run only on a python virtual environment
+#python3 -m venv bci_gui
+#source bci_gui/bin/activate
+
+#Install dependencies
+
+#All OS's
+#pip install pandas numpy matplotlib sklearn pyOpenBCI pylsl pyserial bitstring xmltodict requests
+
+#MacOS(M1) - Individual
+#pip3 install torch torchvision torchaudio
+#pip3 install tensorflow-macos tensorflow-metal
+
+#Linux(AMD) - Individual
+#pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+#pip3 install tensorflow tensorflow-rocm
