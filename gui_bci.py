@@ -12,6 +12,7 @@ from pyOpenBCI import OpenBCICyton
 from pylsl import StreamInfo, StreamOutlet
 import threading
 import multiprocessing
+import time
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -66,7 +67,7 @@ class App(ctk.CTk):
         # iterating through a tuple consisting
         # of the different page layouts
         #if a page is added it needs to be placed here
-        for F in (Home, LiveFeed, Recorded, Model, snakeGame):
+        for F in (Home, LiveFeed, UserRecording, Modeling, SnakeGame, USBOutput):
             frame = F(container, self)
             # initializing frame of that object from
             # startpage, page1, page2 respectively with 
@@ -79,6 +80,15 @@ class App(ctk.CTk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+
+class LiveFeed(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        ctk.CTkFrame.__init__(self, parent)
+        label = ctk.CTkLabel(self, text ="Live Feed", font = LARGEFONT)
+        label.grid(row = 0, column = 4, padx = 100, pady = 10)
+        button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
+                            command = lambda : controller.show_frame(Home))
+        button1.grid(row = 1, column = 1, padx = 10, pady = 30)
 
 #first window frame startpage
 class Home(ctk.CTkFrame):
@@ -96,40 +106,29 @@ class Home(ctk.CTkFrame):
         button1.grid(row = 1, column = 1, padx = 10, pady = 20)
         ## button to show frame 2 with text layout2
         button2 = ctk.CTkButton(self, text ="Recording Data",corner_radius=25,
-        command = lambda : controller.show_frame(Recorded))
+        command = lambda : controller.show_frame(UserRecording))
         # putting the button in its place by
         # using grid
         button2.grid(row = 2, column = 1, padx = 10, pady = 20)
         ## button to show model selection frame with
-        button3 = ctk.CTkButton(self, text ="User Modeling",corner_radius=25,
-        command = lambda : controller.show_frame(Model))
+        button3 = ctk.CTkButton(self, text ="Modeling",corner_radius=25,
+        command = lambda : controller.show_frame(Modeling))
         # putting the button in its place by
         # using grid
         button3.grid(row = 3, column = 1, padx = 10, pady = 20)
         #including snake game page for now
         button4 = ctk.CTkButton(self, text = "Snake Game", corner_radius=25, 
-        command = lambda : controller.show_frame(snakeGame))
+        command = lambda : controller.show_frame(SnakeGame))
         #places button to switch to snake game page
         button4.grid(row=4, column=1, padx=10, pady=20)
-
-#second window frame page1 
-class LiveFeed(ctk.CTkFrame):
-    def __init__(self, parent, controller):
-        ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text ="Live Feed", font = LARGEFONT)
-        #Later: Add a text input box for the user to enter the name of the file to be saved
-        #Add a button to start live feed
-        #Add a button to start recording
-        #Add a button to stop recording
-        label.grid(row = 0, column = 4, padx = 100, pady = 10)
-        button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
-                            command = lambda : controller.show_frame(Home))
-        # putting the button in its place 
-        # by using grid
-        button1.grid(row = 1, column = 1, padx = 10, pady = 30)
+        #including USB output page for now
+        button5 = ctk.CTkButton(self, text = "USB Output", corner_radius=25,
+        command = lambda : controller.show_frame(USBOutput))
+        #places button to switch to USB output page
+        button5.grid(row=5, column=1, padx=10, pady=20)
 
 #third window frame page2
-class Recorded(ctk.CTkFrame): 
+class UserRecording(ctk.CTkFrame): 
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.label = ctk.CTkLabel(self, text ="Recording Data", font = LARGEFONT)
@@ -167,6 +166,8 @@ class Recorded(ctk.CTkFrame):
         self.is_prompting = True
         self.prompt_next_movement()
         self.start_record()
+        #Allow stream to start before prompting
+        time.sleep(15)
 
     def stop_prompting(self):
         self.is_prompting = False
@@ -265,7 +266,7 @@ class Recorded(ctk.CTkFrame):
         file_out.close()
 
 #Page 3: Model Selection, Data Input, Training, and Testing, and Result Visualization
-class Model(ctk.CTkFrame):
+class Modeling(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         label = ctk.CTkLabel(self, text ="User Modeling", font = LARGEFONT)
@@ -297,7 +298,7 @@ class Model(ctk.CTkFrame):
         #put button on a grid
         run_button.grid(row=5, column=0, columnspan = 2, sticky = "news", padx=10, pady=10)
 
-class snakeGame(ctk.CTkFrame):
+class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25, 
@@ -309,12 +310,22 @@ class snakeGame(ctk.CTkFrame):
         self.game_frame.grid(row=1, column=2, padx=10, pady=10)
         #frame2.update()
 
+#second window frame page1 
+class USBOutput(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        ctk.CTkFrame.__init__(self, parent)
+        label = ctk.CTkLabel(self, text ="USB Output", font = LARGEFONT)
+        label.grid(row = 0, column = 4, padx = 100, pady = 10)
+        button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
+                            command = lambda : controller.show_frame(Home))
+        button1.grid(row = 1, column = 1, padx = 10, pady = 30)
+
 score = 0
 direction = 'down'
 
 # Driver Code
 app = App()
-#setting window size by pixels "widthxheight"
+#setting window size by pixels "width x height"
 app.geometry("800x700")
 app.update()
 #with new size labels should shift right by increasing columns
