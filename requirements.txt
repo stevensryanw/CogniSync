@@ -3,11 +3,11 @@ numpy
 matplotlib
 customtkinter
 scikit-learn
-tensorflow
 pyOpenBCI
 pylsl
 pyserial
 xmltodict
+requests
 
 #May need to reinstall python-tk to run gui
 #sudo apt-get install python3-tk
