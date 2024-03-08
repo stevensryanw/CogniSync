@@ -13,6 +13,7 @@ from pylsl import StreamInfo, StreamOutlet
 import threading
 import multiprocessing
 import time
+from model_bci import *
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -232,26 +233,149 @@ class Modeling(ctk.CTkFrame):
         # putting the button in its place 
         # by using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
-        ## dropdown option for the model label with options for models to run, function will run corresponding model
-        model_dropdown = ctk.CTkComboBox(self, values = ["LDA", "SVM"])
-        model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
+
+        #label for model dropdown
+        modelLabel = ctk.CTkLabel(self, text="Model")
+        modelLabel.grid(row=2, column=0, padx=10, pady=10)
+        
+        # dropdown option for the model label with options for models to run, function will run corresponding model
+        self.model_dropdown = ctk.CTkComboBox(self, values = ["LDA", "SVC", "Tensorflow"])
+        self.model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
+
         #labels for the data dropdown
-        Data_label = ctk.CTkLabel(self, text="Data")
+        Data_label = ctk.CTkLabel(self, text="Data File")
         Data_label.grid(row=3, column=0, padx = 10, pady=10)
+
         ## dropdown option for the data that we will run into the model. select from csvs, will be populated from directory 
-        Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
-        Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
+        self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
+        self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
+        
+        #dropdown to choose the labels
+        dataFiles.insert(0, "No Label File")
+        self.Labels_dropdown = ctk.CTkComboBox(self, values = dataFiles)
+        self.Labels_dropdown.grid(row=4, column=1, padx=10, pady=10)
+        dataFiles.pop(0)
+
+        #frame label for label dropdown
+        Label_label = ctk.CTkLabel(self, text = "Label File")
+        Label_label.grid(row=4, column=0, padx=10, pady=10)
+
         ## Creating the file name label and setting it inside of our input frame
-        txt_label = ctk.CTkLabel(self, text="File Name")
+        txt_label = ctk.CTkLabel(self, text="Output File Name")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        txt_label.grid(row=4, column=0, padx = 10, pady = 10)
+        txt_label.grid(row=5, column=0, padx = 10, pady = 10)
+
         ## Creating our textbox so user can input file name
-        txt_entry = ctk.CTkTextbox(self, height=10)
-        txt_entry.grid(row= 4, column =1, padx = 10, pady = 10)
+        txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="output.txt")
+        txt_entry.grid(row= 5, column =1, padx = 10, pady = 10)
+        self.text = txt_entry
+
+        #update the datafile list
+        update_button = ctk.CTkButton(self, text="Update File Lists", command = self.updateFiles)
+        update_button.grid(row=6, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+
         #will send the user back to the main menu
-        run_button = ctk.CTkButton(self, text="Run")
+        run_button = ctk.CTkButton(self, text="Run", command=self.model_input)
         #put button on a grid
-        run_button.grid(row=5, column=0, columnspan = 2, sticky = "news", padx=10, pady=10)
+        run_button.grid(row=7, column=0, columnspan = 2, sticky = "news", padx=10, pady=10)
+
+    def model_input(self):
+        modelSelected = self.model_dropdown.get()
+        dataSelected = self.Data_dropdown.get()
+        labelsSelected = self.Labels_dropdown.get()
+        outputFile = self.text.get()
+        print(modelSelected)
+        print(dataSelected)
+        print(labelsSelected)
+        print(outputFile)
+        self.relPath = "../BCI_Infinity/data"
+        if modelSelected == "LDA":
+            print("Time is a circle. You're your own grandpa.")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_LinearDiscriminantAnalysis(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+            
+        elif modelSelected == "SVC":
+            print("Get Vectored! *air horn noise*")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            print('going into modeling')
+            results = BCI_sklearn_SVC(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+            
+        elif modelSelected == "Tensorflow":
+            print("Tensile laminar flow")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_tensorflow_Net(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+
+        if outputFile == "" or outputFile == " ":
+                dataName = dataSelected[:-4]
+                outputFile = modelSelected+dataName+"Output.txt"
+                f = open(self.relPath+outputFile, "a")
+                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Score: "+str(results[0])+"\n")
+                f.write("Parameters: "+str(results[1])+"\n")
+                f.close()
+                print("File Name: "+outputFile)
+        else:
+            f = open(self.relPath+outputFile, "a")
+            f.write("Model Name: "+modelSelected+"\n")
+            f.write("Score: "+str(results[0])+"\n")
+            f.write("Parameters: "+str(results[1])+"\n")
+            f.close()
+
+
+    def updateFiles(self):
+        dataFiles = os.listdir(dataPath)
+        if len(dataFiles)==0:
+            dataFiles = "No Current Files"
+            self.Data_dropdown.configure(values=dataFiles)
+            self.Labels_dropdown.configure(values=dataFiles)
+        else:
+            self.Data_dropdown.configure(values=dataFiles)
+            dataFiles.insert(0, "No Label File")
+            self.Labels_dropdown.configure(values=dataFiles)
+            dataFiles.pop(0) 
+
+    def csvProcessing(self, dataFile, labelFile):
+        if labelFile == "No Label File":
+            #do stuff like ryan.csv
+            dataTemp = "../BCI_Infinity/data/"+dataFile
+            df = pd.read_csv(dataTemp, 
+                 names=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "labels"])
+            df.dropna(inplace=True)
+            names = df["labels"].unique()
+            mapping = {}
+            count = 0
+            for x in names:
+                mapping[x] = str(count)
+                count += 1
+            df2 = df["labels"]
+            df.drop(columns=['labels'], inplace=True)
+        #if they are different files
+        else:
+            dataTemp = "../BCI_Infinity/data/"+dataFile
+            labelsTemp = "../BCI_Infinity/data/"+labelFile
+            df = pd.read_csv(dataTemp)
+            df2 = pd.read_csv(labelsTemp)
+            columnNames = list(df2.columns)
+            names = df2[columnNames[0]].unique()
+            mapping = {}
+            count = 0
+            for x in names:
+                mapping[x] = float(count)
+                count += 1
+        df2 = df2.replace(mapping)
+        df2 = df2.astype('float64')
+        dataArray = df.to_numpy()
+        labelsArray = df2.to_numpy()
+        return [dataArray, labelsArray]
 
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
