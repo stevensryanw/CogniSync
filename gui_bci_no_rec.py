@@ -141,12 +141,32 @@ class UserRecording(ctk.CTkFrame):
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
-        self.movements = ["Jaw Clench", "Move Right Arm", "Move Left Arm", "Move Legs"]
+        self.movements = []
+        self.n_movements = []
         self.shuffle_movements()
         self.current_movement_index = 0
         self.current_movement = None
         self.prompt_count = 0
+        
+
+        txt_label = ctk.CTkLabel(self, text="Output File Name")
+        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
+        txt_label.grid(row=4, column=0, padx = 10, pady = 10)
+
+        ## Creating our textbox so user can input file name
+
+        txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="ENTER MOVEMENTS SEPERATED BY COMMA",  width = 300)
+        txt_entry.grid(row= 4, column =1, padx = 10, pady = 10)
+        self.text_entry = txt_entry
+        
+        self.text_entry.bind("<KeyRelease>", self.update_movements)
+        
         self.total_prompts = 4 * 40  # 4 movements, 40 times each
+
+    
+
+
+
         self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=25, command=self.start_prompting)
         self.start_button.grid(row=2, column = 1, padx = 10, pady=30)
         self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=25,
@@ -156,10 +176,18 @@ class UserRecording(ctk.CTkFrame):
         #Begin collection (currently doing nothing)
         #Stop data collection
         self.stop_button = ctk.CTkButton(self, text="Stop Collecting", corner_radius=25, command=self.stop_prompting)
-        self.stop_button.grid(row=3, column=1, sticky = "news", padx=10, pady=30)
+        self.stop_button.grid(row=3, column=1, padx=10, pady=30)
         self.is_prompting = False  # Flag to check if prompting is in progress
         self.step_start_time = 0
         self.record_thread = None
+
+
+    def update_movements(self, event):
+        # Get the text entered by the user
+        movements_text = self.text_entry.get()
+        # Update the movements array
+        self.movements = movements_text.split(",")
+
 
     def start_prompting(self):
         self.start_button.configure(state=ctk.DISABLED)
