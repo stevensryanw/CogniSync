@@ -210,6 +210,21 @@ class UserRecording(ctk.CTkFrame):
             self.canvas.delete("all")
             open('tempVal.txt', 'w').close()
 
+    def end_prompting(self):
+        self.is_prompting = False
+        self.start_button.configure(state=ctk.NORMAL)
+        self.stop_button.configure(state=ctk.DISABLED)
+        self.instructions_label.configure(text="training completed!")
+        self.current_movement_index = 0
+        self.shuffle_movements()
+        self.prepare_time = 5
+        self.hold_time = 10
+        self.rest_time = 10
+        if self.canvas.find_all():
+            self.instructions_label.configure(text="Training completed!")
+            self.canvas.delete("all")
+            open('tempVal.txt', 'w').close()
+
     def shuffle_movements(self):
         random.shuffle(self.movements)
 
@@ -220,7 +235,7 @@ class UserRecording(ctk.CTkFrame):
             self.canvas.after(1000 * self.prepare_time, self.show_movement_instruction)
         else:
             self.instructions_label.configure(text="Training completed!")
-            self.stop_prompting()
+            self.end_prompting()
             open('tempVal.txt', 'w').close()
 
     def show_movement_instruction(self):
