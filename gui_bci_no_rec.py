@@ -239,7 +239,8 @@ class Modeling(ctk.CTkFrame):
         modelLabel.grid(row=2, column=0, padx=10, pady=10)
         
         # dropdown option for the model label with options for models to run, function will run corresponding model
-        self.model_dropdown = ctk.CTkComboBox(self, values = ["LDA", "SVC", "Tensorflow"])
+        self.model_dropdown = ctk.CTkComboBox(self, values = ["LDA", "SVC", "Random Forest Classifier", "Tensorflow", "Decision Tree Classifier", 
+                                                              "Logistic Regression", "QDA"])
         self.model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
 
         #labels for the data dropdown
@@ -311,6 +312,34 @@ class Modeling(ctk.CTkFrame):
             print("Modeling data right now. Please be patient.")
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_tensorflow_Net(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "Random Forest Classifier":
+            print("Trees are life")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_RandomForestClassifier(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "Decision Tree Classifier":
+            print("Decisions and Trees")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_DecisionTreeClassifier(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "Logistic Regression":
+            print("Logging onto the mainframe")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_LogisticRegression(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "QDA":
+            print("Quads for the win")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_QuadraticDiscriminantAnalysis(dataArray, labelsArray)
             print("File Output")
             print(results)
 
