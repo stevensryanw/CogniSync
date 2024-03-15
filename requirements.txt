@@ -3,6 +3,7 @@ numpy
 matplotlib
 customtkinter
 scikit-learn
+tensorflow
 pyOpenBCI
 pylsl
 pyserial

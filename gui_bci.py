@@ -13,6 +13,7 @@ from pylsl import StreamInfo, StreamOutlet
 import threading
 import multiprocessing
 import time
+from model_bci import *
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -140,12 +141,32 @@ class UserRecording(ctk.CTkFrame):
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
-        self.movements = ["Jaw Clench", "Move Right Arm", "Move Left Arm", "Move Legs"]
+        self.movements = []
+        self.n_movements = []
         self.shuffle_movements()
         self.current_movement_index = 0
         self.current_movement = None
         self.prompt_count = 0
+        
+
+        txt_label = ctk.CTkLabel(self, text="Output File Name")
+        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
+        txt_label.grid(row=4, column=0, padx = 10, pady = 10)
+
+        ## Creating our textbox so user can input file name
+
+        txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="ENTER MOVEMENTS SEPERATED BY COMMA",  width = 300)
+        txt_entry.grid(row= 4, column =1, padx = 10, pady = 10)
+        self.text_entry = txt_entry
+        
+        self.text_entry.bind("<KeyRelease>", self.update_movements)
+        
         self.total_prompts = 4 * 40  # 4 movements, 40 times each
+
+    
+
+
+
         self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=25, command=self.start_prompting)
         self.start_button.grid(row=2, column = 1, padx = 10, pady=30)
         self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=25,
@@ -155,10 +176,18 @@ class UserRecording(ctk.CTkFrame):
         #Begin collection (currently doing nothing)
         #Stop data collection
         self.stop_button = ctk.CTkButton(self, text="Stop Collecting", corner_radius=25, command=self.stop_prompting)
-        self.stop_button.grid(row=3, column=1, sticky = "news", padx=10, pady=30)
+        self.stop_button.grid(row=3, column=1, padx=10, pady=30)
         self.is_prompting = False  # Flag to check if prompting is in progress
         self.step_start_time = 0
         self.record_thread = None
+
+
+    def update_movements(self, event):
+        # Get the text entered by the user
+        movements_text = self.text_entry.get()
+        # Update the movements array
+        self.movements = movements_text.split(",")
+
 
     def start_prompting(self):
         self.start_button.configure(state=ctk.DISABLED)
@@ -185,6 +214,21 @@ class UserRecording(ctk.CTkFrame):
             open('tempVal.txt', 'w').close()
             self.stop_record()
 
+    def end_prompting(self):
+        self.is_prompting = False
+        self.start_button.configure(state=ctk.NORMAL)
+        self.stop_button.configure(state=ctk.DISABLED)
+        self.instructions_label.configure(text="training completed!")
+        self.current_movement_index = 0
+        self.shuffle_movements()
+        self.prepare_time = 5
+        self.hold_time = 10
+        self.rest_time = 10
+        if self.canvas.find_all():
+            self.instructions_label.configure(text="Training completed!")
+            self.canvas.delete("all")
+            open('tempVal.txt', 'w').close()
+
     def shuffle_movements(self):
         random.shuffle(self.movements)
 
@@ -195,7 +239,7 @@ class UserRecording(ctk.CTkFrame):
             self.canvas.after(1000 * self.prepare_time, self.show_movement_instruction)
         else:
             self.instructions_label.configure(text="Training completed!")
-            self.stop_prompting()
+            self.end_prompting()
             open('tempVal.txt', 'w').close()
 
     def show_movement_instruction(self):
@@ -223,7 +267,7 @@ class UserRecording(ctk.CTkFrame):
             if self.current_movement_index == 0:
                 self.shuffle_movements()
             self.canvas.after(1000 * self.rest_time, self.prompt_next_movement)
-
+    
     def start_record(self):
         if self.record_thread is None or not self.record_thread.is_alive():
             self.record_thread = threading.Thread(target=self.record_data)
@@ -277,26 +321,178 @@ class Modeling(ctk.CTkFrame):
         # putting the button in its place 
         # by using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
-        ## dropdown option for the model label with options for models to run, function will run corresponding model
-        model_dropdown = ctk.CTkComboBox(self, values = ["LDA", "SVM"])
-        model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
+
+        #label for model dropdown
+        modelLabel = ctk.CTkLabel(self, text="Model")
+        modelLabel.grid(row=2, column=0, padx=10, pady=10)
+        
+        # dropdown option for the model label with options for models to run, function will run corresponding model
+        self.model_dropdown = ctk.CTkComboBox(self, values = ["LDA", "SVC", "Random Forest Classifier", "Tensorflow", "Decision Tree Classifier", 
+                                                              "Logistic Regression", "QDA"])
+        self.model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
+
         #labels for the data dropdown
-        Data_label = ctk.CTkLabel(self, text="Data")
+        Data_label = ctk.CTkLabel(self, text="Data File")
         Data_label.grid(row=3, column=0, padx = 10, pady=10)
+
         ## dropdown option for the data that we will run into the model. select from csvs, will be populated from directory 
-        Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
-        Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
+        self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
+        self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
+        
+        #dropdown to choose the labels
+        dataFiles.insert(0, "No Label File")
+        self.Labels_dropdown = ctk.CTkComboBox(self, values = dataFiles)
+        self.Labels_dropdown.grid(row=4, column=1, padx=10, pady=10)
+        dataFiles.pop(0)
+
+        #frame label for label dropdown
+        Label_label = ctk.CTkLabel(self, text = "Label File")
+        Label_label.grid(row=4, column=0, padx=10, pady=10)
+
         ## Creating the file name label and setting it inside of our input frame
-        txt_label = ctk.CTkLabel(self, text="File Name")
+        txt_label = ctk.CTkLabel(self, text="Output File Name")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        txt_label.grid(row=4, column=0, padx = 10, pady = 10)
+        txt_label.grid(row=5, column=0, padx = 10, pady = 10)
+
         ## Creating our textbox so user can input file name
-        txt_entry = ctk.CTkTextbox(self, height=10)
-        txt_entry.grid(row= 4, column =1, padx = 10, pady = 10)
+        txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="output.txt")
+        txt_entry.grid(row= 5, column =1, padx = 10, pady = 10)
+        self.text = txt_entry
+
+        #update the datafile list
+        update_button = ctk.CTkButton(self, text="Update File Lists", command = self.updateFiles)
+        update_button.grid(row=6, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+
         #will send the user back to the main menu
-        run_button = ctk.CTkButton(self, text="Run")
+        run_button = ctk.CTkButton(self, text="Run", command=self.model_input)
         #put button on a grid
-        run_button.grid(row=5, column=0, columnspan = 2, sticky = "news", padx=10, pady=10)
+        run_button.grid(row=7, column=0, columnspan = 2, sticky = "news", padx=10, pady=10)
+
+    def model_input(self):
+        modelSelected = self.model_dropdown.get()
+        dataSelected = self.Data_dropdown.get()
+        labelsSelected = self.Labels_dropdown.get()
+        outputFile = self.text.get()
+        print(modelSelected)
+        print(dataSelected)
+        print(labelsSelected)
+        print(outputFile)
+        self.relPath = "../BCI_Infinity/data"
+        if modelSelected == "LDA":
+            print("Time is a circle. You're your own grandpa.")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_LinearDiscriminantAnalysis(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+            
+        elif modelSelected == "SVC":
+            print("Get Vectored! *air horn noise*")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            print('going into modeling')
+            results = BCI_sklearn_SVC(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+            
+        elif modelSelected == "Tensorflow":
+            print("Tensile laminar flow")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_tensorflow_Net(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "Random Forest Classifier":
+            print("Trees are life")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_RandomForestClassifier(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "Decision Tree Classifier":
+            print("Decisions and Trees")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_DecisionTreeClassifier(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "Logistic Regression":
+            print("Logging onto the mainframe")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_LogisticRegression(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+        elif modelSelected == "QDA":
+            print("Quads for the win")
+            print("Modeling data right now. Please be patient.")
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results = BCI_sklearn_QuadraticDiscriminantAnalysis(dataArray, labelsArray)
+            print("File Output")
+            print(results)
+
+        if outputFile == "" or outputFile == " ":
+                dataName = dataSelected[:-4]
+                outputFile = modelSelected+dataName+"Output.txt"
+                f = open(self.relPath+outputFile, "a")
+                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Score: "+str(results[0])+"\n")
+                f.write("Parameters: "+str(results[1])+"\n")
+                f.close()
+                print("File Name: "+outputFile)
+        else:
+            f = open(self.relPath+outputFile, "a")
+            f.write("Model Name: "+modelSelected+"\n")
+            f.write("Score: "+str(results[0])+"\n")
+            f.write("Parameters: "+str(results[1])+"\n")
+            f.close()
+
+
+    def updateFiles(self):
+        dataFiles = os.listdir(dataPath)
+        if len(dataFiles)==0:
+            dataFiles = "No Current Files"
+            self.Data_dropdown.configure(values=dataFiles)
+            self.Labels_dropdown.configure(values=dataFiles)
+        else:
+            self.Data_dropdown.configure(values=dataFiles)
+            dataFiles.insert(0, "No Label File")
+            self.Labels_dropdown.configure(values=dataFiles)
+            dataFiles.pop(0) 
+
+    def csvProcessing(self, dataFile, labelFile):
+        if labelFile == "No Label File":
+            #do stuff like ryan.csv
+            dataTemp = "../BCI_Infinity/data/"+dataFile
+            df = pd.read_csv(dataTemp, 
+                 names=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "labels"])
+            df.dropna(inplace=True)
+            names = df["labels"].unique()
+            mapping = {}
+            count = 0
+            for x in names:
+                mapping[x] = str(count)
+                count += 1
+            df2 = df["labels"]
+            df.drop(columns=['labels'], inplace=True)
+        #if they are different files
+        else:
+            dataTemp = "../BCI_Infinity/data/"+dataFile
+            labelsTemp = "../BCI_Infinity/data/"+labelFile
+            df = pd.read_csv(dataTemp)
+            df2 = pd.read_csv(labelsTemp)
+            columnNames = list(df2.columns)
+            names = df2[columnNames[0]].unique()
+            mapping = {}
+            count = 0
+            for x in names:
+                mapping[x] = float(count)
+                count += 1
+        df2 = df2.replace(mapping)
+        df2 = df2.astype('float64')
+        dataArray = df.to_numpy()
+        labelsArray = df2.to_numpy()
+        return [dataArray, labelsArray]
 
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
