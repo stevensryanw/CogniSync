@@ -149,7 +149,7 @@ class UserRecording(ctk.CTkFrame):
         self.prompt_count = 0
         
 
-        txt_label = ctk.CTkLabel(self, text="Output File Name")
+        txt_label = ctk.CTkLabel(self, text="Movement Input")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         txt_label.grid(row=4, column=0, padx = 10, pady = 10)
 
