@@ -14,6 +14,7 @@ import threading
 import multiprocessing
 import time
 from model_bci import *
+import shutil
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -160,8 +161,18 @@ class UserRecording(ctk.CTkFrame):
         self.text_entry = txt_entry
         
         self.text_entry.bind("<KeyRelease>", self.update_movements)
+        #self.length = len(self.movements)
+        self.total_prompts = 4 * 1  # 4 movements, 40 times each
         
-        self.total_prompts = 4 * 40  # 4 movements, 40 times each
+        output_label = ctk.CTkLabel(self, text="Output file")
+        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
+        output_label.grid(row=5, column=0, padx = 10, pady = 10)
+
+        ## Creating our textbox so user can input file name
+
+        out_entry = ctk.CTkEntry(self, height=10, placeholder_text="FILE_NAME.csv",  width = 300)
+        out_entry.grid(row= 5, column =1, padx = 10, pady = 10)
+        self.file_out = out_entry
 
     
 
@@ -208,6 +219,7 @@ class UserRecording(ctk.CTkFrame):
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
+        
         if self.canvas.find_all():
             self.instructions_label.configure(text="Training canceled!")
             self.canvas.delete("all")
@@ -219,13 +231,17 @@ class UserRecording(ctk.CTkFrame):
         self.start_button.configure(state=ctk.NORMAL)
         self.stop_button.configure(state=ctk.DISABLED)
         self.instructions_label.configure(text="training completed!")
+        my_outputFile = self.file_out.get()
+        self.f = open(my_outputFile, "x")
+        shutil.copyfile("newest_rename.csv", my_outputFile)
         self.current_movement_index = 0
         self.shuffle_movements()
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
+
         if self.canvas.find_all():
-            self.instructions_label.configure(text="Training completed!")
+            self.instructions_label.configure(text="Training is completed!")
             self.canvas.delete("all")
             open('tempVal.txt', 'w').close()
 
@@ -238,7 +254,7 @@ class UserRecording(ctk.CTkFrame):
             self.canvas.delete("all")
             self.canvas.after(1000 * self.prepare_time, self.show_movement_instruction)
         else:
-            self.instructions_label.configure(text="Training completed!")
+            self.instructions_label.configure(text="Training maybe completed!")
             self.end_prompting()
             open('tempVal.txt', 'w').close()
 
@@ -246,16 +262,27 @@ class UserRecording(ctk.CTkFrame):
         if self.is_prompting:
             self.instructions_label.configure(text="Hold the movement for {} seconds".format(self.hold_time))
             self.current_movement = self.movements[self.current_movement_index]
-            open('tempVal.txt', 'w').close()
-            f = open("tempVal.txt", "a")
-            f.write(self.current_movement)
-            f.close()
-            self.canvas.create_text(100, 100, text=self.current_movement)
+            self.after(2000, self.start_writing_to_file)
+            self.after(6000, self.stop_writing_to_file)
+            self.canvas.create_text(100, 100, text=self.current_movement, font=("Helvetica", 30))
             self.canvas.after(1000 * self.hold_time, self.show_rest_period)
         else:
             open('tempVal.txt', 'w').close()
             self.instructions_label.configure(text="Training canceled!")
             self.canvas.delete("all")
+
+    def start_writing_to_file(self):
+        # Open the file for writing after 2 seconds
+        open('tempVal.txt', 'w').close()
+        f = open("tempVal.txt", "a")
+        f.write(self.current_movement)
+        f.close()
+    
+    def stop_writing_to_file(self):
+        # Close the file when the middle 7 seconds end
+        open('tempVal.txt', 'a').close()  # Make sure the file is closed
+
+    
 
     def show_rest_period(self):
         if self.is_prompting:
