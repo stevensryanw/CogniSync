@@ -377,7 +377,7 @@ class Modeling(ctk.CTkFrame):
         print(dataSelected)
         print(labelsSelected)
         print(outputFile)
-        self.relPath = "../BCI_Infinity/data"
+        self.relPath = "../BCI_Infinity/data/"
         if modelSelected == "LDA":
             print("Time is a circle. You're your own grandpa.")
             print("Modeling data right now. Please be patient.")
@@ -402,6 +402,7 @@ class Modeling(ctk.CTkFrame):
             results = BCI_tensorflow_Net(dataArray, labelsArray)
             print("File Output")
             print(results)
+
         elif modelSelected == "Random Forest Classifier":
             print("Trees are life")
             print("Modeling data right now. Please be patient.")
@@ -409,6 +410,7 @@ class Modeling(ctk.CTkFrame):
             results = BCI_sklearn_RandomForestClassifier(dataArray, labelsArray)
             print("File Output")
             print(results)
+
         elif modelSelected == "Decision Tree Classifier":
             print("Decisions and Trees")
             print("Modeling data right now. Please be patient.")
@@ -416,6 +418,7 @@ class Modeling(ctk.CTkFrame):
             results = BCI_sklearn_DecisionTreeClassifier(dataArray, labelsArray)
             print("File Output")
             print(results)
+
         elif modelSelected == "Logistic Regression":
             print("Logging onto the mainframe")
             print("Modeling data right now. Please be patient.")
@@ -423,6 +426,7 @@ class Modeling(ctk.CTkFrame):
             results = BCI_sklearn_LogisticRegression(dataArray, labelsArray)
             print("File Output")
             print(results)
+
         elif modelSelected == "QDA":
             print("Quads for the win")
             print("Modeling data right now. Please be patient.")
@@ -432,20 +436,21 @@ class Modeling(ctk.CTkFrame):
             print(results)
 
         if outputFile == "" or outputFile == " ":
-                dataName = dataSelected[:-4]
-                outputFile = modelSelected+dataName+"Output.txt"
-                f = open(self.relPath+outputFile, "a")
-                f.write("Model Name: "+modelSelected+"\n")
-                f.write("Score: "+str(results[0])+"\n")
-                f.write("Parameters: "+str(results[1])+"\n")
-                f.close()
-                print("File Name: "+outputFile)
+            dataName = dataSelected[:-4]
+            outputFile = modelSelected+dataName+"Output.txt"
+            f = open(self.relPath+outputFile, "a")
+            f.write("Model Name: "+modelSelected+"\n")
+            f.write("Score: "+str(results[0])+"\n")
+            f.write("Parameters: "+str(results[1])+"\n")
+            f.close()
+            print("File Name: "+outputFile)
         else:
             f = open(self.relPath+outputFile, "a")
             f.write("Model Name: "+modelSelected+"\n")
             f.write("Score: "+str(results[0])+"\n")
             f.write("Parameters: "+str(results[1])+"\n")
             f.close()
+            #add pkl files to here
 
 
     def updateFiles(self):

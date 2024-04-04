@@ -69,6 +69,7 @@ def BCI_sklearn_RandomForestClassifier(data, labels):
     print("Model Parameters:")
     print(parameters)
     return [score, parameters]
+
 def BCI_sklearn_DecisionTreeClassifier(data, labels):
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = DecisionTreeClassifier()

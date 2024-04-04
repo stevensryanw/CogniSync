@@ -387,14 +387,14 @@ class Modeling(ctk.CTkFrame):
             print(results)
 
         if outputFile == "" or outputFile == " ":
-                dataName = dataSelected[:-4]
-                outputFile = modelSelected+dataName+"Output.txt"
-                f = open(self.relPath+outputFile, "a")
-                f.write("Model Name: "+modelSelected+"\n")
-                f.write("Score: "+str(results[0])+"\n")
-                f.write("Parameters: "+str(results[1])+"\n")
-                f.close()
-                print("File Name: "+outputFile)
+            dataName = dataSelected[:-4]
+            outputFile = modelSelected+dataName+"Output.txt"
+            f = open(self.relPath+outputFile, "a")
+            f.write("Model Name: "+modelSelected+"\n")
+            f.write("Score: "+str(results[0])+"\n")
+            f.write("Parameters: "+str(results[1])+"\n")
+            f.close()
+            print("File Name: "+outputFile)
         else:
             f = open(self.relPath+outputFile, "a")
             f.write("Model Name: "+modelSelected+"\n")
