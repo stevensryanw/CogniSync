@@ -27,8 +27,8 @@ FOOD = "#FF0000"
 BACKGROUND = "#000000"
 
 #ensuring this is repo is here and is current cwd
-if os.path.isdir("../BCI_Infinity"):
-    pathDir = os.path.abspath("../BCI_Infinity")
+if os.path.isdir("../CogniSync"):
+    pathDir = os.path.abspath("../CogniSync")
     print(pathDir)
     while os.getcwd() != pathDir:
         print("Directory is wrong")
@@ -40,8 +40,8 @@ extraDir = "data"
 dataPath = os.path.join(pathDir, extraDir)
 print(dataPath)
 #if it does then take list of files in there
-if os.path.isdir("../BCI_Infinity/data"):
-    dataPath = os.path.abspath("../BCI_Infinity/data")
+if os.path.isdir("../CogniSync/data"):
+    dataPath = os.path.abspath("../CogniSync/data")
     dataFiles = os.listdir(dataPath)
     if len(dataFiles)==0:
         dataFiles = ["No Current Files"]
@@ -405,7 +405,7 @@ class Modeling(ctk.CTkFrame):
         print(dataSelected)
         print(labelsSelected)
         print(outputFile)
-        self.relPath = "../BCI_Infinity/data/"
+        self.relPath = "../CogniSync/data/"
         if modelSelected == "LDA":
             print("Time is a circle. You're your own grandpa.")
             print("Modeling data right now. Please be patient.")
