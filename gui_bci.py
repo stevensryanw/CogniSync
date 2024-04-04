@@ -223,8 +223,9 @@ class UserRecording(ctk.CTkFrame):
         if self.canvas.find_all():
             self.instructions_label.configure(text="Training canceled!")
             self.canvas.delete("all")
-            open('tempVal.txt', 'w').close()
-            self.stop_record()
+            #open('tempVal.txt', 'w').close()
+            
+        self.stop_record()
 
     def end_prompting(self):
         self.is_prompting = False

@@ -1,3 +1,0 @@
-Model Name: LDA
-Score: 0.6078051716786637
-Parameters: {'covariance_estimator': None, 'n_components': None, 'priors': None, 'shrinkage': None, 'solver': 'svd', 'store_covariance': False, 'tol': 0.0001}
