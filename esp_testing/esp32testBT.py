@@ -8,11 +8,11 @@ def send_command(cmd):
 
 def turn_on():
     print("Turning on")
-    send_command('on')
+    send_command('led_on')
 
 def turn_off():
     print("Turning off")
-    send_command('off')
+    send_command('led_off')
 
 root = tk.Tk()
 root.title("ESP32 LED Control")
