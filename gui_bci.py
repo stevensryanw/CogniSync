@@ -162,7 +162,7 @@ class UserRecording(ctk.CTkFrame):
         
         self.text_entry.bind("<KeyRelease>", self.update_movements)
         #self.length = len(self.movements)
-        self.total_prompts = 4 * 1  # 4 movements, 40 times each
+        self.total_prompts = 4 * 40  # 4 movements, 40 times each
         
         output_label = ctk.CTkLabel(self, text="Output file")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
