@@ -10,7 +10,7 @@ deviceM1 = 'mps'
 torch.device(deviceM1)
 
 # Lets load the data
-data_full = pd.read_csv('ryan.csv')
+data_full = pd.read_csv('../../../data/ryan2.csv')
 # First 11 columns are the data
 data = data_full.iloc[:, 0:11]
 # Last column is the category
@@ -90,5 +90,5 @@ def objective(trial):
         return accuracy
     
 # Create a study
-study = optuna.create_study(direction='maximize', study_name='pytorch_nn', storage='sqlite:///pytorch_nn.db.sqlite3', load_if_exists=True)
+study = optuna.create_study(direction='maximize', study_name='pytorch_nn_ryan2', storage='sqlite:///pytorch_nn.db.sqlite3', load_if_exists=True)
 study.optimize(objective, n_trials=100, n_jobs=1, show_progress_bar=True)

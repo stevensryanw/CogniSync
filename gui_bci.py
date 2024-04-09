@@ -15,6 +15,7 @@ import multiprocessing
 import time
 from model_bci import *
 import shutil
+import plotly.express as px
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -83,15 +84,6 @@ class App(ctk.CTk):
         frame = self.frames[cont]
         frame.tkraise()
 
-class LiveFeed(ctk.CTkFrame):
-    def __init__(self, parent, controller):
-        ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text ="Live Feed", font = LARGEFONT)
-        label.grid(row = 0, column = 4, padx = 100, pady = 10)
-        button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
-                            command = lambda : controller.show_frame(Home))
-        button1.grid(row = 1, column = 1, padx = 10, pady = 30)
-
 #first window frame startpage
 class Home(ctk.CTkFrame):
     def __init__(self, parent, controller): 
@@ -128,6 +120,57 @@ class Home(ctk.CTkFrame):
         command = lambda : controller.show_frame(USBOutput))
         #places button to switch to USB output page
         button5.grid(row=5, column=1, padx=10, pady=20)
+
+class LiveFeed(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        ctk.CTkFrame.__init__(self, parent)
+        label = ctk.CTkLabel(self, text ="Live Feed", font = LARGEFONT)
+        label.grid(row = 0, column = 4, padx = 100, pady = 10)
+        button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
+                            command = lambda : controller.show_frame(Home))
+        button1.grid(row = 1, column = 1, padx = 10, pady = 30)
+        #labels for the data dropdown
+        Data_label = ctk.CTkLabel(self, text="Data File")
+        Data_label.grid(row=3, column=0, padx = 10, pady=10)
+
+        #dropdown option for the data that we will plot in plotly
+        self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
+        self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
+
+        #button to show the eeg data with labels
+        button2 = ctk.CTkButton(self, text ="Show EEG Data",corner_radius=25, command=self.plot_eeg)
+        button2.grid(row = 4, column = 1, padx = 10, pady = 30)
+
+    def plot_eeg(self):
+        dataSelected = self.Data_dropdown.get()
+        dataPath = os.path.join(pathDir, "data", dataSelected)
+        data = pd.read_csv(dataPath)
+        data.dropna()
+        interval_default = [0, len(data)]
+        interval1 = interval_default[0]
+        interval2 = interval_default[1]
+        data = data[interval1:interval2]
+        data = data.drop(columns=data.columns[8:11])
+        temp_save = ''
+        fig = px.line(data, x=data.index, y=data.columns[0:8], title='EEG data with movement labels as vertical bars')
+        fig.update_layout(legend_title_text='Channels')
+        legend = {'0.0': 'Channel 1', '0.0.1': 'Channel 2', '0.0.2': 'Channel 3', '0.0.3': 'Channel 4', '0.0.4': 'Channel 5', '0.0.5': 'Channel 6', '0.0.6': 'Channel 7', '0.0.7': 'Channel 8'}
+        fig.for_each_trace(lambda t: t.update(name=legend[t.name]))
+
+        #lets add vertical colored bars for the first of each movement sample
+        #legend2 = {'Move Left Arm': 'red', 'Move Right Arm': 'blue', 'Move Legs': 'green', 'Jaw Clench': 'purple'} 
+        legend2 = {'left arm': 'red', ' right arm': 'blue', ' legs': 'green', ' jaw': 'purple'} 
+        
+        #lets add legend2 to the plot
+        fig.update_layout(showlegend=True)
+
+        for i in range(interval1, interval2):
+            if data.iloc[i, 8] != 'norm' and data.iloc[i, 8] != temp_save:
+                temp_save = data.iloc[i, 8]
+                fig.add_vline(x=i, line_dash='dash', line_color=legend2[data.iloc[i, 8]])
+                #print(move_colors[ryan_test.iloc[i, 8]])
+        print(legend2)
+        fig.show()
 
 #third window frame page2
 class UserRecording(ctk.CTkFrame): 
