@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageTk
 from functools import partial
-from snake import EmbeddedGameWindow
+from snake import *
 import random
 from pyOpenBCI import OpenBCICyton
 from pylsl import StreamInfo, StreamOutlet
@@ -16,12 +16,14 @@ import time
 from model_bci import *
 import shutil
 import plotly.express as px
+import wheelchairController as wcc
+import joblib
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
 HEIGHT = 500
 SPEED = 200
-SPACE_SIZE = 50
+SPACE_SIZE = 20
 BODY_SIZE = 1
 SNAKE = "#00FF00"
 FOOD = "#FF0000"
@@ -39,6 +41,7 @@ if os.path.isdir("../CogniSync"):
 parentDir = pathDir+"/"
 extraDir = "data"
 dataPath = os.path.join(pathDir, extraDir)
+modelPath = os.path.join(pathDir, "models")
 print(dataPath)
 #if it does then take list of files in there
 if os.path.isdir("../CogniSync/data"):
@@ -50,6 +53,18 @@ if os.path.isdir("../CogniSync/data"):
 else:
     os.mkdir(dataPath)
     dataFiles = ["No Current Files"]
+#will do a similar thing to data later just making it the same as data for now
+print(modelPath)
+#if it does then take list of files in there
+if os.path.isdir("../CogniSync/models"):
+    modelPath = os.path.abspath("../CogniSync/models")
+    modelFiles = os.listdir(modelPath)
+    if len(modelFiles)==0:
+        modelFiles = ["No Current Files"]
+#if not then create and give the string no files currently
+else:
+    os.mkdir(dataPath)
+    modelFiles = ["No Current Files"]
 
 #make background gray
 ctk.set_appearance_mode("dark")
@@ -573,14 +588,106 @@ class Modeling(ctk.CTkFrame):
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+    
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25, 
                             command = lambda : controller.show_frame(Home))
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
+        
         label = ctk.CTkLabel(self, text ="Snake Game", font = LARGEFONT)
         label.grid(row = 0, column = 2, padx = 50, pady = 10)
-        self.game_frame = EmbeddedGameWindow(self, 260, 260)
-        self.game_frame.grid(row=1, column=2, padx=10, pady=10)
-        #frame2.update()
+
+        button2 = ctk.CTkButton(self, text = 'Snake Begin', corner_radius = 25, command = self.drawFrame)
+        button2.grid(row = 2, column = 1, padx = 10, pady = 10)
+        global active
+    def drawFrame(self):
+        global canvas
+        global snake
+        global g_food
+        global active
+        global pointCount
+        active = True
+        canvas = ctk.CTkCanvas(self, bg='black', height=260, width=260)
+        canvas.grid(row=2, column=2, padx=10, pady=10)
+        pointCount = ctk.CTkLabel(self, text="Points: {}".format(score), font=LARGEFONT)
+        pointCount.grid(row=1, column=2, padx=10, pady=10)
+        snake = Snake(canvas)
+        g_food = Food(canvas)
+        root = SnakeGame
+        app.bind('<Left>', lambda event: self.move("left", snake, g_food, root, canvas))
+        app.bind('<Right>', lambda event: self.move("right", snake, g_food, root, canvas))
+        app.bind('<Up>', lambda event: self.move("up", snake, g_food, root, canvas))
+        app.bind('<Down>', lambda event: self.move("down", snake, g_food, root, canvas))
+        app.bind('<space>', lambda event: self.game_over())
+
+#snake stuff copied over look over to make sure it creates everything
+    def move(self, direction, snake, g_food, root, canvas):
+        #print("move")
+        global active
+        if active:
+            self.change_direction(direction)
+            self.next_turn(snake, g_food, root, canvas) 
+
+    def game_over(self):
+        global active
+        active = False
+        canvas.delete(ALL)
+        canvas.create_text(canvas.winfo_width() / 2, canvas.winfo_height() / 2, font=('consolas', 30), 
+                           text="GAME OVER", fill="red", tag="gameover")
+        
+    def change_direction(self, new_direction):
+        global direction
+        if new_direction == 'left':
+            # if direction != 'right':
+            direction = new_direction
+        elif new_direction == 'right':
+            # if direction != 'left':
+            direction = new_direction
+        elif new_direction == 'up':
+            # if direction != 'down':
+            direction = new_direction
+        elif new_direction == 'down':
+            # if direction != 'up':
+            direction = new_direction
+
+    def check_collisions(self, coordinates):
+        x, y = coordinates
+
+        if x < 0 or x >= WIDTH-2:
+            return True
+        elif y < 0 or y >= HEIGHT-2:
+            return True
+        return False
+
+    def next_turn(self, snake, food, root, canvas):
+        if active:
+            global direction
+            x, y = snake.coordinates[0]
+            if direction == "up":
+                y -= SPACE_SIZE
+            elif direction == "down":
+                y += SPACE_SIZE
+            elif direction == "left":
+                x -= SPACE_SIZE
+            elif direction == "right":
+                x += SPACE_SIZE
+            if check_collisions((x,y)):
+                direction = "collision"
+            else:
+                snake.coordinates.insert(0, (x, y))
+                square = snake.canvas.create_rectangle(
+                    x, y, x + SPACE_SIZE,
+                            y + SPACE_SIZE, fill=SNAKE)
+                snake.squares.insert(0, square)
+                if x == food.coordinates[0] and y == food.coordinates[1]:
+                    global score
+                    global g_food
+                    score += 1
+                    pointCount.configure(text="Points: {}".format(score))
+                    snake.canvas.delete("food")
+                    g_food = Food(canvas)
+                del snake.coordinates[-1]
+                snake.canvas.delete(snake.squares[-1])
+                del snake.squares[-1]
 
 #second window frame page1 
 class USBOutput(ctk.CTkFrame):
@@ -591,6 +698,59 @@ class USBOutput(ctk.CTkFrame):
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
+        buttonForeward = ctk.CTkButton(self, text ="Forward",
+                            command = lambda : wcc.motorForward())
+        buttonForeward.grid(row = 2, column = 4, pady = 12)
+        buttonLeft = ctk.CTkButton(self, text ="Left",
+                            command = lambda : wcc.turnLeft())
+        buttonLeft.grid(row = 3, column = 3)
+        buttonStop = ctk.CTkButton(self, text ="Stop",
+                            command = lambda : wcc.motorStop())
+        buttonStop.grid(row = 3, column = 4, pady = 12)
+        buttonRight = ctk.CTkButton(self, text ="Right",
+                            command = lambda : wcc.turnRight())
+        buttonRight.grid(row = 3, column = 5)
+        buttonBackward = ctk.CTkButton(self, text ="Backward",
+                            command = lambda : wcc.motorBackward())
+        buttonBackward.grid(row = 4, column = 4, pady = 12)
+
+        #dropbox for models        
+        self.modelDropdown = ctk.CTkComboBox(self, values = modelFiles)
+        self.modelDropdown.grid(row=5, column = 1, padx=10, pady=10)
+        #update the model list
+        update_button = ctk.CTkButton(self, text="Update Model Lists", command = self.updateFiles)
+        update_button.grid(row=6, column=1, columnspan=1, sticky="news", padx=10, pady=10)
+        #button for model selection
+        self.selectButton = ctk.CTkButton(self, text="Select Model", command = self.modelSelection)
+        self.selectButton.grid(row=7, column=1, padx=10, pady=10)
+
+        self.model = False
+        self.update()
+
+        self.bind('<Left>', lambda event: wcc.turnLeft())
+        self.bind('<Right>', lambda event: wcc.turnRight())
+        self.bind('<Up>', lambda event: wcc.motorForward())
+        self.bind('<Down>', lambda event: wcc.motorBackward())
+        self.bind('<space>', lambda event: wcc.motorStop())
+
+    
+    #update list of models
+    def updateFiles(self):
+        modelFiles = os.listdir(modelPath)
+        if len(modelFiles)==0:
+            modelFiles = "No Current Files"
+            self.modelDropdown.configure(values=modelFiles)
+        else:
+            self.modelDropdown.configure(values=modelFiles)
+    def modelSelection(self):
+        modelSelected = self.modelDropdown.get()
+        print(modelSelected[-3:])
+        if modelSelected[-3:] == "pkl":
+            self.model = joblib.load(modelPath+"/"+modelSelected)
+        else:
+            self.model = False
+        
+
 
 score = 0
 direction = 'down'
