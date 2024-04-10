@@ -1,12 +1,8 @@
 #Script for gui_bci to model data in the gui, using our own models
-from models.bci_sklearn import *
-#from models.bci_pytorch import *
-from models.bci_tensorflow import *
-# from models.bci_tensorflow import *
 import numpy as np
 from sklearn.metrics import accuracy_score
-import tensorflow as tf
-from tensorflow import keras
+#import tensorflow as tf
+#from tensorflow import keras
 import time
 from sklearn.model_selection import GridSearchCV
 from sklearn.covariance import EmpiricalCovariance
