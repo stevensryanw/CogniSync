@@ -414,7 +414,8 @@ class Modeling(ctk.CTkFrame):
         
         # dropdown option for the model label with options for models to run, function will run corresponding model
         self.model_dropdown = ctk.CTkComboBox(self, values = ["LDA", "SVC", "Random Forest Classifier", "Tensorflow", "Decision Tree Classifier", 
-                                                              "Logistic Regression", "QDA"])
+                                                              "Logistic Regression", "QDA", "Gradient Boosting Classifier", "KNN", 
+                                                              "Gaussian NB", "MLP Classifier"])
         self.model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
 
         #labels for the data dropdown
@@ -471,6 +472,42 @@ class Modeling(ctk.CTkFrame):
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_LinearDiscriminantAnalysis(dataArray, labelsArray)
+
+        elif modelSelected == "Gradient Boosting Classifier":
+            phrase = ctk.CTkLabel(self, text="Booster rockets deployed", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            print('going into modeling')
+            results = BCI_sklearn_GradientBoostingClassifier(dataArray, labelsArray)
+
+        elif modelSelected == "KNN":
+            phrase = ctk.CTkLabel(self, text="Apartment complex", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            print('going into modeling')
+            results = BCI_sklearn_KNeighborsClassifier(dataArray, labelsArray)
+
+        elif modelSelected == "Gaussian NB":
+            phrase = ctk.CTkLabel(self, text="Math GOAT", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            print('going into modeling')
+            results = BCI_sklearn_GaussianNB(dataArray, labelsArray)
+
+        elif modelSelected == "MLP Classifier":
+            phrase = ctk.CTkLabel(self, text="Let's go dodgers, Let's go", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            print('going into modeling')
+            results = BCI_sklearn_MLPClassifier(dataArray, labelsArray)
 
         elif modelSelected == "SVC":
             phrase = ctk.CTkLabel(self, text="Get Vectored! *air horn noise*", font=("Verdana", 18))
