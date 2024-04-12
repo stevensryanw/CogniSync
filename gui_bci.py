@@ -465,78 +465,95 @@ class Modeling(ctk.CTkFrame):
         print(outputFile)
         self.relPath = "../CogniSync/data/"
         if modelSelected == "LDA":
-            print("Time is a circle. You're your own grandpa.")
-            print("Modeling data right now. Please be patient.")
+            phrase = ctk.CTkLabel(self, text="Time is a circle. You're your own grandpa.", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_LinearDiscriminantAnalysis(dataArray, labelsArray)
-            print("File Output")
-            print(results)
-            
+
         elif modelSelected == "SVC":
-            print("Get Vectored! *air horn noise*")
-            print("Modeling data right now. Please be patient.")
+            phrase = ctk.CTkLabel(self, text="Get Vectored! *air horn noise*", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_SVC(dataArray, labelsArray)
-            print("File Output")
-            print(results)
             
         elif modelSelected == "Tensorflow":
-            print("Tensile laminar flow")
-            print("Modeling data right now. Please be patient.")
+            phrase = ctk.CTkLabel(self, text="Tensions between people flow to others.", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_tensorflow_Net(dataArray, labelsArray)
-            print("File Output")
-            print(results)
 
         elif modelSelected == "Random Forest Classifier":
-            print("Trees are life")
-            print("Modeling data right now. Please be patient.")
+            phrase = ctk.CTkLabel(self, text="Trees are the breath of life", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_RandomForestClassifier(dataArray, labelsArray)
-            print("File Output")
-            print(results)
 
         elif modelSelected == "Decision Tree Classifier":
-            print("Decisions and Trees")
-            print("Modeling data right now. Please be patient.")
+            phrase = ctk.CTkLabel(self, text="Decisions and Trees", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_DecisionTreeClassifier(dataArray, labelsArray)
-            print("File Output")
-            print(results)
 
         elif modelSelected == "Logistic Regression":
-            print("Logging onto the mainframe")
-            print("Modeling data right now. Please be patient.")
+            phrase = ctk.CTkLabel(self, text="Logging onto the mainframe", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_LogisticRegression(dataArray, labelsArray)
-            print("File Output")
-            print(results)
 
         elif modelSelected == "QDA":
-            print("Quads for the win")
-            print("Modeling data right now. Please be patient.")
+            phrase = ctk.CTkLabel(self, text="Quads for the win", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_QuadraticDiscriminantAnalysis(dataArray, labelsArray)
-            print("File Output")
-            print(results)
 
-        if outputFile == "" or outputFile == " ":
-            dataName = dataSelected[:-4]
-            outputFile = modelSelected+dataName+"Output.txt"
-            f = open(self.relPath+outputFile, "a")
-            f.write("Model Name: "+modelSelected+"\n")
-            f.write("Score: "+str(results[0])+"\n")
-            f.write("Parameters: "+str(results[1])+"\n")
-            f.close()
-            print("File Name: "+outputFile)
+        if modelSelected == "Tensorflow":
+            waitLabel.configure(text="Results")
+            metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f}".format(results[0]), font=("Verdana", 18))
+            metrics.grid(row=4, column=3, padx=10, pady=10)
+            nodes = ctk.CTkLabel(self, text=results[1], font=("Verdana", 18))
+            nodes.grid(row=5, column=3, padx=10, pady=10)
+            if outputFile == "" or outputFile == " ":
+                dataName = dataSelected[:-4]
+                outputFile = modelSelected+dataName+"Output.txt"
+                f = open(self.relPath+outputFile, "a")
+                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Score: "+str(results[0])+"\n")
+                f.write("Parameters: "+str(results[1])+"\n")
+                f.close()
+                print("File Name: "+outputFile)
+            else:
+                f = open(self.relPath+outputFile, "a")
+                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Score: "+str(results[0])+"\n")
+                f.write("Parameters: "+str(results[1])+"\n")
+                f.close()
         else:
-            f = open(self.relPath+outputFile, "a")
-            f.write("Model Name: "+modelSelected+"\n")
-            f.write("Score: "+str(results[0])+"\n")
-            f.write("Parameters: "+str(results[1])+"\n")
-            f.close()
-            #add pkl files to here
+            waitLabel.configure(text="Results")
+            metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
+                results[0], results[1], results[2], results[3]), font=("Verdana", 18))
+            metrics.grid(row=4, column=3, padx=10, pady=10)
+            if outputFile == "" or outputFile == " ":
+                dataName = dataSelected[:-4]
+                outputFile = modelSelected+dataName+"Fitted.pkl"
+                joblib.dump(results[4], modelPath+"/"+outputFile)
+                print("File Name: "+outputFile)
+            else:
+                joblib.dump(results[4], modelPath+"/"+outputFile)
 
 
     def updateFiles(self):
@@ -554,7 +571,7 @@ class Modeling(ctk.CTkFrame):
     def csvProcessing(self, dataFile, labelFile):
         if labelFile == "No Label File":
             #do stuff like ryan.csv
-            dataTemp = "../BCI_Infinity/data/"+dataFile
+            dataTemp = dataPath+"/"+dataFile
             df = pd.read_csv(dataTemp, 
                  names=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "labels"])
             df.dropna(inplace=True)
@@ -568,8 +585,8 @@ class Modeling(ctk.CTkFrame):
             df.drop(columns=['labels'], inplace=True)
         #if they are different files
         else:
-            dataTemp = "../BCI_Infinity/data/"+dataFile
-            labelsTemp = "../BCI_Infinity/data/"+labelFile
+            dataTemp = dataPath+"/"+dataFile
+            labelsTemp = dataPath+"/"+labelFile
             df = pd.read_csv(dataTemp)
             df2 = pd.read_csv(labelsTemp)
             columnNames = list(df2.columns)
@@ -606,6 +623,7 @@ class SnakeGame(ctk.CTkFrame):
         global active
         global pointCount
         active = True
+        score = 0
         canvas = ctk.CTkCanvas(self, bg='black', height=260, width=260)
         canvas.grid(row=2, column=2, padx=10, pady=10)
         pointCount = ctk.CTkLabel(self, text="Points: {}".format(score), font=LARGEFONT)
