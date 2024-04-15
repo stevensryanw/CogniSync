@@ -3,10 +3,10 @@ numpy
 matplotlib
 customtkinter
 scikit-learn
-tensorflow
 pyOpenBCI
 pylsl
 pyserial
+plotly
 xmltodict
 requests
 

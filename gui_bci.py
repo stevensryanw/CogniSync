@@ -105,7 +105,7 @@ class Home(ctk.CTkFrame):
     def __init__(self, parent, controller): 
         ctk.CTkFrame.__init__(self, parent)
         # label of frame Layout 2
-        label = ctk.CTkLabel(self, text ="BCI Infinty", font = LARGEFONT)
+        label = ctk.CTkLabel(self, text ="CogniSync", font = LARGEFONT)
         # putting the grid in its place by using
         # grid
         label.grid(row = 0, column = 4, padx = 100, pady = 10) 

@@ -3,14 +3,16 @@ import numpy as np
 import time
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import precision_score, recall_score, f1_score
 import torch
 import optuna
+import sqlite3
 
 deviceM1 = 'cuda'
 torch.device(deviceM1)
 
 # Lets load the data
-data_full = pd.read_csv('ryan.csv')
+data_full = pd.read_csv('/BCI_Infinity/data/ryan2.csv')
 # First 11 columns are the data
 data = data_full.iloc[:, 0:11]
 # Last column is the category
@@ -96,8 +98,42 @@ def objective(trial):
         y_pred = model(X_test)
         loss = loss_fn(y_pred, y_test)
         accuracy = (y_pred.argmax(dim=1) == y_test).float().mean()
+        y_pred_labels = y_pred.argmax(dim=1).cpu().numpy()
+        y_test_labels = y_test.cpu().numpy()
+        precision = precision_score(y_test_labels, y_pred_labels, average='macro')
+        recall = recall_score(y_test_labels, y_pred_labels, average='macro')
+        f1 = f1_score(y_test_labels, y_pred_labels, average='macro')
+        
+        # Update the study's best trial with metrics
+        trial.set_user_attr('precision', precision)
+        trial.set_user_attr('recall', recall)
+        trial.set_user_attr('f1', f1)
+        
         return accuracy
     
 # Create a study
-study = optuna.create_study(direction='maximize', study_name='pytorch_nn', storage='sqlite:///pytorch_nn.db.sqlite3', load_if_exists=True)
+study = optuna.create_study(direction='maximize', study_name='pytorch_nn_ryan2', storage='sqlite:///pytorch_nn.db.sqlite3', load_if_exists=True)
 study.optimize(objective, n_trials=100, n_jobs=1, show_progress_bar=True)
+
+# Connect to the SQLite3 database
+conn = sqlite3.connect('pytorch_nn.db.sqlite3')
+cursor = conn.cursor()
+
+# Create a table to store the metrics
+cursor.execute('''CREATE TABLE IF NOT EXISTS metrics
+                  (trial_number INTEGER PRIMARY KEY,
+                  precision REAL,
+                  recall REAL,
+                  f1 REAL)''')
+
+# Insert the metrics for each trial into the table
+for trial in study.trials:
+    trial_number = trial.number
+    precision = trial.user_attrs['precision']
+    recall = trial.user_attrs['recall']
+    f1 = trial.user_attrs['f1']
+    cursor.execute("INSERT INTO metrics VALUES (?, ?, ?, ?)", (trial_number, precision, recall, f1))
+
+# Commit the changes and close the connection
+conn.commit()
+conn.close()
