@@ -1,14 +1,17 @@
 pandas
 numpy
-matplotlib
 customtkinter
 scikit-learn
-tensorflow
 pyOpenBCI
 pylsl
 pyserial
+plotly
 xmltodict
 requests
+keras
+torch
+torchvision
+torchaudio
 
 #May need to reinstall python-tk to run gui
 #sudo apt-get install python3-tk
