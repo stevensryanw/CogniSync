@@ -4,8 +4,7 @@ WiFiClient client;
 WiFiServer server(80);
 
 /* WIFI settings */
-const char* ssid = "ATTReSeVbA";
-const char* password = "#wzuasidy+?2";
+const char* ssid = "tulane";
 
 /* data received from application */
 String  data =""; 
@@ -131,7 +130,7 @@ String checkClient (void)
 void connectWiFi()
 {
   Serial.println("Connecting to WIFI");
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid);
   while ((!(WiFi.status() == WL_CONNECTED)))
   {
     digitalWrite(LED_BUILTIN, HIGH);// turn the LED on (HIGH is the voltage level)
