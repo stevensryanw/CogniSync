@@ -311,11 +311,13 @@ class UserRecording(ctk.CTkFrame):
         self.hold_time = 10
         self.rest_time = 10
         self.movements = []
+        self.default_movements = ["arms","legs","jaw","eyes"]
         self.n_movements = []
         self.shuffle_movements()
         self.current_movement_index = 0
         self.current_movement = None
         self.prompt_count = 0
+        self.movement_activated = 0
         
 
         txt_label = ctk.CTkLabel(self, text="Movement Input")
@@ -327,11 +329,29 @@ class UserRecording(ctk.CTkFrame):
         txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="ENTER MOVEMENTS SEPERATED BY COMMA",  width = 300)
         txt_entry.grid(row= 4, column =1, padx = 10, pady = 10)
         self.text_entry = txt_entry
-        
+
+        mvmt_count_label = ctk.CTkLabel(self, text="Number of movements")
+        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
+        mvmt_count_label.grid(row=6, column=0, padx = 10, pady = 10)
+
+        mvmt_count = ctk.CTkEntry(self, height=10, placeholder_text="ENTER NUMBER OF MOVEMENTS AS INTEGER",  width = 300)
+        mvmt_count.grid(row= 6, column =1, padx = 10, pady = 10)
+        self.mvmt_count = mvmt_count
+
+        iter_count_label = ctk.CTkLabel(self, text="Number of Iterations")
+        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
+        iter_count_label.grid(row=7, column=0, padx = 10, pady = 10)
+
+        iter_count = ctk.CTkEntry(self, height=10, placeholder_text="NUMBER OF ITERATIONS PER MOVE",  width = 300)
+        iter_count.grid(row= 7, column =1, padx = 10, pady = 10)
+        self.iter_count = iter_count
+
+
+        self.iter_count.bind("<KeyRelease>", self.update_movements)
+        self.mvmt_count.bind("<KeyRelease>", self.update_movements)
         self.text_entry.bind("<KeyRelease>", self.update_movements)
         #self.length = len(self.movements)
         self.total_prompts = 4 * 40  # 4 movements, 40 times each
-        
         output_label = ctk.CTkLabel(self, text="Output file")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         output_label.grid(row=5, column=0, padx = 10, pady = 10)
@@ -346,26 +366,32 @@ class UserRecording(ctk.CTkFrame):
 
 
 
-        self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=25, command=self.start_prompting)
-        self.start_button.grid(row=2, column = 1, padx = 10, pady=30)
-        self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=25,
+        self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=10, command=self.start_prompting)
+        self.start_button.grid(row=2, column = 1, padx = 10, pady=0)
+        self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=10,
                             command = lambda : controller.show_frame(Home))
-        self.home_button.grid(row = 1, column = 1, padx = 10, pady = 30)
+        self.home_button.grid(row = 1, column = 1, padx = 10, pady = 0)
         #data collection buttons
         #Begin collection (currently doing nothing)
         #Stop data collection
-        self.stop_button = ctk.CTkButton(self, text="Stop Collecting", corner_radius=25, command=self.stop_prompting)
-        self.stop_button.grid(row=3, column=1, padx=10, pady=30)
+        self.stop_button = ctk.CTkButton(self, text="Stop Collecting", corner_radius=10, command=self.stop_prompting)
+        self.stop_button.grid(row=3, column=1, padx=10, pady=0)
         self.is_prompting = False  # Flag to check if prompting is in progress
         self.step_start_time = 0
         self.record_thread = None
 
 
     def update_movements(self, event):
+        self.movement_activated = 1
         # Get the text entered by the user
         movements_text = self.text_entry.get()
+        
         # Update the movements array
-        self.movements = movements_text.split(",")
+        if not movements_text.strip():
+            
+            self.movements = self.default_movements
+        else:
+            self.movements = movements_text.split(",")
 
 
     def start_prompting(self):
@@ -374,6 +400,9 @@ class UserRecording(ctk.CTkFrame):
         self.is_prompting = True
         self.prompt_next_movement()
         self.start_record()
+        self.total_prompts = int(self.iter_count.get()) * int(self.mvmt_count.get())
+        if not self.total_prompts:
+            self.total_prompts = 4*40
         #Allow stream to start before prompting
         time.sleep(15)
 
@@ -401,6 +430,10 @@ class UserRecording(ctk.CTkFrame):
         self.stop_button.configure(state=ctk.DISABLED)
         self.instructions_label.configure(text="training completed!")
         my_outputFile = self.file_out.get()
+        if not my_outputFile:
+            my_outputFile = "YOUR_DATA.csv"
+        elif not my_outputFile.strip():
+            my_outputFile = "YOUR_DATA.csv"
         self.f = open(my_outputFile, "x")
         shutil.copyfile("newest_rename.csv", my_outputFile)
         self.current_movement_index = 0
@@ -430,6 +463,8 @@ class UserRecording(ctk.CTkFrame):
     def show_movement_instruction(self):
         if self.is_prompting:
             self.instructions_label.configure(text="Hold the movement for {} seconds".format(self.hold_time))
+            if self.movement_activated == 0:
+                self.movements = self.default_movements
             self.current_movement = self.movements[self.current_movement_index]
             self.after(2000, self.start_writing_to_file)
             self.after(6000, self.stop_writing_to_file)
