@@ -140,39 +140,39 @@ def BCI_sklearn_QuadraticDiscriminantAnalysis(data, labels):
 #     return BCI_pytorch(model, data, labels)
 
 #Tensorflow models
-# def BCI_tensorflow_Net(data, labels):
-#     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
-#     model = keras.Sequential([
-#     keras.layers.Input(shape=(11,)),  # Adjust the input shape based on your data
-#     keras.layers.Dense(64, activation='relu'),
-#     keras.layers.Dense(32, activation='relu'),
-#     keras.layers.Dense(1, activation='sigmoid')  # Output layer with sigmoid activation for binary classification
-#     ])
-#     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-#     history = model.fit(trainData, trainLabel, epochs=10, batch_size=32)
-#     trainPred = model.predict(trainData)
-#     correctTrain = 0
-#     for i in range(len(trainPred)):
-#         if trainPred[i] >= 0.5 and trainLabel[i] == 1:
-#             correctTrain += 1
-#         elif trainPred[i] < 0.5 and trainLabel[i] == 0:
-#             correctTrain += 1
-#         else:
-#             continue
-#     print('Training accuracy:', correctTrain/len(trainPred))
-#     testPred = model.predict(testData)
-#     correctTest = 0
-#     for i in range(len(testPred)):
-#         if testPred[i] >= 0.5 and testLabel[i] == 1:
-#             correctTest += 1
-#         elif testPred[i] < 0.5 and testLabel[i] == 0:
-#             correctTest += 1
-#         else:
-#             continue
-#     print('Test accuracy:', correctTest/len(testPred))
-#     score = correctTest/len(testPred)
-#     parameters = {"Type": "Sequential", "Node 1":"Dense, 64, relu", "Node 2":"Dense, 32, relu", "Node 3":"Dense, 1, sigmoid"}
-#     return [score, parameters]
+def BCI_tensorflow_Net(data, labels):
+    trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+    model = keras.Sequential([
+    keras.layers.Input(shape=(11,)),  # Adjust the input shape based on your data
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(32, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')  # Output layer with sigmoid activation for binary classification
+    ])
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    history = model.fit(trainData, trainLabel, epochs=10, batch_size=32)
+    trainPred = model.predict(trainData)
+    correctTrain = 0
+    for i in range(len(trainPred)):
+        if trainPred[i] >= 0.5 and trainLabel[i] == 1:
+            correctTrain += 1
+        elif trainPred[i] < 0.5 and trainLabel[i] == 0:
+            correctTrain += 1
+        else:
+            continue
+    print('Training accuracy:', correctTrain/len(trainPred))
+    testPred = model.predict(testData)
+    correctTest = 0
+    for i in range(len(testPred)):
+        if testPred[i] >= 0.5 and testLabel[i] == 1:
+            correctTest += 1
+        elif testPred[i] < 0.5 and testLabel[i] == 0:
+            correctTest += 1
+        else:
+            continue
+    print('Test accuracy:', correctTest/len(testPred))
+    score = correctTest/len(testPred)
+    parameters = {"Type": "Sequential", "Node 1":"Dense, 64, relu", "Node 2":"Dense, 32, relu", "Node 3":"Dense, 1, sigmoid"}
+    return [score, parameters] 
 
 def scoring(model, x, y):
     preds = model.predict(x)
