@@ -29,7 +29,6 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.metrics import confusion_matrix, classification_report
-import keras
 
 #Sklearn models
 def BCI_sklearn_SVC(data, labels):
