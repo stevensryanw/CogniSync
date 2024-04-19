@@ -86,7 +86,7 @@ class App(ctk.CTk):
         # iterating through a tuple consisting
         # of the different page layouts
         #if a page is added it needs to be placed here
-        for F in (Home, LiveFeed, UserRecording, Modeling, SnakeGame, USBOutput):
+        for F in (Home, PlotEEG, UserRecording, Modeling, SnakeGame, USBOutput):
             frame = F(container, self)
             # initializing frame of that object from
             # startpage, page1, page2 respectively with 
@@ -109,8 +109,8 @@ class Home(ctk.CTkFrame):
         # putting the grid in its place by using
         # grid
         label.grid(row = 0, column = 4, padx = 100, pady = 10) 
-        button1 = ctk.CTkButton(self, text ="Live Feed",corner_radius=25, 
-        command = lambda : controller.show_frame(LiveFeed))
+        button1 = ctk.CTkButton(self, text ="Plot EEG Data",corner_radius=25, 
+        command = lambda : controller.show_frame(PlotEEG))
         # putting the button in its place by
         # using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 20)
@@ -137,10 +137,11 @@ class Home(ctk.CTkFrame):
         #places button to switch to USB output page
         button5.grid(row=5, column=1, padx=10, pady=20)
 
-class LiveFeed(ctk.CTkFrame):
+'''Page for user to plot data with movements'''
+class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text ="Live Feed", font = LARGEFONT)
+        label = ctk.CTkLabel(self, text ="Plotting EEG Data", font = LARGEFONT)
         label.grid(row = 0, column = 4, padx = 100, pady = 10)
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
@@ -345,7 +346,7 @@ class LiveFeed(ctk.CTkFrame):
         print(legend2)
         fig.show()
 
-#third window frame page2
+'''Page for user recording data for training the model'''
 class UserRecording(ctk.CTkFrame): 
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -403,17 +404,10 @@ class UserRecording(ctk.CTkFrame):
         output_label = ctk.CTkLabel(self, text="Output file")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         output_label.grid(row=5, column=0, padx = 10, pady = 10)
-
         ## Creating our textbox so user can input file name
-
         out_entry = ctk.CTkEntry(self, height=10, placeholder_text="FILE_NAME.csv",  width = 300)
         out_entry.grid(row= 5, column =1, padx = 10, pady = 10)
         self.file_out = out_entry
-
-    
-
-
-
         self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=10, command=self.start_prompting)
         self.start_button.grid(row=2, column = 1, padx = 10, pady=0)
         self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=10,
@@ -428,7 +422,6 @@ class UserRecording(ctk.CTkFrame):
         self.step_start_time = 0
         self.record_thread = None
 
-
     def update_movements(self, event):
         self.movement_activated = 1
         # Get the text entered by the user
@@ -440,7 +433,6 @@ class UserRecording(ctk.CTkFrame):
             self.movements = self.default_movements
         else:
             self.movements = movements_text.split(",")
-
 
     def start_prompting(self):
         self.start_button.configure(state=ctk.DISABLED)
@@ -534,8 +526,6 @@ class UserRecording(ctk.CTkFrame):
         # Close the file when the middle 7 seconds end
         open('tempVal.txt', 'a').close()  # Make sure the file is closed
 
-    
-
     def show_rest_period(self):
         if self.is_prompting:
             self.instructions_label.configure(text="Rest for {} seconds".format(self.rest_time))
@@ -589,6 +579,7 @@ class UserRecording(ctk.CTkFrame):
         file_out.close()
 
 #Page 3: Model Selection, Data Input, Training, and Testing, and Result Visualization
+'''Page for user to select model, data, and labels for training and testing.'''
 class Modeling(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -608,7 +599,7 @@ class Modeling(ctk.CTkFrame):
         # dropdown option for the model label with options for models to run, function will run corresponding model
         self.model_dropdown = ctk.CTkOptionMenu(self, values = ["LDA", "SVC", "Random Forest Classifier", "Tensorflow", "Decision Tree Classifier", 
                                                               "Logistic Regression", "QDA", "Gradient Boosting Classifier", "KNN", 
-                                                              "Gaussian NB", "MLP Classifier"])
+                                                              "Gaussian NB", "MLP Classifier", "PyTorch"])
         self.model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
 
         #labels for the data dropdown
@@ -761,6 +752,14 @@ class Modeling(ctk.CTkFrame):
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_QuadraticDiscriminantAnalysis(dataArray, labelsArray)
 
+        elif modelSelected == "PyTorch":
+            phrase = ctk.CTkLabel(self, text="Torching the competition", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results, model = BCI_pytorch_Net(dataArray, labelsArray)
+
         if modelSelected == "Tensorflow":
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f}".format(results[0]), font=("Verdana", 18))
@@ -782,6 +781,24 @@ class Modeling(ctk.CTkFrame):
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
+        elif modelSelected == "PyTorch":
+            #We need to do the same thing as the else but instead of saving to .pkl it should be a .pt
+            waitLabel.configure(text="Results")
+            metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
+                results[0], results[1], results[2], results[3]), font=("Verdana", 18))
+            metrics.grid(row=4, column=3, padx=10, pady=10)
+            if outputFile == "" or outputFile == " ":
+                dataName = dataSelected[:-4]
+                outputFile = modelSelected+dataName+"Output.txt"
+                f = open(modelPath+'/'+outputFile, "w")
+                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Score: "+str(results[0])+"\n")
+                f.write("F1 Score: "+str(results[1])+"\n")
+                f.write("Precision: "+str(results[2])+"\n")
+                f.write("Recall: "+str(results[3])+"\n")
+                f.close()
+                print("File Name: "+outputFile)
+                torch.save(model, modelPath+'/'+modelSelected+dataName+"Fitted.pt")
         else:
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
@@ -852,6 +869,7 @@ class Modeling(ctk.CTkFrame):
         labelsArray = df2.to_numpy()
         return [dataArray, labelsArray]
 
+'''Page for Snake Game'''
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -973,7 +991,7 @@ class SnakeGame(ctk.CTkFrame):
                 snake.canvas.delete(snake.squares[-1])
                 del snake.squares[-1]
 
-#second window frame page1 
+'''Page for USB Output (Robotic Wheelchair)'''
 class USBOutput(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -1042,7 +1060,7 @@ direction = 'down'
 # Driver Code
 app = App()
 #setting window size by pixels "width x height"
-app.geometry("800x700")
+app.geometry("1200x850")
 app.update()
 #with new size labels should shift right by increasing columns
 app.mainloop()

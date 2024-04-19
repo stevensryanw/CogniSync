@@ -1,0 +1,5 @@
+Model Name: PyTorch
+Score: 0.602071681171779
+F1 Score: 0.15032328159784084
+Precision: 0.1204143362343558
+Recall: 0.2
