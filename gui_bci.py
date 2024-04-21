@@ -269,20 +269,20 @@ class LiveFeed(ctk.CTkFrame):
         """
         if self.check1Var.get()==1 and self.check2Var.get()==0:
             data = data.drop(columns=data.columns[8:11])
-            fig.add_trace(go.Line(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch2'], mode='lines', line=dict(color=legend.get('ch2')), name='ch2'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch3'], mode='lines', line=dict(color=legend.get('ch3')), name='ch3'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch4'], mode='lines', line=dict(color=legend.get('ch4')), name='ch4'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch5'], mode='lines', line=dict(color=legend.get('ch5')), name='ch5'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch6'], mode='lines', line=dict(color=legend.get('ch6')), name='ch6'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch7'], mode='lines', line=dict(color=legend.get('ch7')), name='ch7'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch8'], mode='lines', line=dict(color=legend.get('ch8')), name='ch8'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch2'], mode='lines', line=dict(color=legend.get('ch2')), name='ch2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch3'], mode='lines', line=dict(color=legend.get('ch3')), name='ch3'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch4'], mode='lines', line=dict(color=legend.get('ch4')), name='ch4'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch5'], mode='lines', line=dict(color=legend.get('ch5')), name='ch5'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch6'], mode='lines', line=dict(color=legend.get('ch6')), name='ch6'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch7'], mode='lines', line=dict(color=legend.get('ch7')), name='ch7'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch8'], mode='lines', line=dict(color=legend.get('ch8')), name='ch8'))
             previous=[]
             for i in range(interval1, interval2):
                 if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
                     temp_save = labels.iloc[i]
                     previous.append(labels.iloc[i])
-                    fig.add_trace(go.Line(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
+                    fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
             graphTitle = dataSelected[:-4]+" Electrode Values"
         elif self.check1Var.get()==0 and self.check2Var.get()==1:
@@ -290,36 +290,39 @@ class LiveFeed(ctk.CTkFrame):
             min = data[['aux1','aux2','aux3']].values.min()
             max = data[['aux1','aux2','aux3']].values.max()
             #maybe change to scatter to make less cluttered
-            fig.add_trace(go.Line(x=data.index, y=data['aux1'], mode='lines', line=dict(color=legend.get('aux1')), name='aux1'))
-            fig.add_trace(go.Line(x=data.index, y=data['aux2'], mode='lines', line=dict(color=legend.get('aux2')), name='aux2'))
-            fig.add_trace(go.Line(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
+            data.drop(data[data.aux1==0.0].index, inplace=True)
+            data.drop(data[data.aux2==0.0].index, inplace=True)
+            data.drop(data[data.aux3==0.0].index, inplace=True)
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux1'], mode='lines', line=dict(color=legend.get('aux1')), name='aux1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux2'], mode='lines', line=dict(color=legend.get('aux2')), name='aux2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
             previous=[]
             for i in range(interval1, interval2):
                 if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
                     temp_save = labels.iloc[i]
                     previous.append(labels.iloc[i])
-                    fig.add_trace(go.Line(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
+                    fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
             graphTitle = dataSelected[:-4]+" Alpha Values"
         else:
             graphTitle = dataSelected[:-4]+" Electrode and Alpha Values"
-            fig.add_trace(go.Line(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch2'], mode='lines', line=dict(color=legend.get('ch2')), name='ch2'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch3'], mode='lines', line=dict(color=legend.get('ch3')), name='ch3'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch4'], mode='lines', line=dict(color=legend.get('ch4')), name='ch4'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch5'], mode='lines', line=dict(color=legend.get('ch5')), name='ch5'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch6'], mode='lines', line=dict(color=legend.get('ch6')), name='ch6'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch7'], mode='lines', line=dict(color=legend.get('ch7')), name='ch7'))
-            fig.add_trace(go.Line(x=data.index, y=data['ch8'], mode='lines', line=dict(color=legend.get('ch8')), name='ch8'))
-            fig.add_trace(go.Line(x=data.index, y=data['aux1'], mode='lines', line=dict(color=legend.get('aux1')), name='aux1'))
-            fig.add_trace(go.Line(x=data.index, y=data['aux2'], mode='lines', line=dict(color=legend.get('aux2')), name='aux2'))
-            fig.add_trace(go.Line(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch2'], mode='lines', line=dict(color=legend.get('ch2')), name='ch2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch3'], mode='lines', line=dict(color=legend.get('ch3')), name='ch3'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch4'], mode='lines', line=dict(color=legend.get('ch4')), name='ch4'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch5'], mode='lines', line=dict(color=legend.get('ch5')), name='ch5'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch6'], mode='lines', line=dict(color=legend.get('ch6')), name='ch6'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch7'], mode='lines', line=dict(color=legend.get('ch7')), name='ch7'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch8'], mode='lines', line=dict(color=legend.get('ch8')), name='ch8'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux1'], mode='lines', line=dict(color=legend.get('aux1')), name='aux1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux2'], mode='lines', line=dict(color=legend.get('aux2')), name='aux2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
             previous=[]
             for i in range(interval1, interval2):
                 if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
                     temp_save = labels.iloc[i]
                     previous.append(labels.iloc[i])
-                    fig.add_trace(go.Line(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
+                    fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
         data.reset_index(inplace=True)
         #possibly return to this thing
