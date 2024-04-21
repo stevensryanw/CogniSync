@@ -27,3 +27,33 @@
 ## Future Improvements
 - [ ] Further improve model accuracy, f1, precision, and recalls
 - [ ] Online training with PyTorch
+
+# ```gui_bci.py```
+
+### Class ```App()```
+  - ```__init__(self, parent, controller)```
+  - ```show_frame(self, cont)```
+### Class ```Home()```
+  - ```__init__(self, parent, controller)```
+### Class ```PlotEEG()```
+  - ```__init__(self, parent, controller)```
+  - ```updateList(self)```
+  - ```slide1(self, value)```
+  - ```slide2(self, value)```
+  - ```plot_eeg(self)```
+### Class ```UserRecording()```
+  - ```__init__(self, parent, controller)```
+### Class ```Modeling()```
+  - ```__init__(self, parent, controller)```
+### Class ```SnakeGame()```
+  - ```__init__(self, parent, controller)```
+### Class ```USBOutput()```
+  - ```__init__(self, parent, controller)```
+
+## ```connect.py```
+
+## ```model_bci.py```
+
+## ```snake.py```
+
+## ```wheelchairController.py```
