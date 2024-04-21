@@ -2,7 +2,9 @@
 
 ## Project Goals
 - [X] Create an easy to use GUI for EEG data and modeling
-- [ ] 
+- [X] Provide motor imagery predictions for controls
+- [ ] Use predictions to successfully play the snake game
+- [ ] Use predictions to accurately control the robotic wheelchair
 
 ## Project Features (TKinter Pages)
 - [X] Plotting eeg - ```plotEEG()```
