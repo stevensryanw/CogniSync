@@ -90,8 +90,13 @@
 
  - ```scoring(model, x, y)```  
 
-## ```snake.py```
-
+## ```snake.py```  
+### Class ```Snake```  
+- This intializes a ```Snake``` object. 
+### Class ```Food```  
+### ```check_collisons(coordinates)```  
+- This checks if the snake has collided with the borders of the frame.
+  If the snake has, it will return ```True```, otherwise, it will return ```False```.
 ## ```wheelchairController.py```
  - ```root_url```  
    This variable is the most important variable of the script as it holds the IP address for the WiFi ESP8266.
