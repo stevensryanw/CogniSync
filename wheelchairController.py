@@ -1,7 +1,7 @@
 import urllib.request #defines function and_ classes which help in opening urls
 
 #url handling module for python
-root_url = "http://10.129.110.214"
+root_url = "http://10.129.110.181"
 
 def sendRequest(url):
 	n = urllib.request.urlopen(url) # send request to ESP
@@ -11,17 +11,17 @@ def motorForward():
     sendRequest(root_url + "/forward")
     
 def motorBackward():
-    sendRequest(root_url + "/backward")
     print("Moving backward")
+    sendRequest(root_url + "/backward")
 
 def turnLeft():
-    sendRequest(root_url + "/left")
     print("Turning Left")
+    sendRequest(root_url + "/left")
 
 def turnRight():
-    sendRequest(root_url + "/right")
     print("Turning Right")
+    sendRequest(root_url + "/right")
 
 def motorStop():
-     sendRequest(root_url + "/stop")
-     print("Stopping")
+    print("Stopping")
+    sendRequest(root_url + "/stop")

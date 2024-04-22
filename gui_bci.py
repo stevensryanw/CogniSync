@@ -4,7 +4,8 @@ from tkinter import ttk
 import os
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageTk
+from PIL import ImageTk
+import PIL.Image
 from functools import partial
 from snake import *
 import random
@@ -19,6 +20,7 @@ import plotly.express as px
 import wheelchairController as wcc
 import joblib
 import plotly.graph_objects as go
+from connect import *
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -67,9 +69,22 @@ else:
     os.mkdir(dataPath)
     modelFiles = ["No Current Files"]
 
+#if it does then take list of files in there
+if "MasterModelFile.csv" in modelFiles:
+    masterFilePath = os.path.abspath("../CogniSync/models/MasterModelFile.csv")
+#if not then create and give the string no files currently
+else:
+    csvDict = {'Model Name':['Example'], 'Accuracy':[0.0], 'F1 Score':[0.0], 'Precision':[0.0], 'Recall':[0.0], 
+               'Label 1':[('example', 0)], 'Label 2':[('example', 0)], 'Label 3':[('example', 0)], 'Label 4':[('example', 0)],
+               'Label 5':[('example', 0)]}
+    empty = pd.DataFrame(csvDict)
+    masterFilePath = modelPath+"/MasterModelFile.csv"
+    empty.to_csv(masterFilePath, index=False)
 #make background gray
 ctk.set_appearance_mode("dark")
 
+'''Main class for the tkinter application'''
+#------------------ Main Application --------------------
 class App(ctk.CTk):
         # __init__ function for class tkinterApp 
     def __init__(self, *args, **kwargs): 
@@ -99,45 +114,54 @@ class App(ctk.CTk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+#------------------ Main Application --------------------
 
-#first window frame startpage
+
+'''Home page for the application'''
+#------------------ Home Page ---------------------------
 class Home(ctk.CTkFrame):
     def __init__(self, parent, controller): 
         ctk.CTkFrame.__init__(self, parent)
-        # label of frame Layout 2
-        label = ctk.CTkLabel(self, text ="CogniSync", font = LARGEFONT)
-        # putting the grid in its place by using
-        # grid
-        label.grid(row = 0, column = 4, padx = 100, pady = 10) 
+
+        #Adding our logo to the home page
+        my_image = ctk.CTkImage(light_image=PIL.Image.open("CogniSyncLogo.png"),
+                                  dark_image=PIL.Image.open("CogniSyncLogo.png"),
+                                  size=(450, 450))
+        my_label = ctk.CTkLabel(self, text = '', image=my_image)
+        my_label.grid(row=1, column=2, padx=0, pady=0)
         button1 = ctk.CTkButton(self, text ="Plot EEG Data",corner_radius=25, 
         command = lambda : controller.show_frame(PlotEEG))
         # putting the button in its place by
         # using grid
-        button1.grid(row = 1, column = 1, padx = 10, pady = 20)
+        button1.grid(row = 2, column = 1, padx = 10, pady = 10)
         ## button to show frame 2 with text layout2
         button2 = ctk.CTkButton(self, text ="Recording Data",corner_radius=25,
         command = lambda : controller.show_frame(UserRecording))
         # putting the button in its place by
         # using grid
-        button2.grid(row = 2, column = 1, padx = 10, pady = 20)
+        button2.grid(row = 2, column = 2, padx = 10, pady = 20)
         ## button to show model selection frame with
         button3 = ctk.CTkButton(self, text ="Modeling",corner_radius=25,
         command = lambda : controller.show_frame(Modeling))
         # putting the button in its place by
         # using grid
-        button3.grid(row = 3, column = 1, padx = 10, pady = 20)
+        button3.grid(row = 2, column = 3, padx = 10, pady = 20)
         #including snake game page for now
         button4 = ctk.CTkButton(self, text = "Snake Game", corner_radius=25, 
         command = lambda : controller.show_frame(SnakeGame))
         #places button to switch to snake game page
-        button4.grid(row=4, column=1, padx=10, pady=20)
+        button4.grid(row=3, column=1, padx=10, pady=20)
         #including USB output page for now
         button5 = ctk.CTkButton(self, text = "USB Output", corner_radius=25,
         command = lambda : controller.show_frame(USBOutput))
         #places button to switch to USB output page
-        button5.grid(row=5, column=1, padx=10, pady=20)
+        button5.grid(row=3, column=2, padx=10, pady=20)
+#------------------ Home Page ---------------------------
+
+
 
 '''Page for user to plot data with movements'''
+#------------------ Plot EEG Data Page ------------------
 class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -149,50 +173,38 @@ class PlotEEG(ctk.CTkFrame):
         #labels for the data dropdown
         Data_label = ctk.CTkLabel(self, text="Data File", font=("Verdana", 15))
         Data_label.grid(row=3, column=0, padx = 10, pady=10)
-
         #dropdown option for the data that we will plot in plotly
         self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
         self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
-
         #button to update files for dropdown
         self.updateButton = ctk.CTkButton(self, text='Update File List', corner_radius=25, command=self.updateList)
         self.updateButton.grid(row=4, column=1, padx=10, pady=10)
-
         #button to show the eeg data with labels
         button2 = ctk.CTkButton(self, text ="Show EEG Data",corner_radius=25, command=self.plot_eeg)
         button2.grid(row = 9, column = 1, padx = 10, pady = 30)
-
         #slider for starting point in graph
         self.slider1 = ctk.CTkSlider(self, from_=0, to=999990, command=self.slide1)
         self.slider1.grid(row=5, column=1, padx=10, pady=10)
-
         #label for slider 1
         self.slideLabel1 = ctk.CTkLabel(self, text='Starting Point', font=("Verdana", 15))
         self.slideLabel1.grid(row=5, column=0, padx=10, pady=10)
-
         #label for slider 1 value
         self.sliderLabel1 = ctk.CTkLabel(self, text=str(int(self.slider1.get())), font=("Verdana", 15))
         self.sliderLabel1.grid(row=5, column=2, padx=10, pady=10)
-
         #slider for end point in graph
         self.slider2 = ctk.CTkSlider(self, from_=2, to=1000000, command=self.slide2)
         self.slider2.grid(row=6, column=1, padx=10, pady=10)
-
         #label for slider 2
         self.slideLabel1 = ctk.CTkLabel(self, text='Ending Point', font=("Verdana", 15))
         self.slideLabel1.grid(row=6, column=0, padx=10, pady=10)
-
         #label for slider 2 value
         self.sliderLabel2 = ctk.CTkLabel(self, text=str(int(self.slider2.get())), font=("Verdana", 15))
         self.sliderLabel2.grid(row=6, column=2, padx=10, pady=10)
-        
-    
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=0)
         self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var, font=("Verdana", 15))
         self.check1.grid(row=7, column=1, padx=20, pady=10)
-
-        #checkboc to select alpha values for graph
+        #checkbox to select alpha values for graph
         self.check2Var = ctk.IntVar(value=0)
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var, font=("Verdana", 15))
         self.check2.grid(row=7, column=0, padx=10, pady=10)
@@ -242,7 +254,6 @@ class PlotEEG(ctk.CTkFrame):
             legend[col] = px.colors.qualitative.Alphabet[k]
             k+=1
         k=0
-        print(columnNames)
         interval_default = [0, len(data)]
         fig = go.Figure()
         if self.slider1.get()>interval_default[0]:
@@ -261,13 +272,6 @@ class PlotEEG(ctk.CTkFrame):
         for j in labelNames:
             legend2[j]=px.colors.qualitative.Light24[k]
             k+=1
-        """
-        plotly.graph_objs.Line is deprecated.
-        Please replace it with one of the following more specific types
-        - plotly.graph_objs.scatter.Line
-        - plotly.graph_objs.layout.shape.Line
-        - etc.
-        """
         if self.check1Var.get()==1 and self.check2Var.get()==0:
             data = data.drop(columns=data.columns[8:11])
             fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
@@ -290,7 +294,6 @@ class PlotEEG(ctk.CTkFrame):
             data = data.drop(columns=data.columns[0:8])
             min = data[['aux1','aux2','aux3']].values.min()
             max = data[['aux1','aux2','aux3']].values.max()
-            #maybe change to scatter to make less cluttered
             data.drop(data[data.aux1==0.0].index, inplace=True)
             data.drop(data[data.aux2==0.0].index, inplace=True)
             data.drop(data[data.aux3==0.0].index, inplace=True)
@@ -326,39 +329,29 @@ class PlotEEG(ctk.CTkFrame):
                     fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
         data.reset_index(inplace=True)
-        #possibly return to this thing
-        df = pd.melt(data, id_vars='index', value_vars=data.columns[:])
-
-        #fig = px.line(df, x='index', y='value', color='variable', color_discrete_sequence=px.colors.qualitative.Plotly)
-        #fig = px.line(data, x=data.index, y=data.columns[0:8], title='EEG data with movement labels as vertical bars')
-        #fig.update_layout(legend_title_text='Channels')
-        #legend = {'0.0': 'ch1', '0.0.1': 'ch2', '0.0.2': 'ch3', '0.0.3': 'ch4', '0.0.4': 'ch5', '0.0.5': 'ch6', '0.0.6': 'ch7', '0.0.7': 'ch8'}
-        #taking zeros and putting actual names not needed anymore
-        #fig.for_each_trace(lambda t: t.update(name=legend[t.name]))
         fig.update_layout(legend_title_text='Legend')
         fig.update_layout(showlegend=True)
         fig.update_layout(font_size=35)
         fig.update_layout(title_text=graphTitle)
-        #iterating through all rows and looking in column to see if label is not norm or empty
-        #if it meets these conditions then 
         for i in range(interval1, interval2):
-            #change second  number based on what is added
             if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save:
                 temp_save = labels.iloc[i]
                 fig.add_vline(x=i, line_dash='dash', line_color=legend2[labels.iloc[i]])
-        print(legend2)
         fig.show()
+#------------------ Plot EEG Data Page ------------------
+
 
 '''Page for user recording data for training the model'''
+#------------------ User Recording Page -----------------
 class UserRecording(ctk.CTkFrame): 
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.label = ctk.CTkLabel(self, text ="Recording Data", font = LARGEFONT)
-        self.label.grid(row = 0, column = 4, padx = 100, pady = 10)
+        self.label.grid(row = 0, column = 1, padx = 100, pady = 10)
         self.instructions_label = ctk.CTkLabel(self, text="Follow the movement instructions below:")
-        self.instructions_label.grid(row = 1, column = 4)
+        self.instructions_label.grid(row = 1, column = 1)
         self.canvas = ctk.CTkCanvas(self, width=400, height=400)
-        self.canvas.grid(row = 2, column = 4, padx = 100, pady = 10)
+        self.canvas.grid(row = 2, column = 1, padx = 100, pady = 10)
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
@@ -374,31 +367,29 @@ class UserRecording(ctk.CTkFrame):
 
         txt_label = ctk.CTkLabel(self, text="Movement Input")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        txt_label.grid(row=4, column=0, padx = 10, pady = 10)
+        txt_label.grid(row=6, column=0, padx = 10, pady = 5)
 
         ## Creating our textbox so user can input file name
 
         txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="ENTER MOVEMENTS SEPERATED BY COMMA",  width = 300)
-        txt_entry.grid(row= 4, column =1, padx = 10, pady = 10)
+        txt_entry.grid(row= 6, column =1, padx = 10, pady = 5)
         self.text_entry = txt_entry
 
         mvmt_count_label = ctk.CTkLabel(self, text="Number of movements")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        mvmt_count_label.grid(row=6, column=0, padx = 10, pady = 10)
+        mvmt_count_label.grid(row=7, column=0, padx = 10, pady = 5)
 
         mvmt_count = ctk.CTkEntry(self, height=10, placeholder_text="ENTER NUMBER OF MOVEMENTS AS INTEGER",  width = 300)
-        mvmt_count.grid(row= 6, column =1, padx = 10, pady = 10)
+        mvmt_count.grid(row= 7, column =1, padx = 10, pady = 5)
         self.mvmt_count = mvmt_count
 
         iter_count_label = ctk.CTkLabel(self, text="Number of Iterations")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        iter_count_label.grid(row=7, column=0, padx = 10, pady = 10)
+        iter_count_label.grid(row=9, column=0, padx = 10, pady = 5)
 
         iter_count = ctk.CTkEntry(self, height=10, placeholder_text="NUMBER OF ITERATIONS PER MOVE",  width = 300)
-        iter_count.grid(row= 7, column =1, padx = 10, pady = 10)
+        iter_count.grid(row= 9, column =1, padx = 10, pady = 5)
         self.iter_count = iter_count
-
-
         self.iter_count.bind("<KeyRelease>", self.update_movements)
         self.mvmt_count.bind("<KeyRelease>", self.update_movements)
         self.text_entry.bind("<KeyRelease>", self.update_movements)
@@ -406,23 +397,25 @@ class UserRecording(ctk.CTkFrame):
         self.total_prompts = 4 * 40  # 4 movements, 40 times each
         output_label = ctk.CTkLabel(self, text="Output file")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        output_label.grid(row=5, column=0, padx = 10, pady = 10)
+        output_label.grid(row=8, column=0, padx = 10, pady = 5)
         ## Creating our textbox so user can input file name
         out_entry = ctk.CTkEntry(self, height=10, placeholder_text="FILE_NAME.csv",  width = 300)
-        out_entry.grid(row= 5, column =1, padx = 10, pady = 10)
+        out_entry.grid(row= 8, column =1, padx = 10, pady = 5)
         self.file_out = out_entry
         self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=10, command=self.start_prompting)
-        self.start_button.grid(row=2, column = 1, padx = 10, pady=0)
+        self.start_button.grid(row=4, column = 1, padx = 10, pady=5)
         self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=10,
                             command = lambda : controller.show_frame(Home))
-        self.home_button.grid(row = 1, column = 1, padx = 10, pady = 0)
+        self.home_button.grid(row = 1, column = 0, padx = 10, pady = 5)
         #data collection buttons
         #Begin collection (currently doing nothing)
         #Stop data collection
         self.stop_button = ctk.CTkButton(self, text="Stop Collecting", corner_radius=10, command=self.stop_prompting)
-        self.stop_button.grid(row=3, column=1, padx=10, pady=0)
+        self.stop_button.grid(row=5, column=1, padx=10, pady=5)
         self.is_prompting = False  # Flag to check if prompting is in progress
         self.step_start_time = 0
+
+        '''Variables for threading'''
         self.record_thread = None
 
     def update_movements(self, event):
@@ -540,49 +533,21 @@ class UserRecording(ctk.CTkFrame):
                 self.shuffle_movements()
             self.canvas.after(1000 * self.rest_time, self.prompt_next_movement)
     
+    '''Thread for recording EEG data'''
     def start_record(self):
         if self.record_thread is None or not self.record_thread.is_alive():
             self.record_thread = threading.Thread(target=self.record_data)
             self.record_thread.start()
-
     def stop_record(self):
         if self.record_thread is not None and self.record_thread.is_alive():
             self.record_thread.join()
-
     def record_data(self):
-        SCALE_FACTOR_EEG = (4500000)/24/(2**23-1) #uV/count
-        SCALE_FACTOR_AUX = 0.002 / (2**4)
-        print("Creating LSL stream for EEG. \nName: OpenBCIEEG\nID: OpenBCItestEEG\n")
-        info_eeg = StreamInfo('OpenBCIEEG', 'EEG', 8, 250, 'float32', 'OpenBCItestEEG')
-        print("Creating LSL stream for AUX. \nName: OpenBCIAUX\nID: OpenBCItestEEG\n")
-        info_aux = StreamInfo('OpenBCIAUX', 'AUX', 3, 250, 'float32', 'OpenBCItestAUX')
-        outlet_eeg = StreamOutlet(info_eeg)
-        outlet_aux = StreamOutlet(info_aux)
-        file_out = open('newest_rename.csv', 'a')
-        file_out.truncate(0)
-        def lsl_streamers(sample):
-            file_in = open('tempVal.txt', 'r')
-            input = file_in.readline()
-            lbl = ''
-            if input != '':
-                lbl = input
-            else:
-                lbl = 'norm'
-            outlet_eeg.push_sample(np.array(sample.channels_data)*SCALE_FACTOR_EEG)
-            outlet_aux.push_sample(np.array(sample.aux_data)*SCALE_FACTOR_AUX)
-            #print(sample.channels_data*SCALE_FACTOR_EEG, sample.aux_data*SCALE_FACTOR_AUX, lbl)
-            for datai in sample.channels_data:
-                file_out.write(str(datai*SCALE_FACTOR_EEG) + ',')
-            for dataj in sample.aux_data:
-                file_out.write(str(dataj*SCALE_FACTOR_AUX) + ',')
-            file_out.write(str(lbl) + '\n')
-            file_in.close()
-        board = OpenBCICyton()
-        board.start_stream(lsl_streamers)
-        file_out.close()
+        record(self)
+#------------------ User Recording Page -----------------
 
-#Page 3: Model Selection, Data Input, Training, and Testing, and Result Visualization
+
 '''Page for user to select model, data, and labels for training and testing.'''
+#------------------ Modeling Page -----------------------
 class Modeling(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -667,7 +632,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_LinearDiscriminantAnalysis(dataArray, labelsArray)
 
         elif modelSelected == "Gradient Boosting Classifier":
@@ -675,7 +640,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_GradientBoostingClassifier(dataArray, labelsArray)
 
@@ -684,7 +649,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_KNeighborsClassifier(dataArray, labelsArray)
 
@@ -693,7 +658,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_GaussianNB(dataArray, labelsArray)
 
@@ -702,7 +667,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_MLPClassifier(dataArray, labelsArray)
 
@@ -711,7 +676,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_SVC(dataArray, labelsArray)
             
@@ -720,15 +685,15 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
-            results = BCI_tensorflow_Net(dataArray, labelsArray)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
+           # results = BCI_tensorflow_Net(dataArray, labelsArray)
 
         elif modelSelected == "Random Forest Classifier":
             phrase = ctk.CTkLabel(self, text="Trees are the breath of life", font=("Verdana", 18))
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_RandomForestClassifier(dataArray, labelsArray)
 
         elif modelSelected == "Decision Tree Classifier":
@@ -736,7 +701,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_DecisionTreeClassifier(dataArray, labelsArray)
 
         elif modelSelected == "Logistic Regression":
@@ -744,7 +709,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_LogisticRegression(dataArray, labelsArray)
 
         elif modelSelected == "QDA":
@@ -752,7 +717,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_QuadraticDiscriminantAnalysis(dataArray, labelsArray)
 
         elif modelSelected == "PyTorch":
@@ -760,7 +725,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results, model = BCI_pytorch_Net(dataArray, labelsArray)
 
         if modelSelected == "Tensorflow":
@@ -814,7 +779,20 @@ class Modeling(ctk.CTkFrame):
                 print("File Name: "+outputFile)
             else:
                 joblib.dump(results[4], modelPath+"/"+outputFile)
-
+        df=pd.read_csv(masterFilePath)
+        t = time.time()
+        modelID = modelSelected+dataName+str(t)
+        print(df)
+        if len(legend)==5:
+            keyList = list(legend.keys())
+            valList = list(legend.values())
+            items = []
+            i=0
+            for i in range(len(legend)):
+                items.append(keyList[valList.index(str(i))])
+                i+=1
+            df.loc[len(df.index)] = [modelID, results[0], results[1], results[2], results[3], items[0], items[1], items[2], items[3], items[4]]
+            df.to_csv(masterFilePath, index=False)
 
     def updateFiles(self):
         dataFiles = os.listdir(dataPath)
@@ -870,9 +848,12 @@ class Modeling(ctk.CTkFrame):
 
         dataArray = df.to_numpy()
         labelsArray = df2.to_numpy()
-        return [dataArray, labelsArray]
+        return [dataArray, labelsArray, mapping]
+#------------------ Modeling Page -----------------------
+
 
 '''Page for Snake Game'''
+#------------------ Snake Game Page ---------------------
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -887,12 +868,37 @@ class SnakeGame(ctk.CTkFrame):
         button2 = ctk.CTkButton(self, text = 'Snake Begin', corner_radius = 25, command = self.drawFrame)
         button2.grid(row = 2, column = 1, padx = 10, pady = 20)
         global active
-                #dropbox for models        
+        #dropbox for models        
         self.modelDropdown = ctk.CTkComboBox(self, values = modelFiles)
         self.modelDropdown.grid(row=3, column = 1, padx=10, pady=20)
+
         #update the model list
         update_button = ctk.CTkButton(self, text="Update Model Lists", corner_radius=25, command = self.updateFiles)
         update_button.grid(row=4, column=1, padx=10, pady=20)
+
+        #button to select the model
+        select_button = ctk.CTkButton(self, text="Select Model", corner_radius=25, command = self.modelSelection)
+        select_button.grid(row=7, column=1, padx=10, pady=20)
+
+        #button to start playing with predictions
+        play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
+        play_button.grid(row=8, column=1, padx=10, pady=20)
+
+        #checkbox to select electrode data for graph
+        self.check1Var = ctk.IntVar(value=1)
+        self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var)
+        self.check1.grid(row=5, column=1, padx=20, pady=10)
+
+        #checkboc to select alpha values for graph
+        self.check2Var = ctk.IntVar(value=1)
+        self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
+        self.check2.grid(row=6, column=1, padx=10, pady=10)
+
+        '''Variables for threading'''
+        self.record_thread = None
+        self.predict_thread = None
+        self.stream_thread = None
+        self.stop_predict = True
 
     #update list of models
     def updateFiles(self):
@@ -902,7 +908,109 @@ class SnakeGame(ctk.CTkFrame):
             self.modelDropdown.configure(values=modelFiles)
         else:
             self.modelDropdown.configure(values=modelFiles)
+            
+    def modelSelection(self):
+        modelSelected = self.modelDropdown.get()
+        print(modelSelected[-3:])
+        if modelSelected[-3:] == "pkl":
+            self.model = joblib.load(modelPath+"/"+modelSelected)
+        elif modelSelected[-2:] == ".pt":
+            self.model = torch.load(modelPath+"/"+modelSelected)
+        else:
+            self.model = False
 
+    '''Thread for recording EEG data'''
+    def start_record(self):
+        if self.record_thread is None or not self.record_thread.is_alive():
+            self.record_thread = threading.Thread(target=self.record_data)
+            self.record_thread.start()
+    def stop_record(self):
+        if self.record_thread is not None and self.record_thread.is_alive():
+            self.record_thread.join()
+    def record_data(self):
+        record(self)
+
+    '''Thread for making predictions with the model selected and outputting to a temp file'''
+    def start_predictions(self):
+        modelSelected = self.modelDropdown.get()
+        while self.stop_predict is True:
+            stream = pd.read_csv('newest_rename.csv')
+            if self.check1Var.get()==1 and self.check2Var.get()==0:
+                stream = stream.iloc[:, 8:11]
+            elif self.check1Var.get()==0 and self.check2Var.get()==1:
+                stream = stream.iloc[:, 0:8]
+            else:
+                stream = stream.iloc[:, 0:11]
+            if stream.loc[len(stream)-1].isnull().values.any():
+                stream = stream.dropna()
+            stream_latest = stream.loc[len(stream)-1]
+            #remove the header from stream_latest
+            stream_latest = stream_latest.to_numpy()
+            if modelSelected[-3:] == "pkl":
+                prediction = self.model.predict(stream_latest.reshape(1, -1))
+            elif modelSelected[-2:] == ".pt":
+                prediction = self.model.eval(stream_latest)
+            else:
+                print("No model selected")
+            #opening tempPred file as empty to write the new prediction
+            file = open("tempPred.txt", "w")
+            #writing the prediction to the file
+            file.write(str(int(prediction[0])))
+            file.close()
+    def start_prediction_thread(self):
+        if self.predict_thread is None or not self.predict_thread.is_alive():
+            self.predict_thread = threading.Thread(target=self.start_predictions)
+            self.predict_thread.start()
+    def stop_predictions(self):
+        self.stop_predict = False
+        if self.predict_thread is not None and self.predict_thread.is_alive():
+            self.predict_thread.join()
+
+    '''Thread for sending predictions to the snake game as keypresses'''
+    def predictStream(self):
+        self.drawFrame()
+        self.start_record()
+        #Allow stream to start before prompting
+        time.sleep(15)
+        self.start_prediction_thread()
+
+        while self.stop_predict is True:
+            pred_file = open("tempPred.txt", "r")
+            #Continue if the file is empty
+            if pred_file.read() == ' ':
+                prediction = 3
+            else:
+                prediction = pred_file.seek(0)
+            #Read the prediction from the file as an integer
+            #prediction = pred_file.read()
+            print(prediction)
+            if prediction == 2:
+                #keypress '<Up>'
+                app.event_generate('<Up>')
+            elif prediction == 1:
+                #keypress '<Down>'
+                app.event_generate('<Down>')
+            elif prediction == 4:
+                #keypress '<Left>'
+                app.event_generate('<Left>')
+            elif prediction == 0:
+                #keypress '<Right>'
+                app.event_generate('<Right>')
+            elif prediction == 3:
+                continue
+            else:
+                print("Error in prediction")
+                self.stop_record()
+    def start_stream_thread(self):
+        if self.stream_thread is None or not self.stream_thread.is_alive():
+            self.stream_thread = threading.Thread(target=self.predictStream)
+            self.stream_thread.start()
+    def stop_stream(self):
+        self.stop_predict = False
+        if self.stream_thread is not None and self.stream_thread.is_alive():
+            self.stream_thread.join()
+
+    '''Snake Ganme Functions'''
     def drawFrame(self):
         global canvas
         global snake
@@ -923,22 +1031,18 @@ class SnakeGame(ctk.CTkFrame):
         app.bind('<Up>', lambda event: self.move("up", snake, g_food, root, canvas))
         app.bind('<Down>', lambda event: self.move("down", snake, g_food, root, canvas))
         app.bind('<space>', lambda event: self.game_over())
-
-    #snake stuff
     def move(self, direction, snake, g_food, root, canvas):
         #print("move")
         global active
         if active:
             self.change_direction(direction)
             self.next_turn(snake, g_food, root, canvas) 
-
     def game_over(self):
         global active
         active = False
         canvas.delete(ALL)
         canvas.create_text(canvas.winfo_width() / 2, canvas.winfo_height() / 2, font=('consolas', 30), 
-                           text="GAME OVER", fill="red", tag="gameover")
-        
+                           text="GAME OVER", fill="red", tag="gameover") 
     def change_direction(self, new_direction):
         global direction
         if new_direction == 'left':
@@ -953,7 +1057,6 @@ class SnakeGame(ctk.CTkFrame):
         elif new_direction == 'down':
             # if direction != 'up':
             direction = new_direction
-
     def check_collisions(self, coordinates):
         x, y = coordinates
 
@@ -962,7 +1065,6 @@ class SnakeGame(ctk.CTkFrame):
         elif y < 0 or y >= HEIGHT-2:
             return True
         return False
-
     def next_turn(self, snake, food, root, canvas):
         if active:
             global direction
@@ -993,8 +1095,11 @@ class SnakeGame(ctk.CTkFrame):
                 del snake.coordinates[-1]
                 snake.canvas.delete(snake.squares[-1])
                 del snake.squares[-1]
+#------------------ Snake Game Page ---------------------
+
 
 '''Page for USB Output (Robotic Wheelchair)'''
+#------------------ USB Output Page ---------------------
 class USBOutput(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -1026,8 +1131,6 @@ class USBOutput(ctk.CTkFrame):
         update_button = ctk.CTkButton(self, text="Update Model Lists", command = self.updateFiles)
         update_button.grid(row=6, column=1, columnspan=1, sticky="news", padx=10, pady=10)
         #button for model selection
-        self.selectButton = ctk.CTkButton(self, text="Select Model", command = self.modelSelection)
-        self.selectButton.grid(row=7, column=1, padx=10, pady=10)
 
         self.model = False
         self.update()
@@ -1037,8 +1140,30 @@ class USBOutput(ctk.CTkFrame):
         self.bind('<Up>', lambda event: wcc.motorForward())
         self.bind('<Down>', lambda event: wcc.motorBackward())
         self.bind('<space>', lambda event: wcc.motorStop())
+        #button to select the model
+        select_button = ctk.CTkButton(self, text="Select Model", corner_radius=25, command = self.modelSelection)
+        select_button.grid(row=9, column=1, padx=10, pady=20)
 
-    
+        #button to start playing with predictions
+        play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
+        play_button.grid(row=10, column=1, padx=10, pady=20)
+
+        #checkbox to select electrode data for graph
+        self.check1Var = ctk.IntVar(value=1)
+        self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var)
+        self.check1.grid(row=7, column=1, padx=20, pady=10)
+
+        #checkboc to select alpha values for graph
+        self.check2Var = ctk.IntVar(value=1)
+        self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
+        self.check2.grid(row=8, column=1, padx=10, pady=10)
+
+        '''Variables for threading'''
+        self.record_thread = None
+        self.predict_thread = None
+        self.stream_thread = None
+        self.stop_predict = True
+
     #update list of models
     def updateFiles(self):
         modelFiles = os.listdir(modelPath)
@@ -1047,23 +1172,112 @@ class USBOutput(ctk.CTkFrame):
             self.modelDropdown.configure(values=modelFiles)
         else:
             self.modelDropdown.configure(values=modelFiles)
+            
     def modelSelection(self):
         modelSelected = self.modelDropdown.get()
         print(modelSelected[-3:])
         if modelSelected[-3:] == "pkl":
             self.model = joblib.load(modelPath+"/"+modelSelected)
+        elif modelSelected[-2:] == ".pt":
+            self.model = torch.load(modelPath+"/"+modelSelected)
         else:
             self.model = False
-        
+
+    '''Thread for recording EEG data'''
+    def start_record(self):
+        if self.record_thread is None or not self.record_thread.is_alive():
+            self.record_thread = threading.Thread(target=self.record_data)
+            self.record_thread.start()
+    def stop_record(self):
+        if self.record_thread is not None and self.record_thread.is_alive():
+            self.record_thread.join()
+    def record_data(self):
+        record(self)
+
+    '''Thread for making predictions with the model selected and outputting to a temp file'''
+    def start_predictions(self):
+        modelSelected = self.modelDropdown.get()
+        while self.stop_predict is True:
+            stream = pd.read_csv('newest_rename.csv')
+            if self.check1Var.get()==1 and self.check2Var.get()==0:
+                stream = stream.iloc[:, 8:11]
+            elif self.check1Var.get()==0 and self.check2Var.get()==1:
+                stream = stream.iloc[:, 0:8]
+            else:
+                stream = stream.iloc[:, 0:11]
+            if stream.loc[len(stream)-1].isnull().values.any():
+                stream = stream.dropna()
+            stream_latest = stream.loc[len(stream)-1]
+            #remove the header from stream_latest
+            stream_latest = stream_latest.to_numpy()
+            if modelSelected[-3:] == "pkl":
+                prediction = self.model.predict(stream_latest.reshape(1, -1))
+            elif modelSelected[-2:] == ".pt":
+                prediction = self.model.eval(stream_latest)
+            else:
+                print("No model selected")
+            #opening tempPred file as empty to write the new prediction
+            file = open("tempPred.txt", "w")
+            #writing the prediction to the file
+            file.write(str(int(prediction[0])))
+            file.close()
+    def start_prediction_thread(self):
+        if self.predict_thread is None or not self.predict_thread.is_alive():
+            self.predict_thread = threading.Thread(target=self.start_predictions)
+            self.predict_thread.start()
+    def stop_predictions(self):
+        self.stop_predict = False
+        if self.predict_thread is not None and self.predict_thread.is_alive():
+            self.predict_thread.join()
+
+    '''Thread for sending predictions to the wheelchair as commands'''
+    def predictStream(self):
+        self.start_record()
+        #Allow stream to start before prompting
+        time.sleep(15)
+        self.start_prediction_thread()
+
+        while self.stop_predict is True:
+            pred_file = open("tempPred.txt", "r")
+            #Continue if the file is empty
+            if pred_file.read() == ' ':
+                prediction = 3
+            else:
+                prediction = pred_file.seek(0)
+            #Read the prediction from the file as an integer
+            print(prediction)
+            if prediction == 2:
+                wcc.motorForward()
+            elif prediction == 1:
+                wcc.motorBackward()
+            elif prediction == 4:
+                wcc.turnLeft()
+            elif prediction == 0:
+                wcc.turnRight()
+            elif prediction == 3:
+                wcc.motorStop()
+                continue
+            else:
+                print("Error in prediction")
+                wcc.motorStop()
+                self.stop_record()
+    def start_stream_thread(self):
+        if self.stream_thread is None or not self.stream_thread.is_alive():
+            self.stream_thread = threading.Thread(target=self.predictStream)
+            self.stream_thread.start()
+    def stop_stream(self):
+        self.stop_predict = False
+        if self.stream_thread is not None and self.stream_thread.is_alive():
+            self.stream_thread.join()
+#------------------ USB Output Page ---------------------
 
 
+#------------------ Main Loop ---------------------------
 score = 0
 direction = 'down'
-
 # Driver Code
 app = App()
-#setting window size by pixels "width x height"
 app.geometry("1200x850")
 app.update()
-#with new size labels should shift right by increasing columns
 app.mainloop()
+#------------------ Main Loop ---------------------------

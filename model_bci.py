@@ -194,7 +194,7 @@ def BCI_pytorch_Net(data, labels):
     testLabel = y_test
     return scoring(model, testData, testLabel), model
 
-#Tensorflow models
+# #Tensorflow models
 # def BCI_tensorflow_Net(data, labels):
 #     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
 #     model = keras.Sequential([
