@@ -400,7 +400,7 @@ class UserRecording(ctk.CTkFrame):
         self.stop_button.grid(row=3, column=1, padx=10, pady=0)
         self.is_prompting = False  # Flag to check if prompting is in progress
         self.step_start_time = 0
-        
+
         '''Variables for threading'''
         self.record_thread = None
 
@@ -519,15 +519,14 @@ class UserRecording(ctk.CTkFrame):
                 self.shuffle_movements()
             self.canvas.after(1000 * self.rest_time, self.prompt_next_movement)
     
+    '''Thread for recording EEG data'''
     def start_record(self):
         if self.record_thread is None or not self.record_thread.is_alive():
             self.record_thread = threading.Thread(target=self.record_data)
             self.record_thread.start()
-
     def stop_record(self):
         if self.record_thread is not None and self.record_thread.is_alive():
             self.record_thread.join()
-
     def record_data(self):
         record(self)
 
