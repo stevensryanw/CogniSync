@@ -243,5 +243,4 @@ def scoring(model, x, y):
         f1 = f1_score(y, preds, average='macro')
         precision = precision_score(y, preds, average='macro')
         recall = recall_score(y, preds, average='macro')
-        print("Done")
     return [acc, f1, precision, recall, model]
