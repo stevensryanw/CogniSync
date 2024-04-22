@@ -327,11 +327,11 @@ class UserRecording(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.label = ctk.CTkLabel(self, text ="Recording Data", font = LARGEFONT)
-        self.label.grid(row = 0, column = 4, padx = 100, pady = 10)
+        self.label.grid(row = 0, column = 1, padx = 100, pady = 10)
         self.instructions_label = ctk.CTkLabel(self, text="Follow the movement instructions below:")
-        self.instructions_label.grid(row = 1, column = 4)
+        self.instructions_label.grid(row = 1, column = 1)
         self.canvas = ctk.CTkCanvas(self, width=400, height=400)
-        self.canvas.grid(row = 2, column = 4, padx = 100, pady = 10)
+        self.canvas.grid(row = 2, column = 1, padx = 100, pady = 10)
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
@@ -347,28 +347,28 @@ class UserRecording(ctk.CTkFrame):
 
         txt_label = ctk.CTkLabel(self, text="Movement Input")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        txt_label.grid(row=4, column=0, padx = 10, pady = 10)
+        txt_label.grid(row=6, column=0, padx = 10, pady = 5)
 
         ## Creating our textbox so user can input file name
 
         txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="ENTER MOVEMENTS SEPERATED BY COMMA",  width = 300)
-        txt_entry.grid(row= 4, column =1, padx = 10, pady = 10)
+        txt_entry.grid(row= 6, column =1, padx = 10, pady = 5)
         self.text_entry = txt_entry
 
         mvmt_count_label = ctk.CTkLabel(self, text="Number of movements")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        mvmt_count_label.grid(row=6, column=0, padx = 10, pady = 10)
+        mvmt_count_label.grid(row=7, column=0, padx = 10, pady = 5)
 
         mvmt_count = ctk.CTkEntry(self, height=10, placeholder_text="ENTER NUMBER OF MOVEMENTS AS INTEGER",  width = 300)
-        mvmt_count.grid(row= 6, column =1, padx = 10, pady = 10)
+        mvmt_count.grid(row= 7, column =1, padx = 10, pady = 5)
         self.mvmt_count = mvmt_count
 
         iter_count_label = ctk.CTkLabel(self, text="Number of Iterations")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        iter_count_label.grid(row=7, column=0, padx = 10, pady = 10)
+        iter_count_label.grid(row=9, column=0, padx = 10, pady = 5)
 
         iter_count = ctk.CTkEntry(self, height=10, placeholder_text="NUMBER OF ITERATIONS PER MOVE",  width = 300)
-        iter_count.grid(row= 7, column =1, padx = 10, pady = 10)
+        iter_count.grid(row= 9, column =1, padx = 10, pady = 5)
         self.iter_count = iter_count
         self.iter_count.bind("<KeyRelease>", self.update_movements)
         self.mvmt_count.bind("<KeyRelease>", self.update_movements)
@@ -377,21 +377,21 @@ class UserRecording(ctk.CTkFrame):
         self.total_prompts = 4 * 40  # 4 movements, 40 times each
         output_label = ctk.CTkLabel(self, text="Output file")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
-        output_label.grid(row=5, column=0, padx = 10, pady = 10)
+        output_label.grid(row=8, column=0, padx = 10, pady = 5)
         ## Creating our textbox so user can input file name
         out_entry = ctk.CTkEntry(self, height=10, placeholder_text="FILE_NAME.csv",  width = 300)
-        out_entry.grid(row= 5, column =1, padx = 10, pady = 10)
+        out_entry.grid(row= 8, column =1, padx = 10, pady = 5)
         self.file_out = out_entry
         self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=10, command=self.start_prompting)
-        self.start_button.grid(row=2, column = 1, padx = 10, pady=0)
+        self.start_button.grid(row=4, column = 1, padx = 10, pady=5)
         self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=10,
                             command = lambda : controller.show_frame(Home))
-        self.home_button.grid(row = 1, column = 1, padx = 10, pady = 0)
+        self.home_button.grid(row = 1, column = 0, padx = 10, pady = 5)
         #data collection buttons
         #Begin collection (currently doing nothing)
         #Stop data collection
         self.stop_button = ctk.CTkButton(self, text="Stop Collecting", corner_radius=10, command=self.stop_prompting)
-        self.stop_button.grid(row=3, column=1, padx=10, pady=0)
+        self.stop_button.grid(row=5, column=1, padx=10, pady=5)
         self.is_prompting = False  # Flag to check if prompting is in progress
         self.step_start_time = 0
 
