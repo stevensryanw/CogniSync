@@ -69,6 +69,17 @@ else:
     os.mkdir(dataPath)
     modelFiles = ["No Current Files"]
 
+#if it does then take list of files in there
+if "MasterModelFile.csv" in modelFiles:
+    masterFilePath = os.path.abspath("../CogniSync/models/MasterModelFile.csv")
+#if not then create and give the string no files currently
+else:
+    csvDict = {'Model Name':['Example'], 'Accuracy':[0.0], 'F1 Score':[0.0], 'Precision':[0.0], 'Recall':[0.0], 
+               'Label 1':[('example', 0)], 'Label 2':[('example', 0)], 'Label 3':[('example', 0)], 'Label 4':[('example', 0)],
+               'Label 5':[('example', 0)]}
+    empty = pd.DataFrame(csvDict)
+    masterFilePath = modelPath+"/MasterModelFile.csv"
+    empty.to_csv(masterFilePath, index=False)
 #make background gray
 ctk.set_appearance_mode("dark")
 
@@ -610,7 +621,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_LinearDiscriminantAnalysis(dataArray, labelsArray)
 
         elif modelSelected == "Gradient Boosting Classifier":
@@ -618,7 +629,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_GradientBoostingClassifier(dataArray, labelsArray)
 
@@ -627,7 +638,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_KNeighborsClassifier(dataArray, labelsArray)
 
@@ -636,7 +647,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_GaussianNB(dataArray, labelsArray)
 
@@ -645,7 +656,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_MLPClassifier(dataArray, labelsArray)
 
@@ -654,7 +665,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             print('going into modeling')
             results = BCI_sklearn_SVC(dataArray, labelsArray)
             
@@ -663,15 +674,15 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
-            results = BCI_tensorflow_Net(dataArray, labelsArray)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
+           # results = BCI_tensorflow_Net(dataArray, labelsArray)
 
         elif modelSelected == "Random Forest Classifier":
             phrase = ctk.CTkLabel(self, text="Trees are the breath of life", font=("Verdana", 18))
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_RandomForestClassifier(dataArray, labelsArray)
 
         elif modelSelected == "Decision Tree Classifier":
@@ -679,7 +690,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_DecisionTreeClassifier(dataArray, labelsArray)
 
         elif modelSelected == "Logistic Regression":
@@ -687,7 +698,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_LogisticRegression(dataArray, labelsArray)
 
         elif modelSelected == "QDA":
@@ -695,7 +706,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_QuadraticDiscriminantAnalysis(dataArray, labelsArray)
 
         elif modelSelected == "PyTorch":
@@ -703,7 +714,7 @@ class Modeling(ctk.CTkFrame):
             phrase.grid(row=2, column=3, padx=10, pady=10)
             waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
             waitLabel.grid(row=3, column=3, padx=10, pady=10)
-            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results, model = BCI_pytorch_Net(dataArray, labelsArray)
 
         if modelSelected == "Tensorflow":
@@ -757,6 +768,20 @@ class Modeling(ctk.CTkFrame):
                 print("File Name: "+outputFile)
             else:
                 joblib.dump(results[4], modelPath+"/"+outputFile)
+        df=pd.read_csv(masterFilePath)
+        t = time.time()
+        modelID = modelSelected+dataName+str(t)
+        print(df)
+        if len(legend)==5:
+            keyList = list(legend.keys())
+            valList = list(legend.values())
+            items = []
+            i=0
+            for i in range(len(legend)):
+                items.append(keyList[valList.index(str(i))])
+                i+=1
+            df.loc[len(df.index)] = [modelID, results[0], results[1], results[2], results[3], items[0], items[1], items[2], items[3], items[4]]
+            df.to_csv(masterFilePath, index=False)
 
     def updateFiles(self):
         dataFiles = os.listdir(dataPath)
@@ -812,7 +837,7 @@ class Modeling(ctk.CTkFrame):
 
         dataArray = df.to_numpy()
         labelsArray = df2.to_numpy()
-        return [dataArray, labelsArray]
+        return [dataArray, labelsArray, mapping]
 
 '''Page for Snake Game'''
 class SnakeGame(ctk.CTkFrame):
