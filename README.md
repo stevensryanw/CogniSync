@@ -93,3 +93,19 @@
 ## ```snake.py```
 
 ## ```wheelchairController.py```
+ - ```root_url```
+   This variable is the most important variable of the script as it holds the IP address for the WiFi ESP8266.
+   Using this IP, the script can communicate with controller as long as the device running the script is connected to the same network.
+ - ```sendRequest(url)```
+   This uses the ```urllib.request``` function ```urlopen``` to send a request to the microcontroller via WiFi.
+   The request sent is dependent on the tag attached to the end of the url after the IP address.
+ - ```motorForeward()```
+   This uses ```sendRequest(url)``` to send the ```forward``` command to the microcontroller.
+ - ```motorBackward()```
+   This uses ```sendRequest(url)``` to send the ```backward``` command to the microcontroller.
+ - ```turnLeft()```
+   This uses ```sendRequest(url)``` to send the ```left``` command to the microcontroller.
+ - ```turnrRight()```
+   This uses ```sendRequest(url)``` to send the ```right``` command to the microcontroller.
+ - ```motorStop()```
+   This uses ```sendRequest(url)``` to send the ```stop``` command to the microcontroller.
