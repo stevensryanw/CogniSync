@@ -7,19 +7,19 @@ def sendRequest(url):
 	n = urllib.request.urlopen(url) # send request to ESP
 
 def motorForward():
-    print("Moving forward")
+    #print("Moving forward")
     sendRequest(root_url + "/forward")
     
 def motorBackward():
-    print("Moving backward")
+    #print("Moving backward")
     sendRequest(root_url + "/backward")
 
 def turnLeft():
-    print("Turning Left")
+    #print("Turning Left")
     sendRequest(root_url + "/left")
 
 def turnRight():
-    print("Turning Right")
+    #print("Turning Right")
     sendRequest(root_url + "/right")
 
 def motorStop():

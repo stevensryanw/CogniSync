@@ -87,7 +87,7 @@ else:
 #make background gray
 ctk.set_appearance_mode("dark")
 
-'''Main class for the tkinter application'''
+
 #------------------ Main Application --------------------
 class App(ctk.CTk):
         # __init__ function for class tkinterApp 
@@ -121,7 +121,6 @@ class App(ctk.CTk):
 #------------------ Main Application --------------------
 
 
-'''Home page for the application'''
 #------------------ Home Page ---------------------------
 class Home(ctk.CTkFrame):
     def __init__(self, parent, controller): 
@@ -163,14 +162,12 @@ class Home(ctk.CTkFrame):
 #------------------ Home Page ---------------------------
 
 
-
-'''Page for user to plot data with movements'''
 #------------------ Plot EEG Data Page ------------------
 class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         label = ctk.CTkLabel(self, text ="Plotting EEG Data", font = LARGEFONT)
-        label.grid(row = 0, column = 4, padx = 100, pady = 10)
+        label.grid(row = 0, column = 1, padx = 100, pady = 10)
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
@@ -207,7 +204,7 @@ class PlotEEG(ctk.CTkFrame):
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=0)
         self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var, font=("Verdana", 15))
-        self.check1.grid(row=7, column=1, padx=20, pady=10)
+        self.check1.grid(row=7, column=1, padx=10, pady=10)
         #checkbox to select alpha values for graph
         self.check2Var = ctk.IntVar(value=0)
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var, font=("Verdana", 15))
@@ -345,7 +342,6 @@ class PlotEEG(ctk.CTkFrame):
 #------------------ Plot EEG Data Page ------------------
 
 
-'''Page for user recording data for training the model'''
 #------------------ User Recording Page -----------------
 class UserRecording(ctk.CTkFrame): 
     def __init__(self, parent, controller):
@@ -550,13 +546,12 @@ class UserRecording(ctk.CTkFrame):
 #------------------ User Recording Page -----------------
 
 
-'''Page for user to select model, data, and labels for training and testing.'''
 #------------------ Modeling Page -----------------------
 class Modeling(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         label = ctk.CTkLabel(self, text ="User Modeling", font = LARGEFONT)
-        label.grid(row = 0, column = 3, padx = 50, pady = 10)
+        label.grid(row = 0, column = 1, padx = 50, pady = 10)
         #Home button
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25, 
                             command = lambda : controller.show_frame(Home))
@@ -772,6 +767,8 @@ class Modeling(ctk.CTkFrame):
                 f.close()
                 print("File Name: "+outputFile)
                 torch.save(model, modelPath+'/'+modelSelected+dataName+str(t)+".pt")
+            else:
+                torch.save(model, modelPath+'/'+modelSelected+dataName+str(t)+".pt")
             #add an else to allow output file to be written by user
         else:
             waitLabel.configure(text="Results")
@@ -859,7 +856,6 @@ class Modeling(ctk.CTkFrame):
 #------------------ Modeling Page -----------------------
 
 
-'''Page for Snake Game'''
 #------------------ Snake Game Page ---------------------
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -890,6 +886,10 @@ class SnakeGame(ctk.CTkFrame):
         #button to start playing with predictions
         play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
         play_button.grid(row=8, column=1, padx=10, pady=20)
+
+        #button to stop playing with predictions
+        stop_button = ctk.CTkButton(self, text="Stop Predictions", corner_radius=25, command = self.stop_stream)
+        stop_button.grid(row=9, column=1, padx=10, pady=20)
 
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=1)
@@ -993,19 +993,28 @@ class SnakeGame(ctk.CTkFrame):
             #Read the prediction from the file as an integer
             #prediction = pred_file.read()
             print(prediction)
-            if prediction == 2:
+
+            #opening MasterModelFile.csv to use the modelname to get labels
+            # df = pd.read_csv('models/MasterModelFile.csv')
+            # modelSelected = self.modelDropdown.get()
+            # modelID = modelSelected.split(".")[0]
+            # labels = df.loc[df['Model Name'] == modelID]
+            # usableLabels = labels['Label 1'] + labels['Label 2'] + labels['Label 3'] + labels['Label 4'] + labels['Label 5']
+            # print(usableLabels.iloc[0:1])
+
+            if prediction == 0:
                 #keypress '<Up>'
                 app.event_generate('<Up>')
             elif prediction == 1:
                 #keypress '<Down>'
                 app.event_generate('<Down>')
-            elif prediction == 4:
+            elif prediction == 2:
                 #keypress '<Left>'
                 app.event_generate('<Left>')
-            elif prediction == 0:
+            elif prediction == 3:
                 #keypress '<Right>'
                 app.event_generate('<Right>')
-            elif prediction == 3:
+            elif prediction == 4:
                 continue
             else:
                 print("Error in prediction")
@@ -1018,6 +1027,10 @@ class SnakeGame(ctk.CTkFrame):
         self.stop_predict = False
         if self.stream_thread is not None and self.stream_thread.is_alive():
             self.stream_thread.join()
+        self.stop_predictions()
+        self.stop_record()
+    def label_map(self):
+        return 0
 
     '''Snake Ganme Functions'''
     def drawFrame(self):
@@ -1107,7 +1120,7 @@ class SnakeGame(ctk.CTkFrame):
 #------------------ Snake Game Page ---------------------
 
 
-'''Page for USB Output (Robotic Wheelchair)'''
+'''Robotic Wheel Chair Control Page'''
 #------------------ USB Output Page ---------------------
 class USBOutput(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -1156,6 +1169,10 @@ class USBOutput(ctk.CTkFrame):
         #button to start playing with predictions
         play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
         play_button.grid(row=10, column=1, padx=10, pady=20)
+
+        #button to stop playing with predictions
+        stop_button = ctk.CTkButton(self, text="Stop Predictions", corner_radius=25, command = self.stop_stream)
+        stop_button.grid(row=11, column=1, padx=10, pady=20)
 
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=1)
@@ -1256,7 +1273,7 @@ class USBOutput(ctk.CTkFrame):
             else:
                 prediction = pred_file.seek(0)
             #Read the prediction from the file as an integer
-            print(prediction)
+            #print(prediction)
             if prediction == 2:
                 wcc.motorForward()
             elif prediction == 1:
@@ -1280,6 +1297,8 @@ class USBOutput(ctk.CTkFrame):
         self.stop_predict = False
         if self.stream_thread is not None and self.stream_thread.is_alive():
             self.stream_thread.join()
+        self.stop_predictions()
+        self.stop_record()
 #------------------ USB Output Page ---------------------
 
 
@@ -1288,7 +1307,7 @@ score = 0
 direction = 'down'
 # Driver Code
 app = App()
-app.geometry("1200x850")
+app.geometry("900x800")
 app.update()
 app.mainloop()
 #------------------ Main Loop ---------------------------
