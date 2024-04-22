@@ -980,15 +980,6 @@ class SnakeGame(ctk.CTkFrame):
         if self.stream_thread is not None and self.stream_thread.is_alive():
             self.stream_thread.join()
 
-    #update list of models
-    def updateFiles(self):
-        modelFiles = os.listdir(modelPath)
-        if len(modelFiles)==0:
-            modelFiles = "No Current Files"
-            self.modelDropdown.configure(values=modelFiles)
-        else:
-            self.modelDropdown.configure(values=modelFiles)
-
     def drawFrame(self):
         global canvas
         global snake
@@ -1112,8 +1103,6 @@ class USBOutput(ctk.CTkFrame):
         update_button = ctk.CTkButton(self, text="Update Model Lists", command = self.updateFiles)
         update_button.grid(row=6, column=1, columnspan=1, sticky="news", padx=10, pady=10)
         #button for model selection
-        self.selectButton = ctk.CTkButton(self, text="Select Model", command = self.modelSelection)
-        self.selectButton.grid(row=7, column=1, padx=10, pady=10)
 
         self.model = False
         self.update()
@@ -1123,8 +1112,27 @@ class USBOutput(ctk.CTkFrame):
         self.bind('<Up>', lambda event: wcc.motorForward())
         self.bind('<Down>', lambda event: wcc.motorBackward())
         self.bind('<space>', lambda event: wcc.motorStop())
+        #button to select the model
+        select_button = ctk.CTkButton(self, text="Select Model", corner_radius=25, command = self.modelSelection)
+        select_button.grid(row=9, column=1, padx=10, pady=20)
+
+        #button to start playing with predictions
+        play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
+        play_button.grid(row=10, column=1, padx=10, pady=20)
+
+        #checkbox to select electrode data for graph
+        self.check1Var = ctk.IntVar(value=1)
+        self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var)
+        self.check1.grid(row=7, column=1, padx=20, pady=10)
+
+        #checkboc to select alpha values for graph
+        self.check2Var = ctk.IntVar(value=1)
+        self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
+        self.check2.grid(row=8, column=1, padx=10, pady=10)
+
         self.record_thread = None
         self.predict_thread = None
+        self.stream_thread = None
         self.stop_predict = True
 
     def start_record(self):
@@ -1147,28 +1155,42 @@ class USBOutput(ctk.CTkFrame):
             self.modelDropdown.configure(values=modelFiles)
         else:
             self.modelDropdown.configure(values=modelFiles)
+            
     def modelSelection(self):
         modelSelected = self.modelDropdown.get()
         print(modelSelected[-3:])
         if modelSelected[-3:] == "pkl":
             self.model = joblib.load(modelPath+"/"+modelSelected)
+        elif modelSelected[-2:] == ".pt":
+            self.model = torch.load(modelPath+"/"+modelSelected)
         else:
             self.model = False
 
     def start_predictions(self):
+        modelSelected = self.modelDropdown.get()
         while self.stop_predict is True:
             stream = pd.read_csv('newest_rename.csv')
-            stream = stream.iloc[:, 0:11]
+            if self.check1Var.get()==1 and self.check2Var.get()==0:
+                stream = stream.iloc[:, 8:11]
+            elif self.check1Var.get()==0 and self.check2Var.get()==1:
+                stream = stream.iloc[:, 0:8]
+            else:
+                stream = stream.iloc[:, 0:11]
             if stream.loc[len(stream)-1].isnull().values.any():
                 stream = stream.dropna()
             stream_latest = stream.loc[len(stream)-1]
             #remove the header from stream_latest
             stream_latest = stream_latest.to_numpy()
-            prediction = self.model.predict(stream_latest.reshape(1, -1))
+            if modelSelected[-3:] == "pkl":
+                prediction = self.model.predict(stream_latest.reshape(1, -1))
+            elif modelSelected[-2:] == ".pt":
+                prediction = self.model.eval(stream_latest)
+            else:
+                print("No model selected")
             #opening tempPred file as empty to write the new prediction
             file = open("tempPred.txt", "w")
             #writing the prediction to the file
-            file.write(str(prediction))
+            file.write(str(int(prediction[0])))
             file.close()
 
     def start_prediction_thread(self):
@@ -1188,23 +1210,39 @@ class USBOutput(ctk.CTkFrame):
         self.start_prediction_thread()
 
         while self.stop_predict is True:
-            file = open("tempPred.txt", "r")
-            prediction = file.read()
+            pred_file = open("tempPred.txt", "r")
+            #Continue if the file is empty
+            if pred_file.read() == ' ':
+                prediction = 3
+            else:
+                prediction = pred_file.seek(0)
+            #Read the prediction from the file as an integer
+            print(prediction)
             if prediction == 2:
                 wcc.motorForward()
             elif prediction == 1:
-                wcc.turnLeft()
-            elif prediction == 4:
-                wcc.turnRight()
-            elif prediction == 0:
                 wcc.motorBackward()
+            elif prediction == 4:
+                wcc.turnLeft()
+            elif prediction == 0:
+                wcc.turnRight()
             elif prediction == 3:
                 wcc.motorStop()
+                continue
             else:
+                print("Error in prediction")
                 wcc.motorStop()
                 self.stop_record()
-        
 
+    def start_stream_thread(self):
+        if self.stream_thread is None or not self.stream_thread.is_alive():
+            self.stream_thread = threading.Thread(target=self.predictStream)
+            self.stream_thread.start()
+
+    def stop_stream(self):
+        self.stop_predict = False
+        if self.stream_thread is not None and self.stream_thread.is_alive():
+            self.stream_thread.join()
 
 score = 0
 direction = 'down'
