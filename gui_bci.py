@@ -4,7 +4,8 @@ from tkinter import ttk
 import os
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageTk
+from PIL import ImageTk
+import PIL.Image
 from functools import partial
 from snake import *
 import random
@@ -107,37 +108,42 @@ class Home(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
         # label of frame Layout 2
         label = ctk.CTkLabel(self, text ="CogniSync", font = LARGEFONT)
-        # putting the grid in its place by using
-        # grid
-        label.grid(row = 0, column = 4, padx = 100, pady = 10) 
+        # putting the grid in its place by using grid
+        label.grid(row = 0, column = 2, padx = 100, pady = 10) 
+        #Adding our logo to the home page
+        my_image = ctk.CTkImage(light_image=PIL.Image.open("CogniSyncLogo.png"),
+                                  dark_image=PIL.Image.open("CogniSyncLogo.png"),
+                                  size=(450, 450))
+        my_label = ctk.CTkLabel(self, text = '', image=my_image)
+        my_label.grid(row=1, column=2, padx=0, pady=0)
         button1 = ctk.CTkButton(self, text ="Plot EEG Data",corner_radius=25, 
         command = lambda : controller.show_frame(PlotEEG))
         # putting the button in its place by
         # using grid
-        button1.grid(row = 1, column = 1, padx = 10, pady = 20)
+        button1.grid(row = 2, column = 1, padx = 10, pady = 10)
         ## button to show frame 2 with text layout2
         button2 = ctk.CTkButton(self, text ="Recording Data",corner_radius=25,
         command = lambda : controller.show_frame(UserRecording))
         # putting the button in its place by
         # using grid
-        button2.grid(row = 2, column = 1, padx = 10, pady = 20)
+        button2.grid(row = 2, column = 2, padx = 10, pady = 20)
         ## button to show model selection frame with
         button3 = ctk.CTkButton(self, text ="Modeling",corner_radius=25,
         command = lambda : controller.show_frame(Modeling))
         # putting the button in its place by
         # using grid
-        button3.grid(row = 3, column = 1, padx = 10, pady = 20)
+        button3.grid(row = 2, column = 3, padx = 10, pady = 20)
         #including snake game page for now
         button4 = ctk.CTkButton(self, text = "Snake Game", corner_radius=25, 
         command = lambda : controller.show_frame(SnakeGame))
         #places button to switch to snake game page
-        button4.grid(row=4, column=1, padx=10, pady=20)
+        button4.grid(row=3, column=1, padx=10, pady=20)
         #including USB output page for now
         button5 = ctk.CTkButton(self, text = "USB Output", corner_radius=25,
         command = lambda : controller.show_frame(USBOutput))
         #places button to switch to USB output page
-        button5.grid(row=5, column=1, padx=10, pady=20)
-
+        button5.grid(row=3, column=2, padx=10, pady=20)
+        
 '''Page for user to plot data with movements'''
 class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -150,49 +156,37 @@ class PlotEEG(ctk.CTkFrame):
         #labels for the data dropdown
         Data_label = ctk.CTkLabel(self, text="Data File", font=("Verdana", 15))
         Data_label.grid(row=3, column=0, padx = 10, pady=10)
-
         #dropdown option for the data that we will plot in plotly
         self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
         self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
-
         #button to update files for dropdown
         self.updateButton = ctk.CTkButton(self, text='Update File List', corner_radius=25, command=self.updateList)
         self.updateButton.grid(row=4, column=1, padx=10, pady=10)
-
         #button to show the eeg data with labels
         button2 = ctk.CTkButton(self, text ="Show EEG Data",corner_radius=25, command=self.plot_eeg)
         button2.grid(row = 9, column = 1, padx = 10, pady = 30)
-
         #slider for starting point in graph
         self.slider1 = ctk.CTkSlider(self, from_=0, to=999990, command=self.slide1)
         self.slider1.grid(row=5, column=1, padx=10, pady=10)
-
         #label for slider 1
         self.slideLabel1 = ctk.CTkLabel(self, text='Starting Point', font=("Verdana", 15))
         self.slideLabel1.grid(row=5, column=0, padx=10, pady=10)
-
         #label for slider 1 value
         self.sliderLabel1 = ctk.CTkLabel(self, text=str(int(self.slider1.get())), font=("Verdana", 15))
         self.sliderLabel1.grid(row=5, column=2, padx=10, pady=10)
-
         #slider for end point in graph
         self.slider2 = ctk.CTkSlider(self, from_=2, to=1000000, command=self.slide2)
         self.slider2.grid(row=6, column=1, padx=10, pady=10)
-
         #label for slider 2
         self.slideLabel1 = ctk.CTkLabel(self, text='Ending Point', font=("Verdana", 15))
         self.slideLabel1.grid(row=6, column=0, padx=10, pady=10)
-
         #label for slider 2 value
         self.sliderLabel2 = ctk.CTkLabel(self, text=str(int(self.slider2.get())), font=("Verdana", 15))
         self.sliderLabel2.grid(row=6, column=2, padx=10, pady=10)
-        
-    
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=0)
         self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var, font=("Verdana", 15))
         self.check1.grid(row=7, column=1, padx=20, pady=10)
-
         #checkbox to select alpha values for graph
         self.check2Var = ctk.IntVar(value=0)
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var, font=("Verdana", 15))
