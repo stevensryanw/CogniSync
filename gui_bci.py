@@ -19,6 +19,7 @@ import plotly.express as px
 import wheelchairController as wcc
 import joblib
 import plotly.graph_objects as go
+from connect import *
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -550,36 +551,7 @@ class UserRecording(ctk.CTkFrame):
             self.record_thread.join()
 
     def record_data(self):
-        SCALE_FACTOR_EEG = (4500000)/24/(2**23-1) #uV/count
-        SCALE_FACTOR_AUX = 0.002 / (2**4)
-        print("Creating LSL stream for EEG. \nName: OpenBCIEEG\nID: OpenBCItestEEG\n")
-        info_eeg = StreamInfo('OpenBCIEEG', 'EEG', 8, 250, 'float32', 'OpenBCItestEEG')
-        print("Creating LSL stream for AUX. \nName: OpenBCIAUX\nID: OpenBCItestEEG\n")
-        info_aux = StreamInfo('OpenBCIAUX', 'AUX', 3, 250, 'float32', 'OpenBCItestAUX')
-        outlet_eeg = StreamOutlet(info_eeg)
-        outlet_aux = StreamOutlet(info_aux)
-        file_out = open('newest_rename.csv', 'a')
-        file_out.truncate(0)
-        def lsl_streamers(sample):
-            file_in = open('tempVal.txt', 'r')
-            input = file_in.readline()
-            lbl = ''
-            if input != '':
-                lbl = input
-            else:
-                lbl = 'norm'
-            outlet_eeg.push_sample(np.array(sample.channels_data)*SCALE_FACTOR_EEG)
-            outlet_aux.push_sample(np.array(sample.aux_data)*SCALE_FACTOR_AUX)
-            #print(sample.channels_data*SCALE_FACTOR_EEG, sample.aux_data*SCALE_FACTOR_AUX, lbl)
-            for datai in sample.channels_data:
-                file_out.write(str(datai*SCALE_FACTOR_EEG) + ',')
-            for dataj in sample.aux_data:
-                file_out.write(str(dataj*SCALE_FACTOR_AUX) + ',')
-            file_out.write(str(lbl) + '\n')
-            file_in.close()
-        board = OpenBCICyton()
-        board.start_stream(lsl_streamers)
-        file_out.close()
+        record(self)
 
 #Page 3: Model Selection, Data Input, Training, and Testing, and Result Visualization
 '''Page for user to select model, data, and labels for training and testing.'''
@@ -893,6 +865,116 @@ class SnakeGame(ctk.CTkFrame):
         #update the model list
         update_button = ctk.CTkButton(self, text="Update Model Lists", corner_radius=25, command = self.updateFiles)
         update_button.grid(row=4, column=1, padx=10, pady=20)
+        #button to select the model
+        select_button = ctk.CTkButton(self, text="Select Model", corner_radius=25, command = self.modelSelection)
+        select_button.grid(row=5, column=1, padx=10, pady=20)
+        #button to start playing with predictions
+        play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
+        play_button.grid(row=6, column=1, padx=10, pady=20)
+
+        self.record_thread = None
+        self.predict_thread = None
+        self.stream_thread = None
+        self.stop_predict = True
+
+    def start_record(self):
+        if self.record_thread is None or not self.record_thread.is_alive():
+            self.record_thread = threading.Thread(target=self.record_data)
+            self.record_thread.start()
+
+    def stop_record(self):
+        if self.record_thread is not None and self.record_thread.is_alive():
+            self.record_thread.join()
+
+    def record_data(self):
+        record(self)
+
+    #update list of models
+    def updateFiles(self):
+        modelFiles = os.listdir(modelPath)
+        if len(modelFiles)==0:
+            modelFiles = "No Current Files"
+            self.modelDropdown.configure(values=modelFiles)
+        else:
+            self.modelDropdown.configure(values=modelFiles)
+            
+    def modelSelection(self):
+        modelSelected = self.modelDropdown.get()
+        print(modelSelected[-3:])
+        if modelSelected[-3:] == "pkl":
+            self.model = joblib.load(modelPath+"/"+modelSelected)
+        else:
+            self.model = False
+
+    def start_predictions(self):
+        while self.stop_predict is True:
+            stream = pd.read_csv('newest_rename.csv')
+            stream = stream.iloc[:, 0:11]
+            if stream.loc[len(stream)-1].isnull().values.any():
+                stream = stream.dropna()
+            stream_latest = stream.loc[len(stream)-1]
+            #remove the header from stream_latest
+            stream_latest = stream_latest.to_numpy()
+            prediction = self.model.predict(stream_latest.reshape(1, -1))
+            #opening tempPred file as empty to write the new prediction
+            file = open("tempPred.txt", "w")
+            #writing the prediction to the file
+            file.write(str(int(prediction[0])))
+            file.close()
+
+    def start_prediction_thread(self):
+        if self.predict_thread is None or not self.predict_thread.is_alive():
+            self.predict_thread = threading.Thread(target=self.start_predictions)
+            self.predict_thread.start()
+
+    def stop_predictions(self):
+        self.stop_predict = False
+        if self.predict_thread is not None and self.predict_thread.is_alive():
+            self.predict_thread.join()
+
+    def predictStream(self):
+        self.start_record()
+        #Allow stream to start before prompting
+        time.sleep(15)
+        self.start_prediction_thread()
+
+        while self.stop_predict is True:
+            pred_file = open("tempPred.txt", "r")
+            #Continue if the file is empty
+            if pred_file.read() == ' ':
+                prediction = 3
+            else:
+                prediction = pred_file.seek(0)
+            #Read the prediction from the file as an integer
+            #prediction = pred_file.read()
+            print(prediction)
+            if prediction == 2:
+                #keypress '<Up>'
+                app.event_generate('<Up>')
+            elif prediction == 1:
+                #keypress '<Down>'
+                app.event_generate('<Down>')
+            elif prediction == 4:
+                #keypress '<Left>'
+                app.event_generate('<Left>')
+            elif prediction == 0:
+                #keypress '<Right>'
+                app.event_generate('<Right>')
+            elif prediction == 3:
+                continue
+            else:
+                print("Error in prediction")
+                self.stop_record()
+
+    def start_stream_thread(self):
+        if self.stream_thread is None or not self.stream_thread.is_alive():
+            self.stream_thread = threading.Thread(target=self.predictStream)
+            self.stream_thread.start()
+
+    def stop_stream(self):
+        self.stop_predict = False
+        if self.stream_thread is not None and self.stream_thread.is_alive():
+            self.stream_thread.join()
 
     #update list of models
     def updateFiles(self):
@@ -1037,8 +1119,22 @@ class USBOutput(ctk.CTkFrame):
         self.bind('<Up>', lambda event: wcc.motorForward())
         self.bind('<Down>', lambda event: wcc.motorBackward())
         self.bind('<space>', lambda event: wcc.motorStop())
+        self.record_thread = None
+        self.predict_thread = None
+        self.stop_predict = True
 
-    
+    def start_record(self):
+        if self.record_thread is None or not self.record_thread.is_alive():
+            self.record_thread = threading.Thread(target=self.record_data)
+            self.record_thread.start()
+
+    def stop_record(self):
+        if self.record_thread is not None and self.record_thread.is_alive():
+            self.record_thread.join()
+
+    def record_data(self):
+        record(self)
+
     #update list of models
     def updateFiles(self):
         modelFiles = os.listdir(modelPath)
@@ -1054,6 +1150,55 @@ class USBOutput(ctk.CTkFrame):
             self.model = joblib.load(modelPath+"/"+modelSelected)
         else:
             self.model = False
+
+    def start_predictions(self):
+        while self.stop_predict is True:
+            stream = pd.read_csv('newest_rename.csv')
+            stream = stream.iloc[:, 0:11]
+            if stream.loc[len(stream)-1].isnull().values.any():
+                stream = stream.dropna()
+            stream_latest = stream.loc[len(stream)-1]
+            #remove the header from stream_latest
+            stream_latest = stream_latest.to_numpy()
+            prediction = self.model.predict(stream_latest.reshape(1, -1))
+            #opening tempPred file as empty to write the new prediction
+            file = open("tempPred.txt", "w")
+            #writing the prediction to the file
+            file.write(str(prediction))
+            file.close()
+
+    def start_prediction_thread(self):
+        if self.predict_thread is None or not self.predict_thread.is_alive():
+            self.predict_thread = threading.Thread(target=self.start_predictions)
+            self.predict_thread.start()
+
+    def stop_predictions(self):
+        self.stop_predict = False
+        if self.predict_thread is not None and self.predict_thread.is_alive():
+            self.predict_thread.join()
+
+    def predictStream(self):
+        self.start_record()
+        #Allow stream to start before prompting
+        time.sleep(15)
+        self.start_prediction_thread()
+
+        while self.stop_predict is True:
+            file = open("tempPred.txt", "r")
+            prediction = file.read()
+            if prediction == 2:
+                wcc.motorForward()
+            elif prediction == 1:
+                wcc.turnLeft()
+            elif prediction == 4:
+                wcc.turnRight()
+            elif prediction == 0:
+                wcc.motorBackward()
+            elif prediction == 3:
+                wcc.motorStop()
+            else:
+                wcc.motorStop()
+                self.stop_record()
         
 
 
