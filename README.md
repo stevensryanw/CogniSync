@@ -90,11 +90,11 @@
 
  - ```scoring(model, x, y)```  
 
-## ```snake.py```  
-### Class ```Snake```  
-- This intializes a ```Snake``` object. 
-### Class ```Food```  
-### ```check_collisons(coordinates)```  
+- ```snake.py```  
+- Class ```Snake```
+  This intializes a ```Snake``` object. 
+- Class ```Food```
+  ```check_collisons(coordinates)```  
 - This checks if the snake has collided with the borders of the frame.
   If the snake has, it will return ```True```, otherwise, it will return ```False```.
 ## ```wheelchairController.py```
