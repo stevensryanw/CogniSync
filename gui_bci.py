@@ -83,6 +83,8 @@ else:
 #make background gray
 ctk.set_appearance_mode("dark")
 
+'''Main class for the tkinter application'''
+#------------------ Main Application --------------------
 class App(ctk.CTk):
         # __init__ function for class tkinterApp 
     def __init__(self, *args, **kwargs): 
@@ -112,8 +114,11 @@ class App(ctk.CTk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+#------------------ Main Application --------------------
 
-#first window frame startpage
+
+'''Home page for the application'''
+#------------------ Home Page ---------------------------
 class Home(ctk.CTkFrame):
     def __init__(self, parent, controller): 
         ctk.CTkFrame.__init__(self, parent)
@@ -151,8 +156,12 @@ class Home(ctk.CTkFrame):
         command = lambda : controller.show_frame(USBOutput))
         #places button to switch to USB output page
         button5.grid(row=3, column=2, padx=10, pady=20)
-        
+#------------------ Home Page ---------------------------
+
+
+
 '''Page for user to plot data with movements'''
+#------------------ Plot EEG Data Page ------------------
 class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -329,8 +338,11 @@ class PlotEEG(ctk.CTkFrame):
                 temp_save = labels.iloc[i]
                 fig.add_vline(x=i, line_dash='dash', line_color=legend2[labels.iloc[i]])
         fig.show()
+#------------------ Plot EEG Data Page ------------------
+
 
 '''Page for user recording data for training the model'''
+#------------------ User Recording Page -----------------
 class UserRecording(ctk.CTkFrame): 
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -531,9 +543,11 @@ class UserRecording(ctk.CTkFrame):
             self.record_thread.join()
     def record_data(self):
         record(self)
+#------------------ User Recording Page -----------------
 
-#Page 3: Model Selection, Data Input, Training, and Testing, and Result Visualization
+
 '''Page for user to select model, data, and labels for training and testing.'''
+#------------------ Modeling Page -----------------------
 class Modeling(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -835,8 +849,11 @@ class Modeling(ctk.CTkFrame):
         dataArray = df.to_numpy()
         labelsArray = df2.to_numpy()
         return [dataArray, labelsArray, mapping]
+#------------------ Modeling Page -----------------------
+
 
 '''Page for Snake Game'''
+#------------------ Snake Game Page ---------------------
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -1078,8 +1095,11 @@ class SnakeGame(ctk.CTkFrame):
                 del snake.coordinates[-1]
                 snake.canvas.delete(snake.squares[-1])
                 del snake.squares[-1]
+#------------------ Snake Game Page ---------------------
+
 
 '''Page for USB Output (Robotic Wheelchair)'''
+#------------------ USB Output Page ---------------------
 class USBOutput(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -1249,12 +1269,15 @@ class USBOutput(ctk.CTkFrame):
         self.stop_predict = False
         if self.stream_thread is not None and self.stream_thread.is_alive():
             self.stream_thread.join()
+#------------------ USB Output Page ---------------------
 
+
+#------------------ Main Loop ---------------------------
 score = 0
 direction = 'down'
-
 # Driver Code
 app = App()
 app.geometry("1200x850")
 app.update()
 app.mainloop()
+#------------------ Main Loop ---------------------------
