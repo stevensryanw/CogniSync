@@ -86,7 +86,7 @@ class App(ctk.CTk):
         # iterating through a tuple consisting
         # of the different page layouts
         #if a page is added it needs to be placed here
-        for F in (Home, LiveFeed, UserRecording, Modeling, SnakeGame, USBOutput):
+        for F in (Home, PlotEEG, UserRecording, Modeling, SnakeGame, USBOutput):
             frame = F(container, self)
             # initializing frame of that object from
             # startpage, page1, page2 respectively with 
@@ -109,8 +109,8 @@ class Home(ctk.CTkFrame):
         # putting the grid in its place by using
         # grid
         label.grid(row = 0, column = 4, padx = 100, pady = 10) 
-        button1 = ctk.CTkButton(self, text ="Live Feed",corner_radius=25, 
-        command = lambda : controller.show_frame(LiveFeed))
+        button1 = ctk.CTkButton(self, text ="Plot EEG Data",corner_radius=25, 
+        command = lambda : controller.show_frame(PlotEEG))
         # putting the button in its place by
         # using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 20)
@@ -137,25 +137,30 @@ class Home(ctk.CTkFrame):
         #places button to switch to USB output page
         button5.grid(row=5, column=1, padx=10, pady=20)
 
-class LiveFeed(ctk.CTkFrame):
+'''Page for user to plot data with movements'''
+class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        label = ctk.CTkLabel(self, text ="Live Feed", font = LARGEFONT)
+        label = ctk.CTkLabel(self, text ="Plotting EEG Data", font = LARGEFONT)
         label.grid(row = 0, column = 4, padx = 100, pady = 10)
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
         #labels for the data dropdown
-        Data_label = ctk.CTkLabel(self, text="Data File")
+        Data_label = ctk.CTkLabel(self, text="Data File", font=("Verdana", 15))
         Data_label.grid(row=3, column=0, padx = 10, pady=10)
 
         #dropdown option for the data that we will plot in plotly
         self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
         self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
 
+        #button to update files for dropdown
+        self.updateButton = ctk.CTkButton(self, text='Update File List', corner_radius=25, command=self.updateList)
+        self.updateButton.grid(row=4, column=1, padx=10, pady=10)
+
         #button to show the eeg data with labels
         button2 = ctk.CTkButton(self, text ="Show EEG Data",corner_radius=25, command=self.plot_eeg)
-        button2.grid(row = 4, column = 1, padx = 10, pady = 30)
+        button2.grid(row = 9, column = 1, padx = 10, pady = 30)
 
         #slider for starting point in graph
         self.slider1 = ctk.CTkSlider(self, from_=0, to=999990, command=self.slide1)
@@ -166,7 +171,7 @@ class LiveFeed(ctk.CTkFrame):
         self.slideLabel1.grid(row=5, column=0, padx=10, pady=10)
 
         #label for slider 1 value
-        self.sliderLabel1 = ctk.CTkLabel(self, text=str(int(self.slider1.get())))
+        self.sliderLabel1 = ctk.CTkLabel(self, text=str(int(self.slider1.get())), font=("Verdana", 15))
         self.sliderLabel1.grid(row=5, column=2, padx=10, pady=10)
 
         #slider for end point in graph
@@ -178,19 +183,31 @@ class LiveFeed(ctk.CTkFrame):
         self.slideLabel1.grid(row=6, column=0, padx=10, pady=10)
 
         #label for slider 2 value
-        self.sliderLabel2 = ctk.CTkLabel(self, text=str(int(self.slider2.get())))
+        self.sliderLabel2 = ctk.CTkLabel(self, text=str(int(self.slider2.get())), font=("Verdana", 15))
         self.sliderLabel2.grid(row=6, column=2, padx=10, pady=10)
         
     
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=0)
-        self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var)
-        self.check1.grid(row=1, column=2, padx=20, pady=10)
+        self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var, font=("Verdana", 15))
+        self.check1.grid(row=7, column=1, padx=20, pady=10)
 
         #checkboc to select alpha values for graph
         self.check2Var = ctk.IntVar(value=0)
-        self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
-        self.check2.grid(row=3, column=2, padx=10, pady=10)
+        self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var, font=("Verdana", 15))
+        self.check2.grid(row=7, column=0, padx=10, pady=10)
+    
+    def updateList(self):
+        dataFiles = os.listdir(dataPath)
+        if len(dataFiles)==0:
+            dataFiles = "No Current Files"
+            self.Data_dropdown.configure(values=dataFiles)
+            self.Labels_dropdown.configure(values=dataFiles)
+        else:
+            self.Data_dropdown.configure(values=dataFiles)
+            dataFiles.insert(0, "No Label File")
+            self.Labels_dropdown.configure(values=dataFiles)
+            dataFiles.pop(0) 
 
     def slide1(self, value):
         if value >= self.slider2.get():
@@ -216,6 +233,7 @@ class LiveFeed(ctk.CTkFrame):
         labelNames = data['label'].unique()
         labels = data['label']
         data.drop(columns='label', inplace=True)
+        temp_save = ''
         columnNames = []
         legend = {}
         k=0
@@ -236,51 +254,91 @@ class LiveFeed(ctk.CTkFrame):
         else:
             interval2 = interval_default[1]
         data = data[interval1:interval2]
+        min = data[['ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','aux1','aux2','aux3']].values.min()
+        max = data[['ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','aux1','aux2','aux3']].values.max()
+        legend2={}
+        k=0
+        for j in labelNames:
+            legend2[j]=px.colors.qualitative.Light24[k]
+            k+=1
+        """
+        plotly.graph_objs.Line is deprecated.
+        Please replace it with one of the following more specific types
+        - plotly.graph_objs.scatter.Line
+        - plotly.graph_objs.layout.shape.Line
+        - etc.
+        """
         if self.check1Var.get()==1 and self.check2Var.get()==0:
             data = data.drop(columns=data.columns[8:11])
-            graphTitle = dataSelected[-4]+" Electrode Values"
-            #fig.add_trace(go.Line(x=data.index, y=data['aux1'], mode='lines', name='aux1'))
-            #fig.add_trace(go.Line(x=data.index, y=data['aux2'], mode='lines', name='aux1'))
-            #fig.add_trace(go.Line(x=data.index, y=data['aux3'], mode='lines', name='aux1'))
-            #legend = {'0.0': 'ch1', '0.0.1': 'ch2', '0.0.2': 'ch3', '0.0.3': 'ch4', '0.0.4': 'ch5', '0.0.5': 'ch6', '0.0.6': 'ch7', '0.0.7': 'ch8'}
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch2'], mode='lines', line=dict(color=legend.get('ch2')), name='ch2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch3'], mode='lines', line=dict(color=legend.get('ch3')), name='ch3'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch4'], mode='lines', line=dict(color=legend.get('ch4')), name='ch4'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch5'], mode='lines', line=dict(color=legend.get('ch5')), name='ch5'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch6'], mode='lines', line=dict(color=legend.get('ch6')), name='ch6'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch7'], mode='lines', line=dict(color=legend.get('ch7')), name='ch7'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch8'], mode='lines', line=dict(color=legend.get('ch8')), name='ch8'))
+            previous=[]
+            for i in range(interval1, interval2):
+                if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
+                    temp_save = labels.iloc[i]
+                    previous.append(labels.iloc[i])
+                    fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
+                                  line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
+            graphTitle = dataSelected[:-4]+" Electrode Values"
         elif self.check1Var.get()==0 and self.check2Var.get()==1:
             data = data.drop(columns=data.columns[0:8])
-            #fig.add_trace(go.Line(x=data.index, y=data['aux1']))
-            #fig.add_trace(go.Line(x=data.index, y=data['aux2']))
-            #fig.add_trace(go.Line(x=data.index, y=data['aux3']))
-            graphTitle = dataSelected[-4]+" Alpha Values"
-            #legend = {'0.0': 'aux1', '0.0.1': 'aux2', '0.0.2': 'aux3'}
+            min = data[['aux1','aux2','aux3']].values.min()
+            max = data[['aux1','aux2','aux3']].values.max()
+            #maybe change to scatter to make less cluttered
+            data.drop(data[data.aux1==0.0].index, inplace=True)
+            data.drop(data[data.aux2==0.0].index, inplace=True)
+            data.drop(data[data.aux3==0.0].index, inplace=True)
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux1'], mode='lines', line=dict(color=legend.get('aux1')), name='aux1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux2'], mode='lines', line=dict(color=legend.get('aux2')), name='aux2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
+            previous=[]
+            for i in range(interval1, interval2):
+                if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
+                    temp_save = labels.iloc[i]
+                    previous.append(labels.iloc[i])
+                    fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
+                                  line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
+            graphTitle = dataSelected[:-4]+" Alpha Values"
         else:
-            graphTitle = dataSelected[-4]+" Electrode and Alpha Values"
-            #legend = {'0.0': 'ch1', '0.0.1': 'ch2', '0.0.2': 'ch3', '0.0.3': 'ch4', '0.0.4': 'ch5', '0.0.5': 'ch6', '0.0.6': 'ch7', '0.0.7': 'ch8'}
-        temp_save = ''
+            graphTitle = dataSelected[:-4]+" Electrode and Alpha Values"
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch2'], mode='lines', line=dict(color=legend.get('ch2')), name='ch2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch3'], mode='lines', line=dict(color=legend.get('ch3')), name='ch3'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch4'], mode='lines', line=dict(color=legend.get('ch4')), name='ch4'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch5'], mode='lines', line=dict(color=legend.get('ch5')), name='ch5'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch6'], mode='lines', line=dict(color=legend.get('ch6')), name='ch6'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch7'], mode='lines', line=dict(color=legend.get('ch7')), name='ch7'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['ch8'], mode='lines', line=dict(color=legend.get('ch8')), name='ch8'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux1'], mode='lines', line=dict(color=legend.get('aux1')), name='aux1'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux2'], mode='lines', line=dict(color=legend.get('aux2')), name='aux2'))
+            fig.add_trace(go.Scatter(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
+            previous=[]
+            for i in range(interval1, interval2):
+                if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
+                    temp_save = labels.iloc[i]
+                    previous.append(labels.iloc[i])
+                    fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
+                                  line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
         data.reset_index(inplace=True)
+        #possibly return to this thing
         df = pd.melt(data, id_vars='index', value_vars=data.columns[:])
 
-        fig = px.line(df, x='index', y='value', color='variable', color_discrete_sequence=px.colors.qualitative.Plotly)
+        #fig = px.line(df, x='index', y='value', color='variable', color_discrete_sequence=px.colors.qualitative.Plotly)
         #fig = px.line(data, x=data.index, y=data.columns[0:8], title='EEG data with movement labels as vertical bars')
         #fig.update_layout(legend_title_text='Channels')
         #legend = {'0.0': 'ch1', '0.0.1': 'ch2', '0.0.2': 'ch3', '0.0.3': 'ch4', '0.0.4': 'ch5', '0.0.5': 'ch6', '0.0.6': 'ch7', '0.0.7': 'ch8'}
         #taking zeros and putting actual names not needed anymore
         #fig.for_each_trace(lambda t: t.update(name=legend[t.name]))
-
-        #lets add vertical colored bars for the first of each movement sample
-        #legend2 = {'Move Left Arm': 'red', 'Move Right Arm': 'blue', 'Move Legs': 'green', 'Jaw Clench': 'purple'} 
-        stuff=['orange', 'red', 'blue', 'orange', 'green', 'purple', 'orange', 'black']
-
-        #legend2 = {'left arm': 'red', ' right arm': 'blue', ' legs': 'green', ' jaw': 'purple'}
-        legend2={}
-        k=0
-        for j in labelNames:
-            legend2[j]=stuff[k] #px.colors.qualitative.Light24[k]
-            k+=1
-        print(legend2)
-        #lets add legend2 to the plot
+        fig.update_layout(legend_title_text='Legend')
         fig.update_layout(showlegend=True)
         fig.update_layout(font_size=35)
-        fig.update_layout(legend_title_text='Channels')
-        print(interval1)
-        print(interval2)
+        fig.update_layout(title_text=graphTitle)
         #iterating through all rows and looking in column to see if label is not norm or empty
         #if it meets these conditions then 
         for i in range(interval1, interval2):
@@ -288,16 +346,10 @@ class LiveFeed(ctk.CTkFrame):
             if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save:
                 temp_save = labels.iloc[i]
                 fig.add_vline(x=i, line_dash='dash', line_color=legend2[labels.iloc[i]])
-                #print(move_colors[ryan_test.iloc[i, 8]])
         print(legend2)
-        #to implement the two legends may have to do a by column thing for plotting gonna ask ryan how he did it before
-        #fig = px.line(df, x='index', y='value', color='variable', 
-        #              color_discrete_sequence=px.colors.qualitative.Alphabet, layout=dict(title=graphTitle,
-        #legend={"title": 'Channels',"xref": "container","yref": "container"},
-        #legend2={"title": "Movements","xref": "container","yref": "container"},))
         fig.show()
 
-#third window frame page2
+'''Page for user recording data for training the model'''
 class UserRecording(ctk.CTkFrame): 
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -355,17 +407,10 @@ class UserRecording(ctk.CTkFrame):
         output_label = ctk.CTkLabel(self, text="Output file")
         ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         output_label.grid(row=5, column=0, padx = 10, pady = 10)
-
         ## Creating our textbox so user can input file name
-
         out_entry = ctk.CTkEntry(self, height=10, placeholder_text="FILE_NAME.csv",  width = 300)
         out_entry.grid(row= 5, column =1, padx = 10, pady = 10)
         self.file_out = out_entry
-
-    
-
-
-
         self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=10, command=self.start_prompting)
         self.start_button.grid(row=2, column = 1, padx = 10, pady=0)
         self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=10,
@@ -380,7 +425,6 @@ class UserRecording(ctk.CTkFrame):
         self.step_start_time = 0
         self.record_thread = None
 
-
     def update_movements(self, event):
         self.movement_activated = 1
         # Get the text entered by the user
@@ -392,7 +436,6 @@ class UserRecording(ctk.CTkFrame):
             self.movements = self.default_movements
         else:
             self.movements = movements_text.split(",")
-
 
     def start_prompting(self):
         self.start_button.configure(state=ctk.DISABLED)
@@ -486,8 +529,6 @@ class UserRecording(ctk.CTkFrame):
         # Close the file when the middle 7 seconds end
         open('tempVal.txt', 'a').close()  # Make sure the file is closed
 
-    
-
     def show_rest_period(self):
         if self.is_prompting:
             self.instructions_label.configure(text="Rest for {} seconds".format(self.rest_time))
@@ -541,6 +582,7 @@ class UserRecording(ctk.CTkFrame):
         file_out.close()
 
 #Page 3: Model Selection, Data Input, Training, and Testing, and Result Visualization
+'''Page for user to select model, data, and labels for training and testing.'''
 class Modeling(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -560,7 +602,7 @@ class Modeling(ctk.CTkFrame):
         # dropdown option for the model label with options for models to run, function will run corresponding model
         self.model_dropdown = ctk.CTkOptionMenu(self, values = ["LDA", "SVC", "Random Forest Classifier", "Tensorflow", "Decision Tree Classifier", 
                                                               "Logistic Regression", "QDA", "Gradient Boosting Classifier", "KNN", 
-                                                              "Gaussian NB", "MLP Classifier"])
+                                                              "Gaussian NB", "MLP Classifier", "PyTorch"])
         self.model_dropdown.grid(row=2, column = 1, padx=10, pady=10)
 
         #labels for the data dropdown
@@ -713,6 +755,14 @@ class Modeling(ctk.CTkFrame):
             dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
             results = BCI_sklearn_QuadraticDiscriminantAnalysis(dataArray, labelsArray)
 
+        elif modelSelected == "PyTorch":
+            phrase = ctk.CTkLabel(self, text="Torching the competition", font=("Verdana", 18))
+            phrase.grid(row=2, column=3, padx=10, pady=10)
+            waitLabel = ctk.CTkLabel(self, text="Modeling data right now. Please be patient.", font=("Verdana", 18))
+            waitLabel.grid(row=3, column=3, padx=10, pady=10)
+            dataArray, labelsArray = self.csvProcessing(dataSelected, labelsSelected)
+            results, model = BCI_pytorch_Net(dataArray, labelsArray)
+
         if modelSelected == "Tensorflow":
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f}".format(results[0]), font=("Verdana", 18))
@@ -734,6 +784,24 @@ class Modeling(ctk.CTkFrame):
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
+        elif modelSelected == "PyTorch":
+            #We need to do the same thing as the else but instead of saving to .pkl it should be a .pt
+            waitLabel.configure(text="Results")
+            metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
+                results[0], results[1], results[2], results[3]), font=("Verdana", 18))
+            metrics.grid(row=4, column=3, padx=10, pady=10)
+            if outputFile == "" or outputFile == " ":
+                dataName = dataSelected[:-4]
+                outputFile = modelSelected+dataName+"Output.txt"
+                f = open(modelPath+'/'+outputFile, "w")
+                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Score: "+str(results[0])+"\n")
+                f.write("F1 Score: "+str(results[1])+"\n")
+                f.write("Precision: "+str(results[2])+"\n")
+                f.write("Recall: "+str(results[3])+"\n")
+                f.close()
+                print("File Name: "+outputFile)
+                torch.save(model, modelPath+'/'+modelSelected+dataName+"Fitted.pt")
         else:
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
@@ -804,6 +872,7 @@ class Modeling(ctk.CTkFrame):
         labelsArray = df2.to_numpy()
         return [dataArray, labelsArray]
 
+'''Page for Snake Game'''
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -925,7 +994,7 @@ class SnakeGame(ctk.CTkFrame):
                 snake.canvas.delete(snake.squares[-1])
                 del snake.squares[-1]
 
-#second window frame page1 
+'''Page for USB Output (Robotic Wheelchair)'''
 class USBOutput(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -994,7 +1063,7 @@ direction = 'down'
 # Driver Code
 app = App()
 #setting window size by pixels "width x height"
-app.geometry("800x700")
+app.geometry("1200x850")
 app.update()
 #with new size labels should shift right by increasing columns
 app.mainloop()

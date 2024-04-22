@@ -12,6 +12,7 @@ keras
 torch
 torchvision
 torchaudio
+tensorflow
 
 #May need to reinstall python-tk to run gui
 #sudo apt-get install python3-tk
