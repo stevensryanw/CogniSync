@@ -738,14 +738,14 @@ class Modeling(ctk.CTkFrame):
                 dataName = dataSelected[:-4]
                 outputFile = modelSelected+dataName+str(t)+"Output.txt"
                 f = open(self.relPath+outputFile, "a")
-                f.write("Model Name: "+modelSelected+dataName+str(t)+"\n")
+                f.write("Model Name: "+modelSelected+'_'+dataName+'_'+str(t)+"\n")
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
                 print("File Name: "+outputFile)
             else:
                 f = open(self.relPath+outputFile, "a")
-                f.write("Model Name: "+modelSelected+dataName+str(t)+"\n")
+                f.write("Model Name: "+modelSelected+'_'+dataName+'_'+str(t)+"\n")
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
@@ -755,21 +755,11 @@ class Modeling(ctk.CTkFrame):
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
                 results[0], results[1], results[2], results[3]), font=("Verdana", 18))
             metrics.grid(row=4, column=3, padx=10, pady=10)
+            dataName = dataSelected[:-4]
             if outputFile == "" or outputFile == " ":
-                dataName = dataSelected[:-4]
-                outputFile = modelSelected+dataName+str(t)+".txt"
-                f = open(modelPath+'/'+outputFile, "w")
-                f.write("Model Name: "+modelSelected+dataName+str(t)+"\n")
-                f.write("Score: "+str(results[0])+"\n")
-                f.write("F1 Score: "+str(results[1])+"\n")
-                f.write("Precision: "+str(results[2])+"\n")
-                f.write("Recall: "+str(results[3])+"\n")
-                f.close()
-                print("File Name: "+outputFile)
-                torch.save(model, modelPath+'/'+modelSelected+dataName+str(t)+".pt")
+                torch.save(model, modelPath+'/'+modelSelected+'_'+dataName+'_'+str(t)+".pt")
             else:
-                torch.save(model, modelPath+'/'+modelSelected+dataName+str(t)+".pt")
-            #add an else to allow output file to be written by user
+                torch.save(model, modelPath+'/'+outputFile)
         else:
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
@@ -777,13 +767,13 @@ class Modeling(ctk.CTkFrame):
             metrics.grid(row=4, column=3, padx=10, pady=10)
             if outputFile == "" or outputFile == " ":
                 dataName = dataSelected[:-4]
-                outputFile = modelSelected+dataName+str(t)+".pkl"
+                outputFile = modelSelected+'_'+dataName+'_'+str(t)+".pkl"
                 joblib.dump(results[4], modelPath+"/"+outputFile)
                 print("File Name: "+outputFile)
             else:
                 joblib.dump(results[4], modelPath+"/"+outputFile)
         df=pd.read_csv(masterFilePath)
-        modelID = modelSelected+dataName+str(t)
+        modelID = modelSelected+'_'+dataName+'_'+str(t)
         print(df)
         if len(legend)==5:
             keyList = list(legend.keys())
@@ -1003,16 +993,12 @@ class SnakeGame(ctk.CTkFrame):
             # print(usableLabels.iloc[0:1])
 
             if prediction == 0:
-                #keypress '<Up>'
                 app.event_generate('<Up>')
             elif prediction == 1:
-                #keypress '<Down>'
-                app.event_generate('<Down>')
+                app.event_generate('<Left')
             elif prediction == 2:
-                #keypress '<Left>'
-                app.event_generate('<Left>')
+                app.event_generate('<Down>')
             elif prediction == 3:
-                #keypress '<Right>'
                 app.event_generate('<Right>')
             elif prediction == 4:
                 continue
@@ -1274,15 +1260,15 @@ class USBOutput(ctk.CTkFrame):
                 prediction = pred_file.seek(0)
             #Read the prediction from the file as an integer
             #print(prediction)
-            if prediction == 2:
+            if prediction == 0:
                 wcc.motorForward()
             elif prediction == 1:
-                wcc.motorBackward()
-            elif prediction == 4:
                 wcc.turnLeft()
-            elif prediction == 0:
-                wcc.turnRight()
+            elif prediction == 2:
+                wcc.motorBackward()
             elif prediction == 3:
+                wcc.turnRight()
+            elif prediction == 4:
                 wcc.motorStop()
                 continue
             else:
@@ -1307,7 +1293,7 @@ score = 0
 direction = 'down'
 # Driver Code
 app = App()
-app.geometry("900x800")
+app.geometry("1100x800")
 app.update()
 app.mainloop()
 #------------------ Main Loop ---------------------------
