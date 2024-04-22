@@ -117,10 +117,7 @@ class App(ctk.CTk):
 class Home(ctk.CTkFrame):
     def __init__(self, parent, controller): 
         ctk.CTkFrame.__init__(self, parent)
-        # label of frame Layout 2
-        label = ctk.CTkLabel(self, text ="CogniSync", font = LARGEFONT)
-        # putting the grid in its place by using grid
-        label.grid(row = 0, column = 2, padx = 100, pady = 10) 
+
         #Adding our logo to the home page
         my_image = ctk.CTkImage(light_image=PIL.Image.open("CogniSyncLogo.png"),
                                   dark_image=PIL.Image.open("CogniSyncLogo.png"),
