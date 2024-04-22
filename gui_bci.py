@@ -49,7 +49,9 @@ print(dataPath)
 #if it does then take list of files in there
 if os.path.isdir("../CogniSync/data"):
     dataPath = os.path.abspath("../CogniSync/data")
-    dataFiles = os.listdir(dataPath)
+    dataFiles = [f for f in os.listdir(dataPath) if os.path.isfile(os.path.join(dataPath, f))]
+    if '.DS_Store' in dataFiles:
+        dataFiles.remove('.DS_Store')
     if len(dataFiles)==0:
         dataFiles = ["No Current Files"]
 #if not then create and give the string no files currently
@@ -61,7 +63,9 @@ print(modelPath)
 #if it does then take list of files in there
 if os.path.isdir("../CogniSync/models"):
     modelPath = os.path.abspath("../CogniSync/models")
-    modelFiles = os.listdir(modelPath)
+    modelFiles = [f for f in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath, f))]
+    if '.DS_Store' in modelFiles:
+        modelFiles.remove('.DS_Store')
     if len(modelFiles)==0:
         modelFiles = ["No Current Files"]
 #if not then create and give the string no files currently
@@ -210,15 +214,15 @@ class PlotEEG(ctk.CTkFrame):
         self.check2.grid(row=7, column=0, padx=10, pady=10)
     
     def updateList(self):
-        dataFiles = os.listdir(dataPath)
+        dataFiles = [f for f in os.listdir(dataPath) if os.path.isfile(os.path.join(dataPath, f))]
+        if '.DS_Store' in dataFiles:
+            dataFiles.remove('.DS_Store')
         if len(dataFiles)==0:
             dataFiles = "No Current Files"
             self.Data_dropdown.configure(values=dataFiles)
-            self.Labels_dropdown.configure(values=dataFiles)
         else:
             self.Data_dropdown.configure(values=dataFiles)
             dataFiles.insert(0, "No Label File")
-            self.Labels_dropdown.configure(values=dataFiles)
             dataFiles.pop(0) 
 
     def slide1(self, value):
@@ -796,7 +800,9 @@ class Modeling(ctk.CTkFrame):
             df.to_csv(masterFilePath, index=False)
 
     def updateFiles(self):
-        dataFiles = os.listdir(dataPath)
+        dataFiles = [f for f in os.listdir(dataPath) if os.path.isfile(os.path.join(dataPath, f))]
+        if '.DS_Store' in dataFiles:
+            dataFiles.remove('.DS_Store')
         if len(dataFiles)==0:
             dataFiles = "No Current Files"
             self.Data_dropdown.configure(values=dataFiles)
@@ -903,7 +909,9 @@ class SnakeGame(ctk.CTkFrame):
 
     #update list of models
     def updateFiles(self):
-        modelFiles = os.listdir(modelPath)
+        modelFiles = [f for f in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath, f))]
+        if '.DS_Store' in modelFiles:
+            modelFiles.remove('.DS_Store')
         if len(modelFiles)==0:
             modelFiles = "No Current Files"
             self.modelDropdown.configure(values=modelFiles)
@@ -1167,7 +1175,9 @@ class USBOutput(ctk.CTkFrame):
 
     #update list of models
     def updateFiles(self):
-        modelFiles = os.listdir(modelPath)
+        modelFiles = [f for f in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath, f))]
+        if '.DS_Store' in modelFiles:
+            modelFiles.remove('.DS_Store')
         if len(modelFiles)==0:
             modelFiles = "No Current Files"
             self.modelDropdown.configure(values=modelFiles)
