@@ -763,7 +763,6 @@ class Modeling(ctk.CTkFrame):
             else:
                 joblib.dump(results[4], modelPath+"/"+outputFile)
 
-
     def updateFiles(self):
         dataFiles = os.listdir(dataPath)
         if len(dataFiles)==0:
@@ -1249,8 +1248,6 @@ direction = 'down'
 
 # Driver Code
 app = App()
-#setting window size by pixels "width x height"
 app.geometry("1200x850")
 app.update()
-#with new size labels should shift right by increasing columns
 app.mainloop()
