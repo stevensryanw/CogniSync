@@ -55,6 +55,41 @@
 ## ```connect.py```
 
 ## ```model_bci.py```
+ - ```BCI_sklearn_SVC(data, labels)```  
+  This creates a fitted support vector machine bagging classifier model using the ```BaggingClassifier()``` function from scikit-learn. 
+  The data argument takes in a numpy array of the data that will be split into a training set and a testing set in an 80/20 split. 
+  The data can be of any size as long as it is all numerical data since scikit-learn cannot handle nonnumerical information.
+  The labels argument takes in a numpy array that categorizes each grouping of the data and must be numerical necessitating any strings to be converted beforehand. The labels are also split at the same time as data conserving which labels are for which data groupings. None of the parameters have been specified except for n_jobs which is set to -1. This allows the entire CPU and memory to be used to fit 
+  the model. The model is then trained on the training data set and training label set using scikit-learn's built in ```fit()``` function.
+  This function returns the result of passing the model, test data , and test labels into ```scoring()```.
+ - ```BCI_sklearn_RandomForestClassifier(data, labels)```  
+  This creates a fitted support vector machine bagging classifier model using the ```BaggingClassifier()``` function from scikit-learn. 
+  The data argument takes in a numpy array of the data that will be split into a training set and a testing set in an 80/20 split. 
+  The data can be of any size as long as it is all numerical data since scikit-learn cannot handle nonnumerical information.
+  The labels argument takes in a numpy array that categorizes each grouping of the data and must be numerical necessitating any strings to be converted beforehand. The labels are also split at the same time as data conserving which labels are for which data groupings. None of the parameters have been specified except for n_jobs which is set to -1. This allows the entire CPU and memory to be used to fit 
+  the model. The model is then trained on the training data set and training label set using scikit-learn's built in ```fit()``` function.
+  This function returns the result of passing the model, test data , and test labels into ```scoring()```.
+ - ```BCI_sklearn_DecisionTreeClassifier(data, labels)```  
+
+ - ```BCI_sklearn_LogisticRegression(data, labels)```  
+
+ - ```BCI_sklearn_GradientBoostingClassifier(data, labels)```  
+
+ - ```BCI_sklearn_KNeighborsClassifier(data, labels)```  
+
+ - ```BCI_sklearn_GaussianNB(data, labels)```  
+
+ - ```BCI_sklearn_MLPClassifier(data, labels)```  
+
+ - ```BCI_sklearn_LinearDiscriminiantAnalysis(data, labels)```  
+
+ - ```BCI_sklearn_QuadraticDiscriminiantAnalysis(data, labels)```  
+
+ - ```BCI_pytorch_Net(data, labels)```  
+
+ - ```BCI_tensorflow_Net(data, labels)```  
+
+ - ```scoring(model, x, y)```  
 
 ## ```snake.py```
 

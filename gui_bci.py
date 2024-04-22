@@ -193,7 +193,7 @@ class PlotEEG(ctk.CTkFrame):
         self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var, font=("Verdana", 15))
         self.check1.grid(row=7, column=1, padx=20, pady=10)
 
-        #checkboc to select alpha values for graph
+        #checkbox to select alpha values for graph
         self.check2Var = ctk.IntVar(value=0)
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var, font=("Verdana", 15))
         self.check2.grid(row=7, column=0, padx=10, pady=10)
@@ -243,7 +243,6 @@ class PlotEEG(ctk.CTkFrame):
             legend[col] = px.colors.qualitative.Alphabet[k]
             k+=1
         k=0
-        print(columnNames)
         interval_default = [0, len(data)]
         fig = go.Figure()
         if self.slider1.get()>interval_default[0]:
@@ -262,13 +261,6 @@ class PlotEEG(ctk.CTkFrame):
         for j in labelNames:
             legend2[j]=px.colors.qualitative.Light24[k]
             k+=1
-        """
-        plotly.graph_objs.Line is deprecated.
-        Please replace it with one of the following more specific types
-        - plotly.graph_objs.scatter.Line
-        - plotly.graph_objs.layout.shape.Line
-        - etc.
-        """
         if self.check1Var.get()==1 and self.check2Var.get()==0:
             data = data.drop(columns=data.columns[8:11])
             fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
@@ -291,7 +283,6 @@ class PlotEEG(ctk.CTkFrame):
             data = data.drop(columns=data.columns[0:8])
             min = data[['aux1','aux2','aux3']].values.min()
             max = data[['aux1','aux2','aux3']].values.max()
-            #maybe change to scatter to make less cluttered
             data.drop(data[data.aux1==0.0].index, inplace=True)
             data.drop(data[data.aux2==0.0].index, inplace=True)
             data.drop(data[data.aux3==0.0].index, inplace=True)
@@ -327,27 +318,14 @@ class PlotEEG(ctk.CTkFrame):
                     fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
         data.reset_index(inplace=True)
-        #possibly return to this thing
-        df = pd.melt(data, id_vars='index', value_vars=data.columns[:])
-
-        #fig = px.line(df, x='index', y='value', color='variable', color_discrete_sequence=px.colors.qualitative.Plotly)
-        #fig = px.line(data, x=data.index, y=data.columns[0:8], title='EEG data with movement labels as vertical bars')
-        #fig.update_layout(legend_title_text='Channels')
-        #legend = {'0.0': 'ch1', '0.0.1': 'ch2', '0.0.2': 'ch3', '0.0.3': 'ch4', '0.0.4': 'ch5', '0.0.5': 'ch6', '0.0.6': 'ch7', '0.0.7': 'ch8'}
-        #taking zeros and putting actual names not needed anymore
-        #fig.for_each_trace(lambda t: t.update(name=legend[t.name]))
         fig.update_layout(legend_title_text='Legend')
         fig.update_layout(showlegend=True)
         fig.update_layout(font_size=35)
         fig.update_layout(title_text=graphTitle)
-        #iterating through all rows and looking in column to see if label is not norm or empty
-        #if it meets these conditions then 
         for i in range(interval1, interval2):
-            #change second  number based on what is added
             if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save:
                 temp_save = labels.iloc[i]
                 fig.add_vline(x=i, line_dash='dash', line_color=legend2[labels.iloc[i]])
-        print(legend2)
         fig.show()
 
 '''Page for user recording data for training the model'''
@@ -398,8 +376,6 @@ class UserRecording(ctk.CTkFrame):
         iter_count = ctk.CTkEntry(self, height=10, placeholder_text="NUMBER OF ITERATIONS PER MOVE",  width = 300)
         iter_count.grid(row= 7, column =1, padx = 10, pady = 10)
         self.iter_count = iter_count
-
-
         self.iter_count.bind("<KeyRelease>", self.update_movements)
         self.mvmt_count.bind("<KeyRelease>", self.update_movements)
         self.text_entry.bind("<KeyRelease>", self.update_movements)
@@ -859,18 +835,32 @@ class SnakeGame(ctk.CTkFrame):
         button2 = ctk.CTkButton(self, text = 'Snake Begin', corner_radius = 25, command = self.drawFrame)
         button2.grid(row = 2, column = 1, padx = 10, pady = 20)
         global active
-                #dropbox for models        
+        #dropbox for models        
         self.modelDropdown = ctk.CTkComboBox(self, values = modelFiles)
         self.modelDropdown.grid(row=3, column = 1, padx=10, pady=20)
+
         #update the model list
         update_button = ctk.CTkButton(self, text="Update Model Lists", corner_radius=25, command = self.updateFiles)
         update_button.grid(row=4, column=1, padx=10, pady=20)
+
         #button to select the model
         select_button = ctk.CTkButton(self, text="Select Model", corner_radius=25, command = self.modelSelection)
-        select_button.grid(row=5, column=1, padx=10, pady=20)
+        select_button.grid(row=7, column=1, padx=10, pady=20)
+
         #button to start playing with predictions
         play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
-        play_button.grid(row=6, column=1, padx=10, pady=20)
+        play_button.grid(row=8, column=1, padx=10, pady=20)
+
+        #checkbox to select electrode data for graph
+        self.check1Var = ctk.IntVar(value=1)
+        self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var)
+        self.check1.grid(row=5, column=1, padx=20, pady=10)
+
+        #checkboc to select alpha values for graph
+        self.check2Var = ctk.IntVar(value=1)
+        self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
+        self.check2.grid(row=6, column=1, padx=10, pady=10)
+
 
         self.record_thread = None
         self.predict_thread = None
@@ -909,7 +899,12 @@ class SnakeGame(ctk.CTkFrame):
     def start_predictions(self):
         while self.stop_predict is True:
             stream = pd.read_csv('newest_rename.csv')
-            stream = stream.iloc[:, 0:11]
+            if self.check1Var.get()==1 and self.check2Var.get()==0:
+                stream = stream.drop(columns=stream.columns[8:11])
+            elif self.check1Var.get()==0 and self.check2Var.get()==1:
+                stream = stream.drop(columns=stream.columns[0:8])
+            else:
+                stream = stream.iloc[:, 0:11]
             if stream.loc[len(stream)-1].isnull().values.any():
                 stream = stream.dropna()
             stream_latest = stream.loc[len(stream)-1]
