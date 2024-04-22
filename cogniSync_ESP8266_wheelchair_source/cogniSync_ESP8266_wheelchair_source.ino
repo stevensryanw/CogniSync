@@ -51,19 +51,19 @@ void loop()
 /************************ Run function according to incoming data from application *************************/
 
     /* If the incoming data is "forward", run the "MotorForward" function */
-    if (data == "forward") MotorForward();
+    if (data == "forward") MotorForward(client);
     /* If the incoming data is "backward", run the "MotorBackward" function */
-    else if (data == "backward") MotorBackward();
+    else if (data == "backward") MotorBackward(client);
     /* If the incoming data is "left", run the "TurnLeft" function */
-    else if (data == "left") TurnLeft();
+    else if (data == "left") TurnLeft(client);
     /* If the incoming data is "right", run the "TurnRight" function */
-    else if (data == "right") TurnRight();
+    else if (data == "right") TurnRight(client);
     /* If the incoming data is "stop", run the "MotorStop" function */
-    else if (data == "stop") MotorStop();
+    else if (data == "stop") MotorStop(client);
 } 
 
 /********************************************* FORWARD *****************************************************/
-void MotorForward(void)   
+void MotorForward(WiFiClient client)   
 {
   digitalWrite(leftMotorENB,HIGH);
   digitalWrite(rightMotorENB,HIGH);
@@ -71,21 +71,25 @@ void MotorForward(void)
   digitalWrite(rightMotorForward,LOW);
   digitalWrite(rightMotorBackward,HIGH);
   digitalWrite(leftMotorBackward,LOW);
+  client.println("HTTP/1.1 200 OK");
+  Serial.println("Foreward");
 }
 
 /********************************************* BACKWARD *****************************************************/
-void MotorBackward(void)   
+void MotorBackward(WiFiClient client)   
 {
   digitalWrite(leftMotorENB,HIGH);
   digitalWrite(rightMotorENB,HIGH); 
   digitalWrite(leftMotorForward,LOW);
   digitalWrite(rightMotorForward,HIGH);
   digitalWrite(rightMotorBackward,LOW);
-  digitalWrite(leftMotorBackward,HIGH);  
+  digitalWrite(leftMotorBackward,HIGH);
+  client.println("HTTP/1.1 200 OK");
+  Serial.println("Backward");
 }
 
 /********************************************* TURN LEFT *****************************************************/
-void TurnLeft(void)   
+void TurnLeft(WiFiClient client)   
 {
   digitalWrite(leftMotorENB,HIGH);
   digitalWrite(rightMotorENB,HIGH);
@@ -93,10 +97,12 @@ void TurnLeft(void)
   digitalWrite(rightMotorBackward,HIGH);
   digitalWrite(leftMotorForward,LOW);
   digitalWrite(rightMotorForward,LOW);
+  client.println("HTTP/1.1 200 OK");
+  Serial.println("Left");
 }
 
 /********************************************* TURN RIGHT *****************************************************/
-void TurnRight(void)   
+void TurnRight(WiFiClient client)   
 {
   digitalWrite(leftMotorENB,HIGH);
   digitalWrite(rightMotorENB,HIGH);
@@ -104,10 +110,12 @@ void TurnRight(void)
   digitalWrite(rightMotorForward,HIGH);
   digitalWrite(leftMotorBackward,LOW);
   digitalWrite(rightMotorBackward,LOW);
+  client.println("HTTP/1.1 200 OK");
+  Serial.println("Right");
 }
 
 /********************************************* STOP *****************************************************/
-void MotorStop(void)   
+void MotorStop(WiFiClient client)   
 {
   digitalWrite(leftMotorENB,LOW);
   digitalWrite(rightMotorENB,LOW);
@@ -115,6 +123,8 @@ void MotorStop(void)
   digitalWrite(leftMotorBackward,LOW);
   digitalWrite(rightMotorForward,LOW);
   digitalWrite(rightMotorBackward,LOW);
+  client.println("HTTP/1.1 200 OK");
+  Serial.println("Stop");
 }
 
 /********************************** RECEIVE DATA FROM the APP ******************************************/
