@@ -400,6 +400,8 @@ class UserRecording(ctk.CTkFrame):
         self.stop_button.grid(row=3, column=1, padx=10, pady=0)
         self.is_prompting = False  # Flag to check if prompting is in progress
         self.step_start_time = 0
+        
+        '''Variables for threading'''
         self.record_thread = None
 
     def update_movements(self, event):
@@ -860,23 +862,11 @@ class SnakeGame(ctk.CTkFrame):
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
         self.check2.grid(row=6, column=1, padx=10, pady=10)
 
-
+        '''Variables for threading'''
         self.record_thread = None
         self.predict_thread = None
         self.stream_thread = None
         self.stop_predict = True
-
-    def start_record(self):
-        if self.record_thread is None or not self.record_thread.is_alive():
-            self.record_thread = threading.Thread(target=self.record_data)
-            self.record_thread.start()
-
-    def stop_record(self):
-        if self.record_thread is not None and self.record_thread.is_alive():
-            self.record_thread.join()
-
-    def record_data(self):
-        record(self)
 
     #update list of models
     def updateFiles(self):
@@ -897,6 +887,18 @@ class SnakeGame(ctk.CTkFrame):
         else:
             self.model = False
 
+    '''Thread for recording EEG data'''
+    def start_record(self):
+        if self.record_thread is None or not self.record_thread.is_alive():
+            self.record_thread = threading.Thread(target=self.record_data)
+            self.record_thread.start()
+    def stop_record(self):
+        if self.record_thread is not None and self.record_thread.is_alive():
+            self.record_thread.join()
+    def record_data(self):
+        record(self)
+
+    '''Thread for making predictions with the model selected and outputting to a temp file'''
     def start_predictions(self):
         modelSelected = self.modelDropdown.get()
         while self.stop_predict is True:
@@ -923,17 +925,16 @@ class SnakeGame(ctk.CTkFrame):
             #writing the prediction to the file
             file.write(str(int(prediction[0])))
             file.close()
-
     def start_prediction_thread(self):
         if self.predict_thread is None or not self.predict_thread.is_alive():
             self.predict_thread = threading.Thread(target=self.start_predictions)
             self.predict_thread.start()
-
     def stop_predictions(self):
         self.stop_predict = False
         if self.predict_thread is not None and self.predict_thread.is_alive():
             self.predict_thread.join()
 
+    '''Thread for sending predictions to the snake game as keypresses'''
     def predictStream(self):
         self.drawFrame()
         self.start_record()
@@ -968,17 +969,16 @@ class SnakeGame(ctk.CTkFrame):
             else:
                 print("Error in prediction")
                 self.stop_record()
-
     def start_stream_thread(self):
         if self.stream_thread is None or not self.stream_thread.is_alive():
             self.stream_thread = threading.Thread(target=self.predictStream)
             self.stream_thread.start()
-
     def stop_stream(self):
         self.stop_predict = False
         if self.stream_thread is not None and self.stream_thread.is_alive():
             self.stream_thread.join()
 
+    '''Snake Ganme Functions'''
     def drawFrame(self):
         global canvas
         global snake
@@ -999,22 +999,18 @@ class SnakeGame(ctk.CTkFrame):
         app.bind('<Up>', lambda event: self.move("up", snake, g_food, root, canvas))
         app.bind('<Down>', lambda event: self.move("down", snake, g_food, root, canvas))
         app.bind('<space>', lambda event: self.game_over())
-
-    #snake stuff
     def move(self, direction, snake, g_food, root, canvas):
         #print("move")
         global active
         if active:
             self.change_direction(direction)
             self.next_turn(snake, g_food, root, canvas) 
-
     def game_over(self):
         global active
         active = False
         canvas.delete(ALL)
         canvas.create_text(canvas.winfo_width() / 2, canvas.winfo_height() / 2, font=('consolas', 30), 
-                           text="GAME OVER", fill="red", tag="gameover")
-        
+                           text="GAME OVER", fill="red", tag="gameover") 
     def change_direction(self, new_direction):
         global direction
         if new_direction == 'left':
@@ -1029,7 +1025,6 @@ class SnakeGame(ctk.CTkFrame):
         elif new_direction == 'down':
             # if direction != 'up':
             direction = new_direction
-
     def check_collisions(self, coordinates):
         x, y = coordinates
 
@@ -1038,7 +1033,6 @@ class SnakeGame(ctk.CTkFrame):
         elif y < 0 or y >= HEIGHT-2:
             return True
         return False
-
     def next_turn(self, snake, food, root, canvas):
         if active:
             global direction
@@ -1129,22 +1123,11 @@ class USBOutput(ctk.CTkFrame):
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
         self.check2.grid(row=8, column=1, padx=10, pady=10)
 
+        '''Variables for threading'''
         self.record_thread = None
         self.predict_thread = None
         self.stream_thread = None
         self.stop_predict = True
-
-    def start_record(self):
-        if self.record_thread is None or not self.record_thread.is_alive():
-            self.record_thread = threading.Thread(target=self.record_data)
-            self.record_thread.start()
-
-    def stop_record(self):
-        if self.record_thread is not None and self.record_thread.is_alive():
-            self.record_thread.join()
-
-    def record_data(self):
-        record(self)
 
     #update list of models
     def updateFiles(self):
@@ -1165,6 +1148,18 @@ class USBOutput(ctk.CTkFrame):
         else:
             self.model = False
 
+    '''Thread for recording EEG data'''
+    def start_record(self):
+        if self.record_thread is None or not self.record_thread.is_alive():
+            self.record_thread = threading.Thread(target=self.record_data)
+            self.record_thread.start()
+    def stop_record(self):
+        if self.record_thread is not None and self.record_thread.is_alive():
+            self.record_thread.join()
+    def record_data(self):
+        record(self)
+
+    '''Thread for making predictions with the model selected and outputting to a temp file'''
     def start_predictions(self):
         modelSelected = self.modelDropdown.get()
         while self.stop_predict is True:
@@ -1191,17 +1186,16 @@ class USBOutput(ctk.CTkFrame):
             #writing the prediction to the file
             file.write(str(int(prediction[0])))
             file.close()
-
     def start_prediction_thread(self):
         if self.predict_thread is None or not self.predict_thread.is_alive():
             self.predict_thread = threading.Thread(target=self.start_predictions)
             self.predict_thread.start()
-
     def stop_predictions(self):
         self.stop_predict = False
         if self.predict_thread is not None and self.predict_thread.is_alive():
             self.predict_thread.join()
 
+    '''Thread for sending predictions to the wheelchair as commands'''
     def predictStream(self):
         self.start_record()
         #Allow stream to start before prompting
@@ -1232,12 +1226,10 @@ class USBOutput(ctk.CTkFrame):
                 print("Error in prediction")
                 wcc.motorStop()
                 self.stop_record()
-
     def start_stream_thread(self):
         if self.stream_thread is None or not self.stream_thread.is_alive():
             self.stream_thread = threading.Thread(target=self.predictStream)
             self.stream_thread.start()
-
     def stop_stream(self):
         self.stop_predict = False
         if self.stream_thread is not None and self.stream_thread.is_alive():
