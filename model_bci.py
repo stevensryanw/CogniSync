@@ -27,7 +27,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.metrics import confusion_matrix, classification_report
-import keras
+#import keras
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -194,40 +194,40 @@ def BCI_pytorch_Net(data, labels):
     testLabel = y_test
     return scoring(model, testData, testLabel), model
 
-#Tensorflow models
-def BCI_tensorflow_Net(data, labels):
-    trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
-    model = keras.Sequential([
-    keras.layers.Input(shape=(11,)),  # Adjust the input shape based on your data
-    keras.layers.Dense(64, activation='relu'),
-    keras.layers.Dense(32, activation='relu'),
-    keras.layers.Dense(1, activation='sigmoid')  # Output layer with sigmoid activation for binary classification
-    ])
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    history = model.fit(trainData, trainLabel, epochs=10, batch_size=32)
-    trainPred = model.predict(trainData)
-    correctTrain = 0
-    for i in range(len(trainPred)):
-        if trainPred[i] >= 0.5 and trainLabel[i] == 1:
-            correctTrain += 1
-        elif trainPred[i] < 0.5 and trainLabel[i] == 0:
-            correctTrain += 1
-        else:
-            continue
-    print('Training accuracy:', correctTrain/len(trainPred))
-    testPred = model.predict(testData)
-    correctTest = 0
-    for i in range(len(testPred)):
-        if testPred[i] >= 0.5 and testLabel[i] == 1:
-            correctTest += 1
-        elif testPred[i] < 0.5 and testLabel[i] == 0:
-            correctTest += 1
-        else:
-            continue
-    print('Test accuracy:', correctTest/len(testPred))
-    score = correctTest/len(testPred)
-    parameters = {"Type": "Sequential", "Node 1":"Dense, 64, relu", "Node 2":"Dense, 32, relu", "Node 3":"Dense, 1, sigmoid"}
-    return [score, parameters] 
+# #Tensorflow models
+# def BCI_tensorflow_Net(data, labels):
+#     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+#     model = keras.Sequential([
+#     keras.layers.Input(shape=(11,)),  # Adjust the input shape based on your data
+#     keras.layers.Dense(64, activation='relu'),
+#     keras.layers.Dense(32, activation='relu'),
+#     keras.layers.Dense(1, activation='sigmoid')  # Output layer with sigmoid activation for binary classification
+#     ])
+#     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+#     history = model.fit(trainData, trainLabel, epochs=10, batch_size=32)
+#     trainPred = model.predict(trainData)
+#     correctTrain = 0
+#     for i in range(len(trainPred)):
+#         if trainPred[i] >= 0.5 and trainLabel[i] == 1:
+#             correctTrain += 1
+#         elif trainPred[i] < 0.5 and trainLabel[i] == 0:
+#             correctTrain += 1
+#         else:
+#             continue
+#     print('Training accuracy:', correctTrain/len(trainPred))
+#     testPred = model.predict(testData)
+#     correctTest = 0
+#     for i in range(len(testPred)):
+#         if testPred[i] >= 0.5 and testLabel[i] == 1:
+#             correctTest += 1
+#         elif testPred[i] < 0.5 and testLabel[i] == 0:
+#             correctTest += 1
+#         else:
+#             continue
+#     print('Test accuracy:', correctTest/len(testPred))
+#     score = correctTest/len(testPred)
+#     parameters = {"Type": "Sequential", "Node 1":"Dense, 64, relu", "Node 2":"Dense, 32, relu", "Node 3":"Dense, 1, sigmoid"}
+#     return [score, parameters] 
 
 def scoring(model, x, y):
     if type(model) == torch.nn.modules.container.Sequential:

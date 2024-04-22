@@ -893,10 +893,13 @@ class SnakeGame(ctk.CTkFrame):
         print(modelSelected[-3:])
         if modelSelected[-3:] == "pkl":
             self.model = joblib.load(modelPath+"/"+modelSelected)
+        elif modelSelected[-2:] == ".pt":
+            self.model = torch.load(modelPath+"/"+modelSelected)
         else:
             self.model = False
 
     def start_predictions(self):
+        modelSelected = self.modelDropdown.get()
         while self.stop_predict is True:
             stream = pd.read_csv('newest_rename.csv')
             if self.check1Var.get()==1 and self.check2Var.get()==0:
@@ -910,7 +913,12 @@ class SnakeGame(ctk.CTkFrame):
             stream_latest = stream.loc[len(stream)-1]
             #remove the header from stream_latest
             stream_latest = stream_latest.to_numpy()
-            prediction = self.model.predict(stream_latest.reshape(1, -1))
+            if modelSelected[-3:] == "pkl":
+                prediction = self.model.predict(stream_latest.reshape(1, -1))
+            elif modelSelected[-2:] == ".pt":
+                prediction = self.model.eval(stream_latest)
+            else:
+                print("No model selected")
             #opening tempPred file as empty to write the new prediction
             file = open("tempPred.txt", "w")
             #writing the prediction to the file
@@ -928,6 +936,7 @@ class SnakeGame(ctk.CTkFrame):
             self.predict_thread.join()
 
     def predictStream(self):
+        self.drawFrame()
         self.start_record()
         #Allow stream to start before prompting
         time.sleep(15)
