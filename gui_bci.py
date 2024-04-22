@@ -728,6 +728,7 @@ class Modeling(ctk.CTkFrame):
             dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results, model = BCI_pytorch_Net(dataArray, labelsArray)
 
+        t = time.time()
         if modelSelected == "Tensorflow":
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f}".format(results[0]), font=("Verdana", 18))
@@ -736,16 +737,16 @@ class Modeling(ctk.CTkFrame):
             nodes.grid(row=5, column=3, padx=10, pady=10)
             if outputFile == "" or outputFile == " ":
                 dataName = dataSelected[:-4]
-                outputFile = modelSelected+dataName+"Output.txt"
+                outputFile = modelSelected+dataName+str(t)+"Output.txt"
                 f = open(self.relPath+outputFile, "a")
-                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Model Name: "+modelSelected+dataName+str(t)+"\n")
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
                 print("File Name: "+outputFile)
             else:
                 f = open(self.relPath+outputFile, "a")
-                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Model Name: "+modelSelected+dataName+str(t)+"\n")
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
@@ -757,16 +758,17 @@ class Modeling(ctk.CTkFrame):
             metrics.grid(row=4, column=3, padx=10, pady=10)
             if outputFile == "" or outputFile == " ":
                 dataName = dataSelected[:-4]
-                outputFile = modelSelected+dataName+"Output.txt"
+                outputFile = modelSelected+dataName+str(t)+".txt"
                 f = open(modelPath+'/'+outputFile, "w")
-                f.write("Model Name: "+modelSelected+"\n")
+                f.write("Model Name: "+modelSelected+dataName+str(t)+"\n")
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("F1 Score: "+str(results[1])+"\n")
                 f.write("Precision: "+str(results[2])+"\n")
                 f.write("Recall: "+str(results[3])+"\n")
                 f.close()
                 print("File Name: "+outputFile)
-                torch.save(model, modelPath+'/'+modelSelected+dataName+"Fitted.pt")
+                torch.save(model, modelPath+'/'+modelSelected+dataName+str(t)+".pt")
+            #add an else to allow output file to be written by user
         else:
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
@@ -774,13 +776,12 @@ class Modeling(ctk.CTkFrame):
             metrics.grid(row=4, column=3, padx=10, pady=10)
             if outputFile == "" or outputFile == " ":
                 dataName = dataSelected[:-4]
-                outputFile = modelSelected+dataName+"Fitted.pkl"
+                outputFile = modelSelected+dataName+str(t)+".pkl"
                 joblib.dump(results[4], modelPath+"/"+outputFile)
                 print("File Name: "+outputFile)
             else:
                 joblib.dump(results[4], modelPath+"/"+outputFile)
         df=pd.read_csv(masterFilePath)
-        t = time.time()
         modelID = modelSelected+dataName+str(t)
         print(df)
         if len(legend)==5:
