@@ -900,9 +900,9 @@ class SnakeGame(ctk.CTkFrame):
         while self.stop_predict is True:
             stream = pd.read_csv('newest_rename.csv')
             if self.check1Var.get()==1 and self.check2Var.get()==0:
-                stream = stream.drop(columns=stream.columns[8:11])
+                stream = stream.iloc[:, 8:11]
             elif self.check1Var.get()==0 and self.check2Var.get()==1:
-                stream = stream.drop(columns=stream.columns[0:8])
+                stream = stream.iloc[:, 0:8]
             else:
                 stream = stream.iloc[:, 0:11]
             if stream.loc[len(stream)-1].isnull().values.any():
