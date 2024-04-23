@@ -1,4 +1,7 @@
 # CogniSync
+![Untitled_Artwork](https://github.com/stevensryanw/CogniSync/assets/70183326/88a7294b-9978-4d16-b423-b14074d80ce6)
+
+
 
 ## Project Goals
 - [X] Create an easy to use GUI for EEG data and modeling
