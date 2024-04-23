@@ -187,7 +187,7 @@ There are millions of paralysis patients in the United States. Electroencephalog
    This uses ```sendRequest(url)``` to send the ```stop``` command to the microcontroller.
 
 ## Resources
-![CogniSyncLogo](https://github.com/stevensryanw/CogniSync/assets/70183326/2056b6af-b6e7-40d4-8f64-d3894e92a813)
+[Capstone Expo Poster CogniSync.pdf](https://github.com/stevensryanw/CogniSync/files/15071372/Capstone.Expo.Poster.CogniSync.pdf)
 ![headset](https://github.com/stevensryanw/CogniSync/assets/70183326/523c1250-2b44-4989-b77d-76bedbf5e4f0)
 ![robot](https://github.com/stevensryanw/CogniSync/assets/70183326/c2f38436-cbee-4c8f-b313-e1bc45310c0b)
 ![wheelchair](https://github.com/stevensryanw/CogniSync/assets/70183326/aeb4c9a1-7382-4e1c-840a-5f28a13c301f)
