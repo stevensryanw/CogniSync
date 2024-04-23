@@ -52,6 +52,31 @@ There are millions of paralysis patients in the United States. Electroencephalog
   - ```plot_eeg(self)```
 ### Class ```UserRecording()```
   - ```__init__(self, parent, controller)```
+  Initialization function that creates the instruction canvas, initializes the prompt time settings, some default movement settings and all widgets.
+
+  - ```update_movements(self, event)```
+  This function is used to update the movement list given that there is user input. If user input is void movements default to right arm, left arm, legs, and jaw.
+  - ```start_prompting(self)```
+  This function is called when the start button is pressed. It disables the start button and enables the stop button. When pressed sets is prompting to True and calls ```prompt_next_movement(self)``` and ```start_record(self)```. It sets our total_prompts count to the product of the user selected iterations and movement count. If thhe user has not specified it defaults to 4 movements by 40 iterations. This function sleeps 15 seconds to ensure data stream can begin. 
+  - ```stop_prompting(self)```
+  This function is called when the stop button is pressed while recording. is_promting is set to false and the start button is enables while the stop button is disabled. A label stating 'Training canceled' is printed and the movement index is set to 0. movements are shuffled and prompting times are reset. If the canvas till holds text it is wiped. 
+  - ```end_prompting(self)```
+  This function is called when the prompting reaches its conclusion. Is_prompting is set to False, start button is enabled, and stop button is disabled. A label stating training completed is printed and the output file name is set to user input. If the output file is blank or filled with whitespace the output file is defaulted to 'YOU_DATA.csv'. The experiment results are then copied into the user specified file. Movement index is set to 0, movements are shuffled and prompt times are reset. 
+  - ```shuffle_movements(self)```
+  Randomly shuffles order of movements.
+  - ```prompt_next_movement(self)```
+  If the prompt_count is less that the total_prompts and is_prompting is true we give a text label "Prepare for next movement", delete what was previously held in the canvas and after 5 seconds call ```show_movement_instruction(self)```. If not then```end_prompting(self)``` is called.
+  - ```show_movement_instruction(self)```
+  If is_prompting is true the text label 'Hold the movement for 10 seconds' is thrown. If no custom movements have been defined recall default movements. current movement is marked as the current movement index of the list of movements. Shows the user the current movement for the full 10 second interval. 2 seconds into the iterval begin writing to our csv data file using ,```start_writing_to_file(self)``` after 6 seconds stop writing with ```stop_writing_to_file(self)```. After 10 second interval show the rest period using ```show_rest_period(self)```. If not promting close our output file, cancel training, and delete canvas content.
+  - ```start_writing_to_file(self)```
+  Function closes the temp_val.txt then reopens it and writes the current movement and closes it again.
+  - ```stop_writing_to_file(self)```
+  Function ensures temp_val.txt is closed
+  - ```show_rest_period(self)```
+  if is_prompting is true throw text "Rest for 10 seconds' and clear the canvas. Close the temp_val.txt file. Increment the prompt_count by 1 and set the current movement index to the next slot. if the current movement index is 0 shuffle the movements using ```shuffle_movements(self)```. After the 10 second rest time prompt the next movement using ```prompt_next_movement(self)```.
+  - ```start_record(self)```
+  - ```stop_record(self)```
+  - ```record_data(self)```
 ### Class ```Modeling()```
   - ```__init__(self, parent, controller)```
   This creates all the widgets for the model page including dropdowns for selecting the model, data file and label file. The widgets for the checkbox also have an IntVar created to help determine whether it has been clicked or not. 
