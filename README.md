@@ -38,6 +38,8 @@ There are millions of paralysis patients in the United States. Electroencephalog
 - [ ] Tensorflow model using a GPU
 - [ ] EEG headset alignment protocol/GUI
       - Possibility that the headset placement variability between uses changes the entire feed of data every time
+- [ ] Switch to ESP32 for Bluetooth control to easier connect robotic wheelchair
+      - Currently requires serial connection to read ip address
 
 # ```gui_bci.py```
 
