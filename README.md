@@ -40,6 +40,8 @@ There are millions of paralysis patients in the United States. Electroencephalog
       - Possibility that the headset placement variability between uses changes the entire feed of data every time
 - [ ] Switch to ESP32 for Bluetooth control to easier connect robotic wheelchair
       - Currently requires serial connection to read ip address
+- [ ] Fix stopping of threads
+      - current solution is to close the GUI and reopen it
 
 # ```gui_bci.py```
 
