@@ -4,6 +4,8 @@
 
 There are millions of paralysis patients in the United States. Electroencephalogram (EEG) headsets offer a way for these patients to operate mechanical devices provided motor imagery related brain waves. Machine learning approaches like SciKit-Learn (LDA, LRC, DTC, and RFC) and PyTorch can accurately and precisely categorize a user’s brain state into directional controls for this application. However, training time is long, training is user specific, and EEGs experience a low signal-to-noise ratio. This project aims to reduce user training time by (1) decreasing the number of movements users perform during training and (2) building a comprehensive graphical user interface (GUI) to streamline the recording, modeling, and prediction processes.
 
+# [YouTube Demo](https://youtu.be/2NKWB9IQvQE)
+
 ## Project Goals
 - [X] Create an easy-to-use GUI for EEG data and modeling
 - [X] Provide motor imagery predictions for controls
