@@ -108,6 +108,33 @@ There are millions of paralysis patients in the United States. Electroencephalog
   This function is to process the csv file chosen by the user in the gui. The dataFile parameter is a string of the file chosen by the user which is then found by going to the data folder and searching for the file there. The labelFile parameter is the same as the dataFile parameter except for label files chosen by the user or that there is no label file. The if statement splits based on whether a label file has been chosen or not. If no label file was chosen then the path to the data file is created and passed to ```pandas.read_csv``` and stored. All rows with NA values are dropped with the label column being stored as a separate dataframe and deleted from the data dataframe. The unique values in the labels frame are taken and sorted in a list by alphabetical order and replaced with numbers unique to each different label value. The else statement follows this format but reads in both the data file and label file given. If the checkbox for the alpha values has been unchecked then the alpha value columns are dropped and if the electrode reading checkbox is unchecked then the electrode reading columns are removed. The dataframes are then turned into numpy arrays and will return a list of the data numpy array, label numpy array, and a dictionary of the label values and corresponding number. 
 ### Class ```SnakeGame()```
   - ```__init__(self, parent, controller)```
+  Intializes the home page of the GUI with the needed buttons for all pages plotEEG, UserRecording, Modeling, SnakeGame, and USBOutput. When buttons are clicked they call ```show_frame(self, cont)``` to move that frame to the top.
+  - ```updateFiles(self)```
+  This goes to the data folder and updates the list of files that are present in that folder while excluding any folders and .DS_Store. The data dropdown are then updated with the new list. 
+  - ```modelSelection(self)```
+  This gets the model the user selected and unpackages it according to what file type it is.
+  - ```start_record(self)```
+  - ```stop_record(self)```
+  - ```record_data(self)```
+  - ```start_predictions(self)```
+  - ```start_prediction_thread(self)```
+  - ```stop_predictions(self)```
+  - ```predict_stream(self)```
+  - ```start_stream_thread(self)```
+  - ```stop_stream(self)```
+  - ```label_map(self)```
+  - ```drawFrame(self)```
+  This function is activated by the snake begin function and a canvas to place the snake game is placed in the gui and the keys are bound as well. 
+  - ```move(self, direction, snake, g_food, root, canvas)```
+  This is activated when a bound key is pressed activating ```change_direction()``` and ```next_turn()```.
+  - ```game_over(self)```
+  This creates a gameover screen on the canvas.
+  - ```change_direction(self, new_direction)```
+  This changes the direction variable to either left right up or down depending on what key was pressed.
+  - ```check_collisions(self, coordinates)```
+  This checks if the snake is past the boundary returning True if it is or False if not.
+  - ```next_turn(self, snake, food, root, canvas)```
+  This updates the coordinates of the snake while ensuring it has not collided with anything. If it has not collided with anything then it will update the location of the snake on the canvas. This function also checks if the snake is on the same square as the food and if it is then it will delete the previous food and generate a new one in a random location and increase the point value by one.
 ### Class ```USBOutput()```
   - ```__init__(self, parent, controller)```
 
