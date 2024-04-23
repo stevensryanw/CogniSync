@@ -169,9 +169,11 @@ There are millions of paralysis patients in the United States. Electroencephalog
 
 - ```snake.py```  
 - Class ```Snake```  
-  This intializes a ```Snake``` object. 
-- Class ```Food```
-  Blank
+  This intializes a ```Snake``` object.
+  It uses ```canvas.create_rectangle()``` from ```CustomTKinter``` to create the body of the snake and saves the coordinates of the body.
+- Class ```Food```  
+  This intializes a ```Food``` object.
+  It uses ```canvas.create_oval()``` from ```CustomTKinter``` to create the food pellet and saves the coordinates that are intialized with the ```random``` library.  
 - ```check_collisons(coordinates)```  
   This checks if the snake has collided with the borders of the frame.
   If the snake has, it will return ```True```, otherwise, it will return ```False```.  
