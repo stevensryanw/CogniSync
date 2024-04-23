@@ -1,26 +1,37 @@
+#------------------ Importing Libraries -----------------
+'''Tkinter'''
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk
-import os
-import numpy as np
-import pandas as pd
 from PIL import ImageTk
 import PIL.Image
-from functools import partial
-from snake import *
+'''Data Manipulation'''
+import numpy as np
+import pandas as pd
 import random
+import time
+'''Headset Connection'''
 from pyOpenBCI import OpenBCICyton
 from pylsl import StreamInfo, StreamOutlet
+from connect import *
+'''Plotting'''
+import plotly.express as px
+import plotly.graph_objects as go
+'''Modeling'''
+from model_bci import *
+import joblib
+from functools import partial
+'''Snake Game'''
+from snake import *
+'''USB Output'''
+import wheelchairController as wcc
+'''Threading'''
 import threading
 import multiprocessing
-import time
-from model_bci import *
+'''File Management'''
+import os
 import shutil
-import plotly.express as px
-import wheelchairController as wcc
-import joblib
-import plotly.graph_objects as go
-from connect import *
+#------------------ Importing Libraries -----------------
 
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
@@ -127,8 +138,8 @@ class Home(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
 
         #Adding our logo to the home page
-        my_image = ctk.CTkImage(light_image=PIL.Image.open("CogniSyncLogo.png"),
-                                  dark_image=PIL.Image.open("CogniSyncLogo.png"),
+        my_image = ctk.CTkImage(light_image=PIL.Image.open("resources/CogniSyncLogo.png"),
+                                  dark_image=PIL.Image.open("resources/CogniSyncLogo.png"),
                                   size=(450, 450))
         my_label = ctk.CTkLabel(self, text = '', image=my_image)
         my_label.grid(row=1, column=2, padx=0, pady=0)
