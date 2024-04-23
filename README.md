@@ -1,12 +1,12 @@
 ![Untitled_Artwork](https://github.com/stevensryanw/CogniSync/assets/70183326/88a7294b-9978-4d16-b423-b14074d80ce6)
 
 ## Project Goals
-- [X] Create an easy to use GUI for EEG data and modeling
+- [X] Create an easy-to-use GUI for EEG data and modeling
 - [X] Provide motor imagery predictions for controls
 - [ ] Use predictions to successfully play the snake game
 - [ ] Use predictions to accurately control the robotic wheelchair
 
-## Project Features (TKinter Pages)
+## Project Features (Tkinter Pages)
 - [X] Plotting eeg - ```plotEEG()```
   - [X] Gui for easily customizing Plotly
 - [X] User recording - ```UserRecording()```
@@ -16,7 +16,7 @@
 - [X] Modeling - ```Modeling()```
   - [X] SciKit-Learn (LDA, DTC, RFC, LRC)
   - [X] PyTorch
-  - [ ] Tensorflow (CPU possible, but GPU is too finiky)
+  - [ ] Tensorflow (CPU possible, but GPU is too finicky)
 - [X] Snake Game - ```SnakeGame()```
   - [X] Model selection/input
   - [X] Prediction outputs
@@ -28,7 +28,10 @@
 
 ## Future Improvements
 - [ ] Further improve model accuracy, f1, precision, and recalls
-- [ ] Online training with PyTorch
+- [ ] Online training with PyTorch (feedback function)
+- [ ] Tensorflow model using a GPU
+- [ ] EEG headset alignment protocol/GUI
+      - Possibility that the headset placement variability between uses changes the entire feed of data
 
 # ```gui_bci.py```
 
