@@ -43,9 +43,12 @@ There are millions of paralysis patients in the United States. Electroencephalog
 
 ### Class ```App()```
   - ```__init__(self, parent, controller)```
+    Intializes the application by creating a container frame. Uses an empty dictionary to store all frames used to iterate through all the pages of the GUI. 
   - ```show_frame(self, cont)```
+    Takes a frame and raises it to the top making it visible to the user
 ### Class ```Home()```
   - ```__init__(self, parent, controller)```
+    Intializes the home page of the GUI with the needed buttons for all pages plotEEG, UserRecording, Modeling, SnakeGame, and USBOutput. When buttons are clicked they call ```show_frame(self, cont)``` to move that frame to the top. 
 ### Class ```PlotEEG()```
   - ```__init__(self, parent, controller)```
   - ```updateList(self)```
