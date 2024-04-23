@@ -1,4 +1,4 @@
-![Untitled_Artwork](https://github.com/stevensryanw/CogniSync/assets/70183326/88a7294b-9978-4d16-b423-b14074d80ce6)
+![CogniSync](https://github.com/stevensryanw/CogniSync/resources/CogniSyncLogo.png)
 # [CogniSync: Machine Learning & EEG-Based Directional Controls](https://sse.tulane.edu/2024-engineering-capstone-design-expo/department-computer-science-abstracts)
 ## Tulane University Computer Science: FALL 2023 - SPRING 2024
 ## Contributors: Justin Haysbert, Gabriel Sagrera, Shayne Shelton, Ryan Stevens
@@ -187,6 +187,6 @@ There are millions of paralysis patients in the United States. Electroencephalog
    This uses ```sendRequest(url)``` to send the ```stop``` command to the microcontroller.
 
 ## Pictures
-![headset](https://github.com/stevensryanw/CogniSync/assets/70183326/523c1250-2b44-4989-b77d-76bedbf5e4f0)
-![robot](https://github.com/stevensryanw/CogniSync/assets/70183326/c2f38436-cbee-4c8f-b313-e1bc45310c0b)
-![wheelchair](https://github.com/stevensryanw/CogniSync/assets/70183326/aeb4c9a1-7382-4e1c-840a-5f28a13c301f)
+![headset](https://github.com/stevensryanw/CogniSync/resources/headset.png)
+![robot](https://github.com/stevensryanw/CogniSync/resources/robot.png)
+![wheelchair](https://github.com/stevensryanw/CogniSync/resources/wheelchair.png)
