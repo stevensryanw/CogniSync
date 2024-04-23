@@ -167,7 +167,7 @@ There are millions of paralysis patients in the United States. Electroencephalog
  - ```scoring(model, x, y)```  
  This creates four different scores (accuracy, f1 score, precision ,and recall) for the model given. The if statement separates the pytorch model and all other models due to needing to call on different attributes depending on whether it is a scikit-learn model or pytorch model. The model parameter is the model that will be scored, x is the test data set, and y is the test label set. Both parts of the if statement work similarly with having the model first predict on the test data set, then evaluating the four different scores using the builtin functions of either the pytorch module or the scikit-learn module. For f1 score, precision, and recall, the average parameter is given to be macro to calculate the metric for each label and then calculate the unweighted mean. This funciton returns a list of the scores and the model in the following order accuracy, f1 score, precision, recall, model.
 
-- ```snake.py```  
+## ```snake.py```  
 - Class ```Snake```  
   This intializes a ```Snake``` object.
   It uses ```canvas.create_rectangle()``` from ```CustomTKinter``` to create the body of the snake and saves the coordinates of the body.
