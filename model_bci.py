@@ -138,7 +138,7 @@ def BCI_sklearn_QuadraticDiscriminantAnalysis(data, labels):
 #Pytorch models
 def BCI_pytorch_Net(data, labels):
     #Checking for mps then cuda then cpu
-    devices = ['mps', 'cuda', 'cpu']
+    devices = ['cuda', 'mps', 'cpu']
     device_usable = ''
     for device in devices:
         try:
