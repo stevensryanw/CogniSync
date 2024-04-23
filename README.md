@@ -1,7 +1,7 @@
 ![Untitled_Artwork](https://github.com/stevensryanw/CogniSync/assets/70183326/88a7294b-9978-4d16-b423-b14074d80ce6)
 # [CogniSync: Machine Learning & EEG-Based Directional Controls](https://sse.tulane.edu/2024-engineering-capstone-design-expo/department-computer-science-abstracts)
 ## Tulane University Computer Science: FALL 2023 - SPRING 2024
-## By: Justin Haysbert, Gabriel Sagrera, Shayne Shelton, Ryan Stevens
+## Contributors: Justin Haysbert, Gabriel Sagrera, Shayne Shelton, Ryan Stevens
 ## Faculty Mentor: Saad Hassan
 ### SSE EXPO: April 23, 2024
 
