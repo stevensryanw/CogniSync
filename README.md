@@ -1,5 +1,8 @@
 ![Untitled_Artwork](https://github.com/stevensryanw/CogniSync/assets/70183326/88a7294b-9978-4d16-b423-b14074d80ce6)
 # [CogniSync: Machine Learning & EEG-Based Directional Controls](https://sse.tulane.edu/2024-engineering-capstone-design-expo/department-computer-science-abstracts)
+## By: Justin Haysbert, Gabriel Sagrera, Shayne Shelton, Ryan Stevens
+
+There are millions of paralysis patients in the United States. Electroencephalogram (EEG) headsets offer a way for these patients to operate mechanical devices provided motor imagery related brain waves. Machine learning approaches like SciKit-Learn (LDA, LRC, DTC, and RFC) and PyTorch can accurately and precisely categorize a user’s brain state into directional controls for this application. However, training time is long, training is user specific, and EEGs experience a low signal-to-noise ratio. This project aims to reduce user training time by (1) decreasing the number of movements users perform during training and (2) building a comprehensive graphical user interface (GUI) to streamline the recording, modeling, and prediction processes.
 
 ## Project Goals
 - [X] Create an easy-to-use GUI for EEG data and modeling
