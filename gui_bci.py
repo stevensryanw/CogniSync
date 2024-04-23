@@ -593,7 +593,7 @@ class Modeling(ctk.CTkFrame):
         txt_label.grid(row=5, column=0, padx = 10, pady = 10)
 
         ## Creating our textbox so user can input file name
-        txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="output.txt")
+        txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="output.pkl")
         txt_entry.grid(row= 5, column =1, padx = 10, pady = 10)
         self.text = txt_entry
 
@@ -802,12 +802,8 @@ class Modeling(ctk.CTkFrame):
 
     def csvProcessing(self, dataFile, labelFile):
         if labelFile == "No Label File":
-            #do stuff like ryan.csv
             dataTemp = dataPath+"/"+dataFile
-            df = pd.read_csv(dataTemp)#needed if  no column names, names=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "labels"])
-            #wont work for ryan1 since it doesnt have the new column names
-            print(df.columns)
-            print(df.columns[-1])
+            df = pd.read_csv(dataTemp)
             df.dropna(inplace=True)
             names = df["label"].unique()
             names = sorted(names, key=str.lower)
@@ -818,7 +814,6 @@ class Modeling(ctk.CTkFrame):
                 count += 1
             df2 = df["label"]
             df.drop(columns=['label'], inplace=True)
-            print(mapping)
         #if they are different files
         else:
             dataTemp = dataPath+"/"+dataFile
@@ -839,7 +834,6 @@ class Modeling(ctk.CTkFrame):
             df = df.drop(columns=df.columns[8:11])
         elif self.check1Var.get()==0 and self.check2Var.get()==1:
             df = df.drop(columns=df.columns[0:8])
-
         dataArray = df.to_numpy()
         labelsArray = df2.to_numpy()
         return [dataArray, labelsArray, mapping]

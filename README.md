@@ -54,6 +54,12 @@ There are millions of paralysis patients in the United States. Electroencephalog
   - ```__init__(self, parent, controller)```
 ### Class ```Modeling()```
   - ```__init__(self, parent, controller)```
+  This creates all the widgets for the model page including dropdowns for selecting the model, data file and label file. The widgets for the checkbox also have an IntVar created to help determine whether it has been clicked or not. 
+  - ```model_input(self)```
+  - ```updateFiles(self)```
+
+  - ```csvProcessing(self, dataFile, labelFile)```
+  This function is to process the csv file chosen by the user in the gui. The dataFile parameter is a string of the file chosen by the user which is then found by going to the data folder and searching for the file there. The labelFile parameter is the same as the dataFile parameter except for label files chosen by the user or that there is no label file. The if statement splits based on whether a label file has been chosen or not. If no label file was chosen then the path to the data file is created and passed to ```pandas.read_csv``` and stored. All rows with NA values are dropped with the label column being stored as a separate dataframe and deleted from the data dataframe. The unique values in the labels frame are taken and sorted in a list by alphabetical order and replaced with numbers unique to each different label value. The else statement follows this format but reads in both the data file and label file given. If the checkbox for the alpha values has been unchecked then the alpha value columns are dropped and if the electrode reading checkbox is unchecked then the electrode reading columns are removed. The dataframes are then turned into numpy arrays and will return a list of the data numpy array, label numpy array, and a dictionary of the label values and corresponding number. 
 ### Class ```SnakeGame()```
   - ```__init__(self, parent, controller)```
 ### Class ```USBOutput()```
