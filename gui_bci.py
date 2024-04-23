@@ -774,7 +774,6 @@ class Modeling(ctk.CTkFrame):
                 joblib.dump(results[4], modelPath+"/"+outputFile)
         df=pd.read_csv(masterFilePath)
         modelID = modelSelected+'_'+dataName+'_'+str(t)
-        print(df)
         if len(legend)==5:
             keyList = list(legend.keys())
             valList = list(legend.values())
@@ -1012,7 +1011,7 @@ class SnakeGame(ctk.CTkFrame):
     def label_map(self):
         return 0
 
-    '''Snake Ganme Functions'''
+    '''Snake Game Functions'''
     def drawFrame(self):
         global canvas
         global snake
@@ -1034,7 +1033,6 @@ class SnakeGame(ctk.CTkFrame):
         app.bind('<Down>', lambda event: self.move("down", snake, g_food, root, canvas))
         app.bind('<space>', lambda event: self.game_over())
     def move(self, direction, snake, g_food, root, canvas):
-        #print("move")
         global active
         if active:
             self.change_direction(direction)
