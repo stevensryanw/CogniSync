@@ -6,6 +6,8 @@ There are millions of paralysis patients in the United States. Electroencephalog
 
 # [YouTube Demo](https://youtu.be/2NKWB9IQvQE)
 
+# [EEG Headset](https://shop.openbci.com/products/3d-print-it-yourself-neurotechnologist-bundle-up-to-8-channels?_pos=3&_psq=print&_ss=e&_v=1.0)
+
 ## Project Goals
 - [X] Create an easy-to-use GUI for EEG data and modeling
 - [X] Provide motor imagery predictions for controls
