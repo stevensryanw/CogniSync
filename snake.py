@@ -41,6 +41,7 @@ class Food:
         self.canvas = canvas
 
         canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD, tag="food")
+
 def check_collisions(coordinates):
     x, y = coordinates
 
