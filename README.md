@@ -31,7 +31,7 @@
 - [ ] Online training with PyTorch (feedback function)
 - [ ] Tensorflow model using a GPU
 - [ ] EEG headset alignment protocol/GUI
-      - Possibility that the headset placement variability between uses changes the entire feed of data
+      - Possibility that the headset placement variability between uses changes the entire feed of data every time
 
 # ```gui_bci.py```
 
