@@ -8,11 +8,10 @@ import torch
 import optuna
 import sqlite3
 
-deviceM1 = 'cuda'
-torch.device(deviceM1)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Lets load the data
-data_full = pd.read_csv('/BCI_Infinity/data/ryan2.csv')
+data_full = pd.read_csv('/CogniSync/data/ryan.csv')
 # First 11 columns are the data
 data = data_full.iloc[:, 0:11]
 # Last column is the category
@@ -23,8 +22,8 @@ label_encoder = LabelEncoder()
 labels = label_encoder.fit_transform(labels)
 
 #Turn the data into a tensor
-data_tensor = torch.tensor(data.values, dtype=torch.float32).cuda()
-labels_tensor = torch.tensor(labels, dtype=torch.long).cuda()
+data_tensor = torch.tensor(data.values, dtype=torch.float32).to(device)
+labels_tensor = torch.tensor(labels, dtype=torch.long).to(device)
 
 params = {
     'n_layers': [3, 4, 5, 6],
@@ -43,10 +42,10 @@ params = {
 # Using Optuna to find the best hyperparameters for each model our training data is 11 columns and our labels are 1 column
 def objective(trial):
     X_train, X_test, y_train, y_test = train_test_split(data_tensor, labels_tensor, test_size=0.2, random_state=42)
-    X_train = X_train.cuda()
-    X_test = X_test.cuda()
-    y_train = y_train.cuda()
-    y_test = y_test.cuda()
+    X_train = X_train.to(device)
+    X_test = X_test.to(device)
+    y_train = y_train.to(device)
+    y_test = y_test.to(device)
 
     n_layers = trial.suggest_categorical('n_layers', params['n_layers'])
     n_units_l0 = trial.suggest_categorical('n_units_l0', params['n_units_l0'])
@@ -71,7 +70,7 @@ def objective(trial):
         torch.nn.ReLU(),
         torch.nn.Dropout(dropout_l2),
         torch.nn.Linear(n_units_l2, 5)
-    ).cuda()
+    ).to(device)
 
     loss_fn = torch.nn.CrossEntropyLoss()
 
@@ -112,8 +111,8 @@ def objective(trial):
         return accuracy
     
 # Create a study
-study = optuna.create_study(direction='maximize', study_name='pytorch_nn_ryan2', storage='sqlite:///pytorch_nn.db.sqlite3', load_if_exists=True)
-study.optimize(objective, n_trials=100, n_jobs=1, show_progress_bar=True)
+study = optuna.create_study(direction='maximize', study_name='pytorch_nn_ryan_ad', storage='sqlite:///pytorch_nn.db.sqlite3', load_if_exists=True)
+study.optimize(objective, n_trials=100, n_jobs=-1, show_progress_bar=True)
 
 # Connect to the SQLite3 database
 conn = sqlite3.connect('pytorch_nn.db.sqlite3')
