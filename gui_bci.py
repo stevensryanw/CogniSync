@@ -33,6 +33,7 @@ import os
 import shutil
 #------------------ Importing Libraries -----------------
 
+#intializing variables for the snake game UI page
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
 HEIGHT = 500
@@ -1024,6 +1025,7 @@ class SnakeGame(ctk.CTkFrame):
 
     '''Snake Game Functions'''
     def drawFrame(self):
+        '''Intialize snake function variables'''
         global canvas
         global snake
         global g_food
@@ -1031,31 +1033,47 @@ class SnakeGame(ctk.CTkFrame):
         global pointCount
         active = True
         score = 0
+        # canvas object that holds the snake game
         canvas = ctk.CTkCanvas(self, bg='black', height=260, width=260)
         canvas.grid(row=2, rowspan=5, column=2, padx=10, pady=10)
+        # intialize the label that will hold the score board for the game
         pointCount = ctk.CTkLabel(self, text="Points: {}".format(score), font=LARGEFONT)
         pointCount.grid(row=1, column=2, padx=10, pady=10)
+        # intialize the snake
         snake = Snake(canvas)
+        # intialize the first food pellet
         g_food = Food(canvas)
+        # start the game
         root = SnakeGame
+
+        # binds arrow keys to movement types in the game
         app.bind('<Left>', lambda event: self.move("left", snake, g_food, root, canvas))
         app.bind('<Right>', lambda event: self.move("right", snake, g_food, root, canvas))
         app.bind('<Up>', lambda event: self.move("up", snake, g_food, root, canvas))
         app.bind('<Down>', lambda event: self.move("down", snake, g_food, root, canvas))
         app.bind('<space>', lambda event: self.game_over())
+
+    '''Handles snake movement fucntions'''
     def move(self, direction, snake, g_food, root, canvas):
         global active
+        # reads in movement types from the controller (likely computer or model)
         if active:
+            # changes stored 'oreintion of the snake'
             self.change_direction(direction)
+            # moves the snake to the next square (handles movement and checks for food consumtion)
             self.next_turn(snake, g_food, root, canvas) 
+    '''Executes the game over protocol and cleanup'''
     def game_over(self):
         global active
+        # destroys game objects and canvas if the user opts to quit the game
         active = False
         canvas.delete(ALL)
         canvas.create_text(canvas.winfo_width() / 2, canvas.winfo_height() / 2, font=('consolas', 30), 
                            text="GAME OVER", fill="red", tag="gameover") 
+    '''Handles orienting the snake in the correct direction'''
     def change_direction(self, new_direction):
         global direction
+        # changes the 'orienation' of the snake according to the most recent input from the controller
         if new_direction == 'left':
             # if direction != 'right':
             direction = new_direction
@@ -1068,18 +1086,26 @@ class SnakeGame(ctk.CTkFrame):
         elif new_direction == 'down':
             # if direction != 'up':
             direction = new_direction
+    '''Determines if snake has run into the preset boundaries of the game'''
     def check_collisions(self, coordinates):
+        # checks if the snake has collided of the boarders of the canvas
+        # otherwise, snake could move to infinity
         x, y = coordinates
-
+        # checks horizontal boundary
         if x < 0 or x >= WIDTH-2:
             return True
+        #checks vertical boundary
         elif y < 0 or y >= HEIGHT-2:
             return True
         return False
+    '''Handles snake movement'''
     def next_turn(self, snake, food, root, canvas):
         if active:
             global direction
+            # defines snakes current location
             x, y = snake.coordinates[0]
+
+            # updates snake's coordinates according to into orientation
             if direction == "up":
                 y -= SPACE_SIZE
             elif direction == "down":
@@ -1088,21 +1114,31 @@ class SnakeGame(ctk.CTkFrame):
                 x -= SPACE_SIZE
             elif direction == "right":
                 x += SPACE_SIZE
+            # determines if the snake is running into a boundary or at a boundary
             if check_collisions((x,y)):
+                # if at a boundary, the snake can no longer move until it given a direction that brings it away from the boundary
                 direction = "collision"
             else:
+                # once verified that there is no collision, the snake's new cooordinates are offically stored here
                 snake.coordinates.insert(0, (x, y))
+                # creates the rectangle for the snake at its new location
                 square = snake.canvas.create_rectangle(
                     x, y, x + SPACE_SIZE,
                             y + SPACE_SIZE, fill=SNAKE)
                 snake.squares.insert(0, square)
+                # checks if the snake has collided with the generated food pellet
                 if x == food.coordinates[0] and y == food.coordinates[1]:
+                    # if so, ..
                     global score
                     global g_food
+                    # score updates
                     score += 1
+                    # update score label with new information
                     pointCount.configure(text="Points: {}".format(score))
+                    #deletes food pellet and randomly generates a new one
                     snake.canvas.delete("food")
                     g_food = Food(canvas)
+                # deletes the snakes trail the ensure the snake remains of length 1
                 del snake.coordinates[-1]
                 snake.canvas.delete(snake.squares[-1])
                 del snake.squares[-1]
@@ -1145,7 +1181,7 @@ class USBOutput(ctk.CTkFrame):
 
         self.model = False
         self.update()
-
+        '''Bind keys to functions the send requests to ESP'''
         self.bind('<Left>', lambda event: wcc.turnLeft())
         self.bind('<Right>', lambda event: wcc.turnRight())
         self.bind('<Up>', lambda event: wcc.motorForward())
