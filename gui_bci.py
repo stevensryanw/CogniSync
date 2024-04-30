@@ -178,40 +178,66 @@ class Home(ctk.CTkFrame):
 class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+    
         label = ctk.CTkLabel(self, text ="Plotting EEG Data", font = LARGEFONT)
+        # putting the label in its place by
+        # using grid
         label.grid(row = 0, column = 1, padx = 100, pady = 10)
+        #button to return to home page
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
+        # putting the button in its place by
+        # using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
         #labels for the data dropdown
         Data_label = ctk.CTkLabel(self, text="Data File", font=("Verdana", 15))
+        # putting the label in its place by
+        # using grid
         Data_label.grid(row=3, column=0, padx = 10, pady=10)
         #dropdown option for the data that we will plot in plotly
         self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
+        # putting the dropdown in its place by
+        # using grid
         self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
         #button to update files for dropdown
         self.updateButton = ctk.CTkButton(self, text='Update File List', corner_radius=25, command=self.updateList)
+        # putting the button in its place by
+        # using grid
         self.updateButton.grid(row=4, column=1, padx=10, pady=10)
         #button to show the eeg data with labels
         button2 = ctk.CTkButton(self, text ="Show EEG Data",corner_radius=25, command=self.plot_eeg)
+        # putting the button in its place by
+        # using grid
         button2.grid(row = 9, column = 1, padx = 10, pady = 30)
         #slider for starting point in graph
         self.slider1 = ctk.CTkSlider(self, from_=0, to=999990, command=self.slide1)
+        # putting the slider in its place by
+        # using grid
         self.slider1.grid(row=5, column=1, padx=10, pady=10)
         #label for slider 1
         self.slideLabel1 = ctk.CTkLabel(self, text='Starting Point', font=("Verdana", 15))
+        # putting the label in its place by
+        # using grid
         self.slideLabel1.grid(row=5, column=0, padx=10, pady=10)
         #label for slider 1 value
         self.sliderLabel1 = ctk.CTkLabel(self, text=str(int(self.slider1.get())), font=("Verdana", 15))
+        # putting the label in its place by
+        # using grid
         self.sliderLabel1.grid(row=5, column=2, padx=10, pady=10)
         #slider for end point in graph
         self.slider2 = ctk.CTkSlider(self, from_=2, to=1000000, command=self.slide2)
+        # putting the slider in its place by
+        # using grid
         self.slider2.grid(row=6, column=1, padx=10, pady=10)
         #label for slider 2
         self.slideLabel1 = ctk.CTkLabel(self, text='Ending Point', font=("Verdana", 15))
+        # putting the label in its place by
+        # using grid
         self.slideLabel1.grid(row=6, column=0, padx=10, pady=10)
         #label for slider 2 value
         self.sliderLabel2 = ctk.CTkLabel(self, text=str(int(self.slider2.get())), font=("Verdana", 15))
+        # putting the label in its place by
+        # using grid
         self.sliderLabel2.grid(row=6, column=2, padx=10, pady=10)
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=0)
@@ -222,51 +248,74 @@ class PlotEEG(ctk.CTkFrame):
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var, font=("Verdana", 15))
         self.check2.grid(row=7, column=0, padx=10, pady=10)
     
+    '''Updates the file list for the dropdown menu'''
     def updateList(self):
+        #this searches the given directory and checks if it is a file
+        #if it is a file then it is added to the data file list
         dataFiles = [f for f in os.listdir(dataPath) if os.path.isfile(os.path.join(dataPath, f))]
+        #this removes a folder that is typically hidden for mac users
         if '.DS_Store' in dataFiles:
             dataFiles.remove('.DS_Store')
+        #This ensures that some value is given if no files exist
+        #It then updates the data file list
         if len(dataFiles)==0:
             dataFiles = "No Current Files"
             self.Data_dropdown.configure(values=dataFiles)
         else:
             self.Data_dropdown.configure(values=dataFiles)
-            dataFiles.insert(0, "No Label File")
-            dataFiles.pop(0) 
 
+    '''Controls the slider values'''
     def slide1(self, value):
+        #This changes the slider value to be less than the upper interval slider value
         if value >= self.slider2.get():
+            #The value is set to be one less than the second slider value 
             self.slider1.configure(to=self.slider2.get()-1)
+        #This changes the maximum of the slider value if it is lower than 2 less than the second slider value
         if self.slider1.cget('to')<self.slider2.get()-2:
+            #The value of the first slider's maximum is updated
             self.slider1.configure(to=self.slider2.get()-2)
+        #This updates the labels for the values of both sliders
         self.sliderLabel1.configure(text=str(int(self.slider1.get())))
         self.sliderLabel2.configure(text=str(int(self.slider2.get())))
-
     def slide2(self, value):
+        #This changes the slider value to be more than the lower interval slider value
         if value <= self.slider1.get():
+            #The value is set to be one more than the first slider value 
             self.slider2.configure(from_=self.slider1.get()+1)
+        #This changes the minimum of the slider value if it is greater than 2 more than the first slider value
         if self.slider2.cget('from_')>self.slider1.get()+2:
             self.slider2.configure(from_=self.slider1.get()+2)
+        #This updates the labels for the values of both sliders
         self.sliderLabel2.configure(text=str(int(self.slider2.get())))
         self.sliderLabel1.configure(text=str(int(self.slider1.get())))
-
+    
+    '''Plots the requested value categories for the interval inputed'''
     def plot_eeg(self):
+        #This retrieves the data file name requested
         dataSelected = self.Data_dropdown.get()
+        #the path for the file is created
         dataPath = os.path.join(pathDir, "data/", dataSelected)
+        #the file is converted to a pandas dataframe
         data = pd.read_csv(dataPath)
+        #all the rows with a NA value are removed
         data.dropna(inplace=True)
+        #this grabs all the unique labels from the file
         labelNames = data['label'].unique()
+        #the labels are placed into their own dataframe and removed from the original
         labels = data['label']
         data.drop(columns='label', inplace=True)
         temp_save = ''
         columnNames = []
         legend = {}
+        #colors are assigned to the columns of the data
         k=0
         for col in data.columns:
             columnNames.append(col)
             legend[col] = px.colors.qualitative.Alphabet[k]
             k+=1
         k=0
+        #a standard interval for plotting the data is created
+        #if the slider values differ from the default ones the slider values are used
         interval_default = [0, len(data)]
         fig = go.Figure()
         if self.slider1.get()>interval_default[0]:
@@ -278,13 +327,16 @@ class PlotEEG(ctk.CTkFrame):
         else:
             interval2 = interval_default[1]
         data = data[interval1:interval2]
+        #the min and max of the data are taken to create vertical lines in the data set
         min = data[['ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','aux1','aux2','aux3']].values.min()
         max = data[['ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','aux1','aux2','aux3']].values.max()
         legend2={}
+        #colors are assigned to the unique labels from the data set
         k=0
         for j in labelNames:
             legend2[j]=px.colors.qualitative.Light24[k]
             k+=1
+        #this creates the line plots if only the electrode values are requested
         if self.check1Var.get()==1 and self.check2Var.get()==0:
             data = data.drop(columns=data.columns[8:11])
             fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
@@ -295,33 +347,46 @@ class PlotEEG(ctk.CTkFrame):
             fig.add_trace(go.Scatter(x=data.index, y=data['ch6'], mode='lines', line=dict(color=legend.get('ch6')), name='ch6'))
             fig.add_trace(go.Scatter(x=data.index, y=data['ch7'], mode='lines', line=dict(color=legend.get('ch7')), name='ch7'))
             fig.add_trace(go.Scatter(x=data.index, y=data['ch8'], mode='lines', line=dict(color=legend.get('ch8')), name='ch8'))
+            #this adds a line for each movement only once so that the label names are present in the legend with the associated color
             previous=[]
             for i in range(interval1, interval2):
+                #this checks that the movement is not norm or already added and plots the line
                 if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
                     temp_save = labels.iloc[i]
+                    #this adds the label to a list that is used to check if the label was already used
                     previous.append(labels.iloc[i])
                     fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
+            #the graph is given a title from the data file name and what was selected to plot
             graphTitle = dataSelected[:-4]+" Electrode Values"
+        #this plots the alpha values from the data file
         elif self.check1Var.get()==0 and self.check2Var.get()==1:
             data = data.drop(columns=data.columns[0:8])
+            #the min and max are retaken so that it will not increase the y axis too much compared to the alpha values
             min = data[['aux1','aux2','aux3']].values.min()
             max = data[['aux1','aux2','aux3']].values.max()
+            #all rows with an alpha value of zero are removed to remove times when the alpha was not calculated
             data.drop(data[data.aux1==0.0].index, inplace=True)
             data.drop(data[data.aux2==0.0].index, inplace=True)
             data.drop(data[data.aux3==0.0].index, inplace=True)
+            #the alpha values are plotted with the colors given to them
             fig.add_trace(go.Scatter(x=data.index, y=data['aux1'], mode='lines', line=dict(color=legend.get('aux1')), name='aux1'))
             fig.add_trace(go.Scatter(x=data.index, y=data['aux2'], mode='lines', line=dict(color=legend.get('aux2')), name='aux2'))
             fig.add_trace(go.Scatter(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
             previous=[]
             for i in range(interval1, interval2):
+                #this checks that the movement is not norm or already added and plots the line
                 if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
                     temp_save = labels.iloc[i]
+                    #this adds the label to a list that is used to check if the label was already used
                     previous.append(labels.iloc[i])
                     fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
+            #the graph is given a title from the data file name and what was selected to plot
             graphTitle = dataSelected[:-4]+" Alpha Values"
+        #all values are plotted when both or neither checkbox is checked
         else:
+            #the graph is given a title from the data file name and what was selected to plot
             graphTitle = dataSelected[:-4]+" Electrode and Alpha Values"
             fig.add_trace(go.Scatter(x=data.index, y=data['ch1'], mode='lines', line=dict(color=legend.get('ch1')), name='ch1'))
             fig.add_trace(go.Scatter(x=data.index, y=data['ch2'], mode='lines', line=dict(color=legend.get('ch2')), name='ch2'))
@@ -336,20 +401,27 @@ class PlotEEG(ctk.CTkFrame):
             fig.add_trace(go.Scatter(x=data.index, y=data['aux3'], mode='lines', line=dict(color=legend.get('aux3')), name='aux3'))
             previous=[]
             for i in range(interval1, interval2):
+                #this checks that the movement is not norm or already added and plots the line
                 if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save and not(labels.iloc[i] in previous):
                     temp_save = labels.iloc[i]
+                    #this adds the label to a list that is used to check if the label was already used
                     previous.append(labels.iloc[i])
                     fig.add_trace(go.Scatter(x=[labels.iloc[i], labels.iloc[i]], y=[min, max], mode='lines', 
                                   line=dict(color=legend2[labels.iloc[i]], dash='dash'), name=labels.iloc[i]))
         data.reset_index(inplace=True)
+        #the legend is given a title and updated to be shown on the graph
         fig.update_layout(legend_title_text='Legend')
         fig.update_layout(showlegend=True)
         fig.update_layout(font_size=35)
         fig.update_layout(title_text=graphTitle)
+        #the rest of the labels are plotted without adding to the legend
         for i in range(interval1, interval2):
+            #if a label is not norm and is not the same as the previously plotted movement then it is added
             if labels.iloc[i] != 'norm' and labels.iloc[i] != temp_save:
                 temp_save = labels.iloc[i]
+                #a dashed vertical line is added to the graph with this function to not add it to the legend
                 fig.add_vline(x=i, line_dash='dash', line_color=legend2[labels.iloc[i]])
+        #the plot is shown in the browser of the user
         fig.show()
 #------------------ Plot EEG Data Page ------------------
 
@@ -561,6 +633,7 @@ class UserRecording(ctk.CTkFrame):
 #------------------ Modeling Page -----------------------
 class Modeling(ctk.CTkFrame):
     def __init__(self, parent, controller):
+
         ctk.CTkFrame.__init__(self, parent)
         label = ctk.CTkLabel(self, text ="User Modeling", font = LARGEFONT)
         label.grid(row = 0, column = 1, padx = 50, pady = 10)
@@ -585,7 +658,7 @@ class Modeling(ctk.CTkFrame):
         Data_label = ctk.CTkLabel(self, text="Data File")
         Data_label.grid(row=3, column=0, padx = 10, pady=10)
 
-        ## dropdown option for the data that we will run into the model. select from csvs, will be populated from directory 
+        # dropdown option for the data that we will run into the model. select from csvs, will be populated from directory 
         self.Data_dropdown = ctk.CTkComboBox(self, values = dataFiles)
         self.Data_dropdown.grid(row=3, column = 1, padx=10, pady=10)
         
@@ -614,7 +687,7 @@ class Modeling(ctk.CTkFrame):
         self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var)
         self.check1.grid(row=6, column=1, padx=20, pady=10)
 
-        #checkboc to select alpha values for graph
+        #checkbox to select alpha values for graph
         self.check2Var = ctk.IntVar(value=1)
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
         self.check2.grid(row=6, column=0, padx=10, pady=10)
@@ -623,12 +696,14 @@ class Modeling(ctk.CTkFrame):
         update_button = ctk.CTkButton(self, text="Update File Lists", command = self.updateFiles)
         update_button.grid(row=7, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
-        #will send the user back to the main menu
+        #will create the model with the selections by the user
         run_button = ctk.CTkButton(self, text="Run", command=self.model_input)
         #put button on a grid
         run_button.grid(row=8, column=0, columnspan = 2, sticky = "news", padx=10, pady=10)
 
+    '''creates the model from the data file selected by the user'''
     def model_input(self):
+        #values the user inputed are placed in variables
         modelSelected = self.model_dropdown.get()
         dataSelected = self.Data_dropdown.get()
         labelsSelected = self.Labels_dropdown.get()
@@ -638,6 +713,8 @@ class Modeling(ctk.CTkFrame):
         print(labelsSelected)
         print(outputFile)
         self.relPath = "../CogniSync/data/"
+        #all these send the data files selected to csv processing and then send the files to model_bci 
+        #these are separated by which type of model is being created
         if modelSelected == "LDA":
             phrase = ctk.CTkLabel(self, text="Time is a circle. You're your own grandpa.", font=("Verdana", 18))
             phrase.grid(row=2, column=3, padx=10, pady=10)
@@ -739,44 +816,57 @@ class Modeling(ctk.CTkFrame):
             dataArray, labelsArray, legend = self.csvProcessing(dataSelected, labelsSelected)
             results, model = BCI_pytorch_Net(dataArray, labelsArray)
 
+        #time is taken to create a unique id for the model
         t = time.time()
+        #tensorflow results are saved in a text file
         if modelSelected == "Tensorflow":
             waitLabel.configure(text="Results")
+            #the accuracy and nodes used are printed to the gui
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f}".format(results[0]), font=("Verdana", 18))
             metrics.grid(row=4, column=3, padx=10, pady=10)
             nodes = ctk.CTkLabel(self, text=results[1], font=("Verdana", 18))
             nodes.grid(row=5, column=3, padx=10, pady=10)
+            #if no output file name is given one is created
             if outputFile == "" or outputFile == " ":
                 dataName = dataSelected[:-4]
                 outputFile = modelSelected+dataName+str(t)+"Output.txt"
+                #output file has the model name, score, and nodes written into it
                 f = open(self.relPath+outputFile, "a")
                 f.write("Model Name: "+modelSelected+'_'+dataName+'_'+str(t)+"\n")
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
                 print("File Name: "+outputFile)
+            #the results and nodes are written to the file name given by the user
             else:
                 f = open(self.relPath+outputFile, "a")
                 f.write("Model Name: "+modelSelected+'_'+dataName+'_'+str(t)+"\n")
                 f.write("Score: "+str(results[0])+"\n")
                 f.write("Parameters: "+str(results[1])+"\n")
                 f.close()
+        #pytorch models are saved as a .pt file
         elif modelSelected == "PyTorch":
-            #We need to do the same thing as the else but instead of saving to .pkl it should be a .pt
+            #metrics for the model are written to the gui
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
                 results[0], results[1], results[2], results[3]), font=("Verdana", 18))
             metrics.grid(row=4, column=3, padx=10, pady=10)
             dataName = dataSelected[:-4]
+            #if no file name is given one is made
+            #a .pt file of the fitted model is saved to the models folder
             if outputFile == "" or outputFile == " ":
                 torch.save(model, modelPath+'/'+modelSelected+'_'+dataName+'_'+str(t)+".pt")
             else:
                 torch.save(model, modelPath+'/'+outputFile)
+        #all sklearn models are saved as .pkl files
         else:
+            #metrics for the modle are written to the gui
             waitLabel.configure(text="Results")
             metrics = ctk.CTkLabel(self, text="Accuracy: {:.3f} F1 Score: {:.3f} Precision: {:.3f} Recall: {:.3f}".format(
                 results[0], results[1], results[2], results[3]), font=("Verdana", 18))
             metrics.grid(row=4, column=3, padx=10, pady=10)
+            #if no file name is given one is made
+            #a .pkl file of the fitted model is saved to the models folder
             if outputFile == "" or outputFile == " ":
                 dataName = dataSelected[:-4]
                 outputFile = modelSelected+'_'+dataName+'_'+str(t)+".pkl"
@@ -784,42 +874,60 @@ class Modeling(ctk.CTkFrame):
                 print("File Name: "+outputFile)
             else:
                 joblib.dump(results[4], modelPath+"/"+outputFile)
+        #the csv containing all model names is read in
         df=pd.read_csv(masterFilePath)
         modelID = modelSelected+'_'+dataName+'_'+str(t)
+        #if five movements are recorded in the file the model name, results, 
+        #and label names are written into the model name csv
         if len(legend)==5:
             keyList = list(legend.keys())
             valList = list(legend.values())
             items = []
+            #makes the legend indexable to allow generalized addition of the label names
             i=0
             for i in range(len(legend)):
+                #the index of label names are found using the value list and added to items
                 items.append(keyList[valList.index(str(i))])
                 i+=1
             df.loc[len(df.index)] = [modelID, results[0], results[1], results[2], results[3], items[0], items[1], items[2], items[3], items[4]]
             df.to_csv(masterFilePath, index=False)
 
+    '''Updates the file list for the dropdown menus'''
     def updateFiles(self):
+        #this searches the given directory and checks if it is a file
+        #if it is a file then it is added to the data file list
         dataFiles = [f for f in os.listdir(dataPath) if os.path.isfile(os.path.join(dataPath, f))]
+        #this removes a folder that is typically hidden for mac users
         if '.DS_Store' in dataFiles:
             dataFiles.remove('.DS_Store')
+        #This ensures that some value is given if no files exist
+        #It then updates the data file list
         if len(dataFiles)==0:
             dataFiles = "No Current Files"
             self.Data_dropdown.configure(values=dataFiles)
             self.Labels_dropdown.configure(values=dataFiles)
+        #creates an entry to allow the user to  choose no label file
         else:
             self.Data_dropdown.configure(values=dataFiles)
             dataFiles.insert(0, "No Label File")
             self.Labels_dropdown.configure(values=dataFiles)
             dataFiles.pop(0) 
 
+    '''processes a csv and changes it into a numpy array'''
     def csvProcessing(self, dataFile, labelFile):
+        #if the labels are in the same file
         if labelFile == "No Label File":
             dataTemp = dataPath+"/"+dataFile
+            #datafile placed in pandas dataframe
             df = pd.read_csv(dataTemp)
             df.dropna(inplace=True)
+            #movement labels are taken from label column
             names = df["label"].unique()
+            #labels are sorted in alphabetical order
             names = sorted(names, key=str.lower)
             mapping = {}
             count = 0
+            #dictionary for label and number to associate it with to allow for models to be created
             for x in names:
                 mapping[x] = str(count)
                 count += 1
@@ -832,17 +940,23 @@ class Modeling(ctk.CTkFrame):
             df = pd.read_csv(dataTemp)
             df2 = pd.read_csv(labelsTemp)
             columnNames = list(df2.columns)
+            #movement labels are taken from label file
             names = df2[columnNames[0]].unique()
+            #labels are sorted in alphabetical order
             names = sorted(names, key=str.lower)
             mapping = {}
             count = 0
+            #dictionary for label and number to associate it with to allow for models to be created
             for x in names:
                 mapping[x] = float(count)
                 count += 1
+        #labels are replaced with associated number
         df2 = df2.replace(mapping)
         df2 = df2.astype('float64')
+        #drops alpha values if user specified electrode values only
         if self.check1Var.get()==1 and self.check2Var.get()==0:
             df = df.drop(columns=df.columns[8:11])
+        #drops electrode values if user specified alpha values only
         elif self.check1Var.get()==0 and self.check2Var.get()==1:
             df = df.drop(columns=df.columns[0:8])
         dataArray = df.to_numpy()
@@ -855,16 +969,22 @@ class Modeling(ctk.CTkFrame):
 class SnakeGame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-    
+        #button to return to home page
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25, 
                             command = lambda : controller.show_frame(Home))
+        # putting the button in its place by
+        # using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 20)
         
         label = ctk.CTkLabel(self, text ="Snake Game", font = LARGEFONT)
         label.grid(row = 0, column = 2, padx = 50, pady = 20)
 
+        #creates the canvas for  snake game to exist
         button2 = ctk.CTkButton(self, text = 'Snake Begin', corner_radius = 25, command = self.drawFrame)
+        # putting the button in its place by
+        # using grid
         button2.grid(row = 2, column = 1, padx = 10, pady = 20)
+
         global active
         #dropbox for models        
         self.modelDropdown = ctk.CTkComboBox(self, values = modelFiles)
@@ -902,20 +1022,27 @@ class SnakeGame(ctk.CTkFrame):
         self.stream_thread = None
         self.stop_predict = True
 
-    #update list of models
+    '''Update list of models'''
     def updateFiles(self):
+        #this searches the given directory and checks if it is a file
+        #if it is a file then it is added to the data file list
         modelFiles = [f for f in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath, f))]
+        #this removes a folder that is typically hidden for mac users
         if '.DS_Store' in modelFiles:
             modelFiles.remove('.DS_Store')
+        #This ensures that some value is given if no files exist
+        #It then updates the data file list
         if len(modelFiles)==0:
             modelFiles = "No Current Files"
             self.modelDropdown.configure(values=modelFiles)
         else:
             self.modelDropdown.configure(values=modelFiles)
-            
+
+    '''Unpackages the model selected'''       
     def modelSelection(self):
         modelSelected = self.modelDropdown.get()
         print(modelSelected[-3:])
+        #unpackages based on model type
         if modelSelected[-3:] == "pkl":
             self.model = joblib.load(modelPath+"/"+modelSelected)
         elif modelSelected[-2:] == ".pt":
@@ -1152,8 +1279,11 @@ class USBOutput(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
         label = ctk.CTkLabel(self, text ="USB Output", font = LARGEFONT)
         label.grid(row = 0, column = 4, padx = 100, pady = 10)
+        #button to return to home page
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
+        # putting the button in its place by
+        # using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
         
         # button sends "foreward" request directly to ESP via IP
@@ -1225,20 +1355,27 @@ class USBOutput(ctk.CTkFrame):
         self.stream_thread = None
         self.stop_predict = True
 
-    #update list of models
+    '''Update list of models'''
     def updateFiles(self):
+        #this searches the given directory and checks if it is a file
+        #if it is a file then it is added to the data file list
         modelFiles = [f for f in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath, f))]
+        #this removes a folder that is typically hidden for mac users
         if '.DS_Store' in modelFiles:
             modelFiles.remove('.DS_Store')
+        #This ensures that some value is given if no files exist
+        #It then updates the data file list
         if len(modelFiles)==0:
             modelFiles = "No Current Files"
             self.modelDropdown.configure(values=modelFiles)
         else:
             self.modelDropdown.configure(values=modelFiles)
-            
+
+    '''Unpackages model selected by user'''        
     def modelSelection(self):
         modelSelected = self.modelDropdown.get()
         print(modelSelected[-3:])
+        #unpackages model based on model type
         if modelSelected[-3:] == "pkl":
             self.model = joblib.load(modelPath+"/"+modelSelected)
         elif modelSelected[-2:] == ".pt":

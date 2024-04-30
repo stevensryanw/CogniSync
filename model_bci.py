@@ -32,15 +32,46 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-#Sklearn models
+#unsure if this was right so kept above incase
+#------------------ Importing Libraries -----------------
+'''Pytorch'''
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+'''Scikit-learn models'''
+from sklearn.svm import SVC
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+'''Tensorflow'''
+#import keras
+'''Scoring'''
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+'''Data splitting'''
+from sklearn.model_selection import train_test_split
+#------------------ Importing Libraries -----------------
+
+'''Sklearn models'''
 def BCI_sklearn_SVC(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     clf = BaggingClassifier(estimator=SVC(), n_jobs=-1)
     clf.fit(trainData, trainLabel)
     return scoring(clf, testData, testLabel)
 
 def BCI_sklearn_RandomForestClassifier(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+    #optimized parameters are set
     max_depth = 810
     min_samples_split = 4
     min_samples_leaf = 2
@@ -54,7 +85,9 @@ def BCI_sklearn_RandomForestClassifier(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_DecisionTreeClassifier(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+    #optimized parameters are set
     max_depth = 628
     min_samples_split = 3
     min_samples_leaf = 2
@@ -67,7 +100,9 @@ def BCI_sklearn_DecisionTreeClassifier(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_LogisticRegression(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+    #optimized parameters are set
     C = 1.0
     class_weight = None
     dual = False
@@ -90,31 +125,37 @@ def BCI_sklearn_LogisticRegression(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_GradientBoostingClassifier(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = GradientBoostingClassifier()
     model.fit(trainData, trainLabel)
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_KNeighborsClassifier(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = KNeighborsClassifier()
     model.fit(trainData, trainLabel)
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_GaussianNB(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = GaussianNB()
     model.fit(trainData, trainLabel)
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_MLPClassifier(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = MLPClassifier()
     model.fit(trainData, trainLabel)
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_LinearDiscriminantAnalysis(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+    #optimized parameters are set
     solver = 'svd'
     shrinkage = None
     store_covariance = False
@@ -126,7 +167,9 @@ def BCI_sklearn_LinearDiscriminantAnalysis(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_QuadraticDiscriminantAnalysis(data, labels):
+    #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+    #optimized parameters are set
     priors = None
     reg_param = 0.01
     store_covariance = True
@@ -196,16 +239,21 @@ def BCI_pytorch_Net(data, labels):
 
 # #Tensorflow models
 # def BCI_tensorflow_Net(data, labels):
+#     #train and test set created
 #     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
+#     #model layer creation
 #     model = keras.Sequential([
-#     keras.layers.Input(shape=(11,)),  # Adjust the input shape based on your data
+#     # Adjust the input shape based on your data
+#     keras.layers.Input(shape=(11,)),
 #     keras.layers.Dense(64, activation='relu'),
 #     keras.layers.Dense(32, activation='relu'),
-#     keras.layers.Dense(1, activation='sigmoid')  # Output layer with sigmoid activation for binary classification
+#     # Output layer with sigmoid activation for binary classification
+#     keras.layers.Dense(1, activation='sigmoid')
 #     ])
 #     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 #     history = model.fit(trainData, trainLabel, epochs=10, batch_size=32)
 #     trainPred = model.predict(trainData)
+#     #training accuracy calculated
 #     correctTrain = 0
 #     for i in range(len(trainPred)):
 #         if trainPred[i] >= 0.5 and trainLabel[i] == 1:
@@ -217,6 +265,7 @@ def BCI_pytorch_Net(data, labels):
 #     print('Training accuracy:', correctTrain/len(trainPred))
 #     testPred = model.predict(testData)
 #     correctTest = 0
+#     #test accuracy calculated
 #     for i in range(len(testPred)):
 #         if testPred[i] >= 0.5 and testLabel[i] == 1:
 #             correctTest += 1
@@ -229,7 +278,9 @@ def BCI_pytorch_Net(data, labels):
 #     parameters = {"Type": "Sequential", "Node 1":"Dense, 64, relu", "Node 2":"Dense, 32, relu", "Node 3":"Dense, 1, sigmoid"}
 #     return [score, parameters] 
 
+'''model scoring'''
 def scoring(model, x, y):
+    #scoring split by model type
     if type(model) == torch.nn.modules.container.Sequential:
         model.eval()
         preds = model(x).argmax(dim=1)
@@ -237,6 +288,7 @@ def scoring(model, x, y):
         f1 = f1_score(y.cpu(), preds.cpu(), average='macro')
         precision = precision_score(y.cpu(), preds.cpu(), average='macro')
         recall = recall_score(y.cpu(), preds.cpu(), average='macro')
+    #scikit-learn scoring
     else:
         preds = model.predict(x)
         acc = accuracy_score(y, preds)
