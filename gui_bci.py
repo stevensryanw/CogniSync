@@ -1155,18 +1155,28 @@ class USBOutput(ctk.CTkFrame):
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
+        
+        # button sends "foreward" request directly to ESP via IP
         buttonForeward = ctk.CTkButton(self, text ="Forward",
                             command = lambda : wcc.motorForward())
         buttonForeward.grid(row = 2, column = 4, pady = 12)
+        
+        # button sends "left" request directly to ESP via IP
         buttonLeft = ctk.CTkButton(self, text ="Left",
                             command = lambda : wcc.turnLeft())
         buttonLeft.grid(row = 3, column = 3)
+
+        # button sends "stop" request directly to ESP via IP
         buttonStop = ctk.CTkButton(self, text ="Stop",
                             command = lambda : wcc.motorStop())
         buttonStop.grid(row = 3, column = 4, pady = 12)
+
+        # button sends "right" request directly to ESP via IP
         buttonRight = ctk.CTkButton(self, text ="Right",
                             command = lambda : wcc.turnRight())
         buttonRight.grid(row = 3, column = 5)
+
+        # button sends "backward" request directly to ESP via IP
         buttonBackward = ctk.CTkButton(self, text ="Backward",
                             command = lambda : wcc.motorBackward())
         buttonBackward.grid(row = 4, column = 4, pady = 12)
