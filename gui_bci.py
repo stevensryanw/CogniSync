@@ -1191,7 +1191,7 @@ class USBOutput(ctk.CTkFrame):
 
         self.model = False
         self.update()
-        '''Bind keys to functions the send requests to ESP'''
+        '''Bind keys to functions that send requests to ESP'''
         self.bind('<Left>', lambda event: wcc.turnLeft())
         self.bind('<Right>', lambda event: wcc.turnRight())
         self.bind('<Up>', lambda event: wcc.motorForward())
