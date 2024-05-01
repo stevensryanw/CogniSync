@@ -181,15 +181,10 @@ def BCI_sklearn_QuadraticDiscriminantAnalysis(data, labels):
 #Pytorch models
 def BCI_pytorch_Net(data, labels):
     #Checking for mps then cuda then cpu
-    devices = ['cuda', 'mps', 'cpu']
-    device_usable = ''
-    for device in devices:
-        try:
-            torch.device(device)
-            device_usable = device
-            break
-        except:
-            continue
+    try:
+        device_usable = torch.device("cuda" if torch.cuda.is_available() else "mps")
+    except:
+        device_usable = torch.device("cpu")
     #Parameters
     batch_size = 128 
     dropout_l0 = 0.2

@@ -14,7 +14,7 @@ def record(self):
         outlet_aux = StreamOutlet(info_aux)
         file_out = open('newest_rename.csv', 'a')
         file_out.truncate(0)
-        file_out.write('ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, aux1, aux2, aux3, label\n')
+        file_out.write('ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8,aux1,aux2,aux3,label\n')
         def lsl_streamers(sample):
             file_in = open('tempVal.txt', 'r')
             input = file_in.readline()

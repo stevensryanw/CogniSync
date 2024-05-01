@@ -1137,13 +1137,16 @@ class SnakeGame(ctk.CTkFrame):
 
     '''Thread for recording EEG data'''
     def start_record(self):
+        #if the thread is not running, start it
         if self.record_thread is None or not self.record_thread.is_alive():
             self.record_thread = threading.Thread(target=self.record_data)
             self.record_thread.start()
     def stop_record(self):
+        #if the thread is running, stop it
         if self.record_thread is not None and self.record_thread.is_alive():
             self.record_thread.join()
     def record_data(self):
+        #call the record function from connect.py
         record(self)
 
     '''Thread for making predictions with the model selected and outputting to a temp file'''
