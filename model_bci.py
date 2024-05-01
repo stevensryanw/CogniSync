@@ -1,38 +1,3 @@
-#Script for gui_bci to model data in the gui, using our own models
-import numpy as np
-from sklearn.metrics import accuracy_score
-import time
-from sklearn.model_selection import GridSearchCV
-from sklearn.covariance import EmpiricalCovariance
-from sklearn.covariance import MinCovDet
-from sklearn.covariance import ShrunkCovariance
-from sklearn.covariance import LedoitWolf
-from joblib import parallel_backend
-import random
-from sklearn.ensemble import BaggingClassifier
-from sklearn.svm import LinearSVC
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neural_network import MLPClassifier
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import cross_val_score, cross_val_predict
-from sklearn.metrics import confusion_matrix, classification_report
-#import keras
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-#unsure if this was right so kept above incase
 #------------------ Importing Libraries -----------------
 '''Pytorch'''
 import torch
@@ -60,8 +25,18 @@ from sklearn.metrics import recall_score
 from sklearn.model_selection import train_test_split
 #------------------ Importing Libraries -----------------
 
-'''Sklearn models'''
+#------------------ SciKit-Learn ------------------------
 def BCI_sklearn_SVC(data, labels):
+    """
+    Trains a Support Vector Classifier (SVC) model using the provided data and labels.
+    
+    Parameters:
+        data (array-like): The input data for training the model.
+        labels (array-like): The corresponding labels for the input data.
+        
+    Returns:
+        float: The score of the trained model on the test data.
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     clf = BaggingClassifier(estimator=SVC(), n_jobs=-1)
@@ -69,6 +44,17 @@ def BCI_sklearn_SVC(data, labels):
     return scoring(clf, testData, testLabel)
 
 def BCI_sklearn_RandomForestClassifier(data, labels):
+    """
+    Trains a Random Forest Classifier model using the provided data and labels.
+
+    Parameters:
+    - data: The input data for training the model.
+    - labels: The corresponding labels for the input data.
+
+    Returns:
+    - The score of the trained model on the test data.
+
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     #optimized parameters are set
@@ -85,6 +71,17 @@ def BCI_sklearn_RandomForestClassifier(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_DecisionTreeClassifier(data, labels):
+    """
+    Trains a Decision Tree Classifier model using the provided data and labels.
+
+    Parameters:
+    - data: The input data for training the model.
+    - labels: The corresponding labels for the input data.
+
+    Returns:
+    - The score of the trained model on the test data.
+
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     #optimized parameters are set
@@ -100,6 +97,17 @@ def BCI_sklearn_DecisionTreeClassifier(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_LogisticRegression(data, labels):
+    """
+    Trains a logistic regression model using the provided data and labels.
+
+    Parameters:
+    - data: The input data for training the model.
+    - labels: The corresponding labels for the input data.
+
+    Returns:
+    - The score of the trained model on the test data.
+
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     #optimized parameters are set
@@ -125,6 +133,17 @@ def BCI_sklearn_LogisticRegression(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_GradientBoostingClassifier(data, labels):
+    """
+    Trains a Gradient Boosting Classifier model on the given data and labels.
+
+    Parameters:
+    data (array-like): The input data for training the model.
+    labels (array-like): The target labels for training the model.
+
+    Returns:
+    float: The score of the trained model on the test data.
+
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = GradientBoostingClassifier()
@@ -132,6 +151,16 @@ def BCI_sklearn_GradientBoostingClassifier(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_KNeighborsClassifier(data, labels):
+    """
+    Trains a K-Nearest Neighbors classifier using the provided data and labels.
+    
+    Parameters:
+        data (array-like): The input data for training the classifier.
+        labels (array-like): The corresponding labels for the input data.
+        
+    Returns:
+        float: The score of the trained model on the test data.
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = KNeighborsClassifier()
@@ -139,6 +168,16 @@ def BCI_sklearn_KNeighborsClassifier(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_GaussianNB(data, labels):
+    """
+    Trains a Gaussian Naive Bayes classifier using the provided data and labels.
+    
+    Parameters:
+        data (array-like): The input data for training the classifier.
+        labels (array-like): The target labels for the input data.
+        
+    Returns:
+        float: The score of the trained model on the test data.
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = GaussianNB()
@@ -146,6 +185,17 @@ def BCI_sklearn_GaussianNB(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_MLPClassifier(data, labels):
+    """
+    Trains and evaluates a Multi-Layer Perceptron (MLP) classifier for Brain-Computer Interface (BCI) data.
+
+    Parameters:
+    - data (array-like): The input data for training and testing the classifier.
+    - labels (array-like): The corresponding labels for the input data.
+
+    Returns:
+    - float: The accuracy score of the trained model on the test data.
+
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     model = MLPClassifier()
@@ -153,6 +203,17 @@ def BCI_sklearn_MLPClassifier(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_LinearDiscriminantAnalysis(data, labels):
+    """
+    Perform Linear Discriminant Analysis (LDA) classification on the given data.
+
+    Parameters:
+    - data (array-like): The input data for training and testing the LDA model.
+    - labels (array-like): The corresponding labels for the input data.
+
+    Returns:
+    - float: The score of the trained LDA model on the test data.
+
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     #optimized parameters are set
@@ -167,6 +228,17 @@ def BCI_sklearn_LinearDiscriminantAnalysis(data, labels):
     return scoring(model, testData, testLabel)
 
 def BCI_sklearn_QuadraticDiscriminantAnalysis(data, labels):
+    """
+    Perform Quadratic Discriminant Analysis (QDA) classification on the given data.
+
+    Parameters:
+    - data (array-like): The input data for training and testing the model.
+    - labels (array-like): The corresponding labels for the input data.
+
+    Returns:
+    - float: The score of the trained model on the test data.
+
+    """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
     #optimized parameters are set
@@ -177,9 +249,20 @@ def BCI_sklearn_QuadraticDiscriminantAnalysis(data, labels):
     model = QuadraticDiscriminantAnalysis(priors=priors, reg_param=reg_param, store_covariance=store_covariance, tol=tol)
     model.fit(trainData, trainLabel)
     return scoring(model, testData, testLabel)
+#------------------ SciKit-Learn ------------------------
 
-#Pytorch models
+#------------------ PyTorch -----------------------------
 def BCI_pytorch_Net(data, labels):
+    """
+    Trains a PyTorch neural network model for BCI (Brain-Computer Interface) classification.
+
+    Args:
+        data (list): A list of input data samples.
+        labels (list): A list of corresponding labels for the input data samples.
+
+    Returns:
+        tuple: A tuple containing the model's score on the test data and the trained model itself.
+    """
     #Checking for mps then cuda then cpu
     try:
         device_usable = torch.device("cuda" if torch.cuda.is_available() else "mps")
@@ -231,9 +314,21 @@ def BCI_pytorch_Net(data, labels):
     testData = X_test
     testLabel = y_test
     return scoring(model, testData, testLabel), model
+#------------------ PyTorch -----------------------------
 
-# #Tensorflow models
+#------------------ Tensorflow --------------------------
 # def BCI_tensorflow_Net(data, labels):
+#     """
+#     Trains and evaluates a TensorFlow neural network model for binary classification.
+
+#     Args:
+#         data (numpy.ndarray): The input data for training and testing the model.
+#         labels (numpy.ndarray): The corresponding labels for the input data.
+
+#     Returns:
+#         list: A list containing the test accuracy score and the model parameters.
+
+#     """
 #     #train and test set created
 #     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
 #     #model layer creation
@@ -272,9 +367,22 @@ def BCI_pytorch_Net(data, labels):
 #     score = correctTest/len(testPred)
 #     parameters = {"Type": "Sequential", "Node 1":"Dense, 64, relu", "Node 2":"Dense, 32, relu", "Node 3":"Dense, 1, sigmoid"}
 #     return [score, parameters] 
+#------------------ Tensorflow --------------------------
 
-'''model scoring'''
+#------------------ Scoring -----------------------------
 def scoring(model, x, y):
+    """
+    Calculate the accuracy, F1 score, precision, and recall of a given model's predictions.
+
+    Parameters:
+    model (torch.nn.modules.container.Sequential or sklearn.base.BaseEstimator): The model to evaluate.
+    x (array-like): The input data.
+    y (array-like): The target labels.
+
+    Returns:
+    list: A list containing the accuracy, F1 score, precision, recall, and the model itself.
+
+    """
     #scoring split by model type
     if type(model) == torch.nn.modules.container.Sequential:
         model.eval()
@@ -291,3 +399,4 @@ def scoring(model, x, y):
         precision = precision_score(y, preds, average='macro')
         recall = recall_score(y, preds, average='macro')
     return [acc, f1, precision, recall, model]
+#------------------ Scoring -----------------------------
