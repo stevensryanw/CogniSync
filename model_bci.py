@@ -300,7 +300,7 @@ def BCI_pytorch_Net(data, labels):
         torch.nn.Dropout(dropout_l2),
         torch.nn.Linear(n_units_l2, 5)
     ).to(torch.device(device_usable))
-
+    #Defining loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     #Training the model
@@ -333,11 +333,11 @@ def BCI_pytorch_Net(data, labels):
 #     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
 #     #model layer creation
 #     model = keras.Sequential([
-#     # Adjust the input shape based on your data
+#     #Adjust the input shape based on your data
 #     keras.layers.Input(shape=(11,)),
 #     keras.layers.Dense(64, activation='relu'),
 #     keras.layers.Dense(32, activation='relu'),
-#     # Output layer with sigmoid activation for binary classification
+#     #Output layer with sigmoid activation for binary classification
 #     keras.layers.Dense(1, activation='sigmoid')
 #     ])
 #     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])

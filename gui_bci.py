@@ -33,7 +33,7 @@ import os
 import shutil
 #------------------ Importing Libraries -----------------
 
-#intializing variables for the snake game UI page
+#------------------ Variable Initializations ------------
 LARGEFONT =("Verdana", 35)
 WIDTH = 500
 HEIGHT = 500
@@ -43,7 +43,11 @@ BODY_SIZE = 1
 SNAKE = "#00FF00"
 FOOD = "#FF0000"
 BACKGROUND = "#000000"
+#make background gray
+ctk.set_appearance_mode("dark")
+#------------------ Variable Initializations ------------
 
+#------------------ File Management ---------------------
 #ensuring this is repo is here and is current cwd
 if os.path.isdir("../CogniSync"):
     pathDir = os.path.abspath("../CogniSync")
@@ -96,13 +100,11 @@ else:
     empty = pd.DataFrame(csvDict)
     masterFilePath = modelPath+"/MasterModelFile.csv"
     empty.to_csv(masterFilePath, index=False)
-#make background gray
-ctk.set_appearance_mode("dark")
-
+#------------------ File Management ---------------------
 
 #------------------ Main Application --------------------
 class App(ctk.CTk):
-        # __init__ function for class tkinterApp 
+    # __init__ function for class tkinterApp 
     def __init__(self, *args, **kwargs): 
         # __init__ function for class Tk
         ctk.CTk.__init__(self, *args, **kwargs)
@@ -137,7 +139,6 @@ class App(ctk.CTk):
 class Home(ctk.CTkFrame):
     def __init__(self, parent, controller): 
         ctk.CTkFrame.__init__(self, parent)
-
         #Adding our logo to the home page
         my_image = ctk.CTkImage(light_image=PIL.Image.open("resources/CogniSyncLogo.png"),
                                   dark_image=PIL.Image.open("resources/CogniSyncLogo.png"),
@@ -178,7 +179,6 @@ class Home(ctk.CTkFrame):
 class PlotEEG(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-    
         label = ctk.CTkLabel(self, text ="Plotting EEG Data", font = LARGEFONT)
         # putting the label in its place by
         # using grid

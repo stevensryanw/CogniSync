@@ -1,12 +1,12 @@
-#------------------Importing Libraries----------------
+#------------------ Importing Libraries ----------------
 '''Data Manipulation'''
 import random
 '''Tkinter'''
 from tkinter import *
 import customtkinter as ctk
-#------------------Importing Libraries----------------
+#------------------ Importing Libraries ----------------
 
-#------------------Variable Initializations-----------
+#------------------ Variable Initializations -----------
 BACKGROUND = 'black'
 WIDTH = 260
 HEIGHT = 260
@@ -19,9 +19,9 @@ global score
 global Snake
 global Food
 score = 0
-#------------------Variable Initializations-----------
+#------------------ Variable Initializations -----------
 
-#------------------Main Snake Object------------------
+#------------------ Main Snake Object ------------------
 class Snake:
     """
     Represents a snake in the game.
@@ -41,20 +41,20 @@ class Snake:
         body_size = BODY_SIZE
         self.coordinates = []
         self.squares = []
-        # defines location of snake (define canvas as the canvas the main game will execute in)
+        #defines location of snake (define canvas as the canvas the main game will execute in)
         self.canvas = canvas
-        # puts snake at the middle of the board at the start
+        #puts snake at the middle of the board at the start
         for i in range(0, BODY_SIZE):
             self.coordinates.append([100, 100])
-        # draws snake as rectangle in canvas and store coordinates
+        #draws snake as rectangle in canvas and store coordinates
         for x, y in self.coordinates:
             square = canvas.create_rectangle(
                 x, y, x + SPACE_SIZE, y + SPACE_SIZE,
                 fill=SNAKE, tag="snake")
             self.squares.append(square)
-#------------------Main Snake Object------------------
+#------------------ Main Snake Object ------------------
 
-#------------------Main Food Object-------------------
+#------------------ Main Food Object -------------------
 class Food:
     """
     Represents the food in the game.
@@ -75,9 +75,9 @@ class Food:
         self.coordinates = [x, y]
         self.canvas = canvas
         canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD, tag="food")
-#------------------Main Food Object-------------------
+#------------------ Main Food Object -------------------
 
-#------------------Boundary Detection-----------------
+#------------------ Boundary Detection -----------------
 def check_collisions(coordinates):
     """
     Checks if the snake has collided with the borders of the canvas.
@@ -89,13 +89,13 @@ def check_collisions(coordinates):
     bool: True if the snake has collided with the borders, False otherwise.
     """
     x, y = coordinates
-    # checks if the snake has collided with the borders of the canvas
-    # otherwise, the snake could move to infinity
-    # checks horizontal boundary
+    #checks if the snake has collided with the borders of the canvas
+    #otherwise, the snake could move to infinity
+    #checks horizontal boundary
     if x < 0 or x >= WIDTH-2:
         return True
-    # checks vertical boundary
+    #checks vertical boundary
     elif y < 0 or y >= HEIGHT-2:
         return True
     return False
-#------------------Boundary Detection-----------------
+#------------------ Boundary Detection -----------------

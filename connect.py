@@ -1,13 +1,13 @@
-#------------------Importing Libraries----------------'''
+#------------------ Importing Libraries ----------------
 '''Data Preprocessing'''
 import numpy as np
 '''OpenBCI'''
 from pyOpenBCI import OpenBCICyton
 '''LSL'''
 from pylsl import StreamInfo, StreamOutlet
-#------------------Importing Libraries----------------
+#------------------ Importing Libraries ----------------
 
-#------------------OpenBCI Recording------------------
+#------------------ OpenBCI Recording ------------------
 def record(self):
     """
     Records EEG and AUX data from an OpenBCI board and saves it to a file.
@@ -53,4 +53,4 @@ def record(self):
     board = OpenBCICyton()
     board.start_stream(lsl_streamers)
     file_out.close()
-#------------------OpenBCI Recording------------------
+#------------------ OpenBCI Recording ------------------
