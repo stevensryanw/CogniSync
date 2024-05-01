@@ -98,11 +98,11 @@ Function ensures temp_val.txt is closed
   - ```show_rest_period(self)```  
 If is_prompting is true throw text "Rest for 10 seconds' and clear the canvas. Close the temp_val.txt file. Increment the prompt_count by 1 and set the current movement index to the next slot. if the current movement index is 0 shuffle the movements using ```shuffle_movements(self)```. After the 10 second rest time prompt the next movement using ```prompt_next_movement(self)```.
   - ```start_record(self)```  
-This
+This function checks for a record thread then creates one.
   - ```stop_record(self)```  
-This
-  - ```record_data(self)```
-This
+This function stops the record thread.
+  - ```record_data(self)```  
+This function calls ```record()``` from connect.py.
 
 ### Class ```Modeling()```  
   - ```__init__(self, parent, controller)```  
@@ -122,19 +122,23 @@ This goes to the data folder and updates the list of files that are present in t
   - ```modelSelection(self)```  
 This gets the model the user selected and unpackages it according to what file type it is.
   - ```start_record(self)```  
-This
+This function checks for a record thread then creates one.
   - ```stop_record(self)```  
-This
-  - ```record_data(self)```  
-This
+This function stops the record thread.
+  - ```record_data(self)```
+This function calls ```record()``` from connect.py.
   - ```start_predictions(self)```  
-This
+This function reads in the recording data, then it selects the latest full row of data and uses the selected model to write a prediction to ```tempPred.txt```.
   - ```start_prediction_thread(self)```  
-  - ```stop_predictions(self)```  
-  - ```predict_stream(self)```  
-  - ```start_stream_thread(self)```  
-  - ```stop_stream(self)```  
-  - ```label_map(self)```  
+This function checks for a prediction thread then creates one.
+  - ```stop_predictions(self)```   
+This stops the prediction thread.
+  - ```predict_stream(self)```   
+This function turns the predictions in the temporary prediction txt file ```tempPred.txt``` and sends key presses to the snake game.
+  - ```start_stream_thread(self)```   
+This function checks for a stream thread then creates one.
+  - ```stop_stream(self)```   
+This functions stops the stream thread.
   - ```drawFrame(self)```  
 This function is activated by the snake begin function and a canvas to place the snake game is placed in the gui and the keys are bound as well. 
   - ```move(self, direction, snake, g_food, root, canvas)```  
@@ -149,9 +153,34 @@ This checks if the snake is past the boundary returning True if it is or False i
 This updates the coordinates of the snake while ensuring it has not collided with anything. If it has not collided with anything then it will update the location of the snake on the canvas. This function also checks if the snake is on the same square as the food and if it is then it will delete the previous food and generate a new one in a random location and increase the point value by one.
 
 ### Class ```USBOutput()```
-  - ```__init__(self, parent, controller)```
+  - ```__init__(self, parent, controller)```  
+Intializes the home page of the GUI with the needed buttons for all pages plotEEG, UserRecording, Modeling, SnakeGame, and USBOutput. When buttons are clicked they call ```show_frame(self, cont)``` to move that frame to the top.
+  - ```updateFiles(self)```  
+This goes to the data folder and updates the list of files that are present in that folder while excluding any folders and .DS_Store. The data dropdown are then updated with the new list. 
+  - ```modelSelection(self)```  
+This gets the model the user selected and unpackages it according to what file type it is.
+  - ```start_record(self)```  
+This function checks for a record thread then creates one.
+  - ```stop_record(self)```  
+This function stops the record thread.
+  - ```record_data(self)```
+This function calls ```record()``` from connect.py.
+  - ```start_predictions(self)```  
+This function reads in the recording data, then it selects the latest full row of data and uses the selected model to write a prediction to ```tempPred.txt```.
+  - ```start_prediction_thread(self)```  
+This function checks for a prediction thread then creates one.
+  - ```stop_predictions(self)```   
+This stops the prediction thread.
+  - ```predict_stream(self)```   
+This function turns the predictions in the temporary prediction txt file ```tempPred.txt``` and sends commands to the robotic wheelchair URL.
+  - ```start_stream_thread(self)```   
+This function checks for a stream thread then creates one.
+  - ```stop_stream(self)```   
+This functions stops the stream thread.
 
 ## ```connect.py```
+  - ```record(self)```  
+This function uses the pyOpenBCI and pylsl to output all data streamed to a csv, this function is always run on a separate thread to the GUI. This function will also look for a label from tempVal.txt to write to append to the data. We have chosen to use the recomended filtering process from the pyOpenBCI GitHub page.
 
 ## ```model_bci.py```
   - ```BCI_sklearn_SVC(data, labels)```  
