@@ -13,12 +13,12 @@ root_url = "http://10.129.110.181"
 def sendRequest(url):
     """
     Sends a request to the specified URL.
-
+    
     Parameters:
-    url (str): The URL to send the request to.
+        url (str): The URL to send the request to.
 
     Returns:
-    None
+        None
     """
     n = urllib.request.urlopen(url) #send request to ESP
 #------------------ URL Request Function ----------------

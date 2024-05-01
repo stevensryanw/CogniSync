@@ -83,10 +83,10 @@ def check_collisions(coordinates):
     Checks if the snake has collided with the borders of the canvas.
 
     Parameters:
-    coordinates (tuple): The x and y coordinates of the snake.
+        coordinates (tuple): The x and y coordinates of the snake.
 
     Returns:
-    bool: True if the snake has collided with the borders, False otherwise.
+        bool: True if the snake has collided with the borders, False otherwise.
     """
     x, y = coordinates
     #checks if the snake has collided with the borders of the canvas

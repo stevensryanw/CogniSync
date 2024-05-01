@@ -48,12 +48,11 @@ def BCI_sklearn_RandomForestClassifier(data, labels):
     Trains a Random Forest Classifier model using the provided data and labels.
 
     Parameters:
-    - data: The input data for training the model.
-    - labels: The corresponding labels for the input data.
+        data: The input data for training the model.
+        labels: The corresponding labels for the input data.
 
     Returns:
-    - The score of the trained model on the test data.
-
+        The score of the trained model on the test data.
     """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -75,12 +74,11 @@ def BCI_sklearn_DecisionTreeClassifier(data, labels):
     Trains a Decision Tree Classifier model using the provided data and labels.
 
     Parameters:
-    - data: The input data for training the model.
-    - labels: The corresponding labels for the input data.
+        data: The input data for training the model.
+        labels: The corresponding labels for the input data.
 
     Returns:
-    - The score of the trained model on the test data.
-
+        The score of the trained model on the test data.
     """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -101,12 +99,11 @@ def BCI_sklearn_LogisticRegression(data, labels):
     Trains a logistic regression model using the provided data and labels.
 
     Parameters:
-    - data: The input data for training the model.
-    - labels: The corresponding labels for the input data.
+        data: The input data for training the model.
+        labels: The corresponding labels for the input data.
 
     Returns:
-    - The score of the trained model on the test data.
-
+        The score of the trained model on the test data.
     """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -137,12 +134,11 @@ def BCI_sklearn_GradientBoostingClassifier(data, labels):
     Trains a Gradient Boosting Classifier model on the given data and labels.
 
     Parameters:
-    data (array-like): The input data for training the model.
-    labels (array-like): The target labels for training the model.
+        data (array-like): The input data for training the model.
+        labels (array-like): The target labels for training the model.
 
     Returns:
-    float: The score of the trained model on the test data.
-
+        float: The score of the trained model on the test data.
     """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -189,12 +185,11 @@ def BCI_sklearn_MLPClassifier(data, labels):
     Trains and evaluates a Multi-Layer Perceptron (MLP) classifier for Brain-Computer Interface (BCI) data.
 
     Parameters:
-    - data (array-like): The input data for training and testing the classifier.
-    - labels (array-like): The corresponding labels for the input data.
+        data (array-like): The input data for training and testing the classifier.
+        labels (array-like): The corresponding labels for the input data.
 
     Returns:
-    - float: The accuracy score of the trained model on the test data.
-
+        float: The accuracy score of the trained model on the test data.
     """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -207,12 +202,11 @@ def BCI_sklearn_LinearDiscriminantAnalysis(data, labels):
     Perform Linear Discriminant Analysis (LDA) classification on the given data.
 
     Parameters:
-    - data (array-like): The input data for training and testing the LDA model.
-    - labels (array-like): The corresponding labels for the input data.
+        data (array-like): The input data for training and testing the LDA model.
+        labels (array-like): The corresponding labels for the input data.
 
     Returns:
-    - float: The score of the trained LDA model on the test data.
-
+        float: The score of the trained LDA model on the test data.
     """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -232,12 +226,11 @@ def BCI_sklearn_QuadraticDiscriminantAnalysis(data, labels):
     Perform Quadratic Discriminant Analysis (QDA) classification on the given data.
 
     Parameters:
-    - data (array-like): The input data for training and testing the model.
-    - labels (array-like): The corresponding labels for the input data.
+        data (array-like): The input data for training and testing the model.
+        labels (array-like): The corresponding labels for the input data.
 
     Returns:
-    - float: The score of the trained model on the test data.
-
+        float: The score of the trained model on the test data.
     """
     #train and test set created
     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -327,7 +320,6 @@ def BCI_pytorch_Net(data, labels):
 
 #     Returns:
 #         list: A list containing the test accuracy score and the model parameters.
-
 #     """
 #     #train and test set created
 #     trainData, testData, trainLabel, testLabel = train_test_split(data, labels, test_size=0.2)
@@ -375,13 +367,12 @@ def scoring(model, x, y):
     Calculate the accuracy, F1 score, precision, and recall of a given model's predictions.
 
     Parameters:
-    model (torch.nn.modules.container.Sequential or sklearn.base.BaseEstimator): The model to evaluate.
-    x (array-like): The input data.
-    y (array-like): The target labels.
+        model (torch.nn.modules.container.Sequential or sklearn.base.BaseEstimator): The model to evaluate.
+        x (array-like): The input data.
+        y (array-like): The target labels.
 
     Returns:
-    list: A list containing the accuracy, F1 score, precision, recall, and the model itself.
-
+        list: A list containing the accuracy, F1 score, precision, recall, and the model itself.
     """
     #scoring split by model type
     if type(model) == torch.nn.modules.container.Sequential:
