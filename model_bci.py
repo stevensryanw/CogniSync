@@ -15,7 +15,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 '''Tensorflow'''
-#import keras
+# import keras
 '''Scoring'''
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
