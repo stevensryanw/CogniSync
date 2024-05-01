@@ -428,71 +428,97 @@ class PlotEEG(ctk.CTkFrame):
 
 #------------------ User Recording Page -----------------
 class UserRecording(ctk.CTkFrame): 
+    '''Initializes the user recording page'''
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+        #Page name label
         self.label = ctk.CTkLabel(self, text ="Recording Data", font = LARGEFONT)
         self.label.grid(row = 0, column = 1, padx = 100, pady = 10)
+        #Text label for prompting instructions
         self.instructions_label = ctk.CTkLabel(self, text="Follow the movement instructions below:")
         self.instructions_label.grid(row = 1, column = 1)
+        #creates canvas for movement prompting
         self.canvas = ctk.CTkCanvas(self, width=400, height=400)
         self.canvas.grid(row = 2, column = 1, padx = 100, pady = 10)
+        #set the prompting time frames
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
+        #init empty movement list
         self.movements = []
+        #set some default movements
         self.default_movements = ["arms","legs","jaw","eyes"]
         self.n_movements = []
+        #shuffle movements
         self.shuffle_movements()
+        #sets some values for future use
         self.current_movement_index = 0
         self.current_movement = None
         self.prompt_count = 0
         self.movement_activated = 0
         
-
+        #Label for the input movement entry box
         txt_label = ctk.CTkLabel(self, text="Movement Input")
-        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         txt_label.grid(row=6, column=0, padx = 10, pady = 5)
 
-        ## Creating our textbox so user can input file name
 
+       #textbox for entry of movements separated by commas EX. jaw,leg,arm
         txt_entry = ctk.CTkEntry(self, height=10, placeholder_text="ENTER MOVEMENTS SEPERATED BY COMMA",  width = 300)
         txt_entry.grid(row= 6, column =1, padx = 10, pady = 5)
         self.text_entry = txt_entry
 
+
+        #Label for the movement count input
         mvmt_count_label = ctk.CTkLabel(self, text="Number of movements")
-        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         mvmt_count_label.grid(row=7, column=0, padx = 10, pady = 5)
 
+
+        #Textbox for the entry of an int representing the number of movements for prompting
         mvmt_count = ctk.CTkEntry(self, height=10, placeholder_text="ENTER NUMBER OF MOVEMENTS AS INTEGER",  width = 300)
         mvmt_count.grid(row= 7, column =1, padx = 10, pady = 5)
         self.mvmt_count = mvmt_count
 
+
+        #Label for number of iterations text box
         iter_count_label = ctk.CTkLabel(self, text="Number of Iterations")
-        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         iter_count_label.grid(row=9, column=0, padx = 10, pady = 5)
 
+
+        #text box for user to enter the number of iterations
         iter_count = ctk.CTkEntry(self, height=10, placeholder_text="NUMBER OF ITERATIONS PER MOVE",  width = 300)
         iter_count.grid(row= 9, column =1, padx = 10, pady = 5)
+
+        #variable to hold iterations
         self.iter_count = iter_count
+
+        #key releases that call the update_movements function when input is provided to the text boxes
         self.iter_count.bind("<KeyRelease>", self.update_movements)
         self.mvmt_count.bind("<KeyRelease>", self.update_movements)
         self.text_entry.bind("<KeyRelease>", self.update_movements)
-        #self.length = len(self.movements)
+        
         self.total_prompts = 4 * 40  # 4 movements, 40 times each
+
+
+        #label for the output file textbox
         output_label = ctk.CTkLabel(self, text="Output file")
-        ## Here I use grid to place a grid like section of labels, I want the prompt label at index 0
         output_label.grid(row=8, column=0, padx = 10, pady = 5)
-        ## Creating our textbox so user can input file name
+
+        #Creating our textbox so user can input file name
         out_entry = ctk.CTkEntry(self, height=10, placeholder_text="FILE_NAME.csv",  width = 300)
         out_entry.grid(row= 8, column =1, padx = 10, pady = 5)
+        #variable to hold output
         self.file_out = out_entry
+
+        #Button to start prompting
         self.start_button = ctk.CTkButton(self, text="Start Collecting", corner_radius=10, command=self.start_prompting)
         self.start_button.grid(row=4, column = 1, padx = 10, pady=5)
+
+        #button to go to home page
         self.home_button = ctk.CTkButton(self, text ="Home",corner_radius=10,
                             command = lambda : controller.show_frame(Home))
         self.home_button.grid(row = 1, column = 0, padx = 10, pady = 5)
-        #data collection buttons
-        #Begin collection (currently doing nothing)
+
+       
         #Stop data collection
         self.stop_button = ctk.CTkButton(self, text="Stop Collecting", corner_radius=10, command=self.stop_prompting)
         self.stop_button.grid(row=5, column=1, padx=10, pady=5)
@@ -502,119 +528,178 @@ class UserRecording(ctk.CTkFrame):
         '''Variables for threading'''
         self.record_thread = None
 
+    '''Function used to update the user movements if they have been entered into a textbox'''
     def update_movements(self, event):
         self.movement_activated = 1
         # Get the text entered by the user
         movements_text = self.text_entry.get()
         
-        # Update the movements array
+        # if the movement box is full of whitespace set to default movement
         if not movements_text.strip():
             
             self.movements = self.default_movements
+        #split the entered movements by , 
         else:
             self.movements = movements_text.split(",")
 
+
+    '''Function that begins the prompting process and intis some prompting parameters'''
     def start_prompting(self):
+        #disable the start button
         self.start_button.configure(state=ctk.DISABLED)
+        #enable the stop button
         self.stop_button.configure(state=ctk.NORMAL)
+        #set prompting to true
         self.is_prompting = True
+        #call prompt next movement function
         self.prompt_next_movement()
+        #start the recording session
         self.start_record()
+        #set total prompts to movements * iterations
         self.total_prompts = int(self.iter_count.get()) * int(self.mvmt_count.get())
+        #if user has specified neither movement iterations or counts set to a default 4*40
         if not self.total_prompts:
             self.total_prompts = 4*40
         #Allow stream to start before prompting
         time.sleep(15)
 
+
+    '''Function used to stop the prompting processes when the stop button is called
+        used to reset the frame and wipe it of information'''
     def stop_prompting(self):
+        #set is prompting to false
         self.is_prompting = False
+        #enable start button use
         self.start_button.configure(state=ctk.NORMAL)
+        #disable stop button use
         self.stop_button.configure(state=ctk.DISABLED)
+        #throw message "training canceled"
         self.instructions_label.configure(text="Training canceled!")
+        #reset movement index
         self.current_movement_index = 0
+        #reshuffle movements
         self.shuffle_movements()
+        #reset prompting time frames
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
         
+        #if the canvas is populated then wipe it
         if self.canvas.find_all():
             self.instructions_label.configure(text="Training canceled!")
             self.canvas.delete("all")
-            #open('tempVal.txt', 'w').close()
-            
+        #stop the recording  
         self.stop_record()
 
+    '''This function is called when the prompting has reached its conclusion.
+        It resets the frame and ends the data stream and sends the recorded data to an
+        output file.'''
     def end_prompting(self):
+        #set prompting to false
         self.is_prompting = False
+        #Enables start button
         self.start_button.configure(state=ctk.NORMAL)
+        #Disables stop button
         self.stop_button.configure(state=ctk.DISABLED)
+        #Throws "training completed" message
         self.instructions_label.configure(text="training completed!")
+        #Gets the user File name input
         my_outputFile = self.file_out.get()
+        #if the users input was empty or whitespace default name to "YOUR_DATA.csv"
         if not my_outputFile:
             my_outputFile = "YOUR_DATA.csv"
         elif not my_outputFile.strip():
             my_outputFile = "YOUR_DATA.csv"
+        #open output file and copy in recorded results
         self.f = open(my_outputFile, "x")
         shutil.copyfile("newest_rename.csv", my_outputFile)
+        #reset movement idx and reshuffle movements
         self.current_movement_index = 0
         self.shuffle_movements()
+        #reset prompting time frames
         self.prepare_time = 5
         self.hold_time = 10
         self.rest_time = 10
-
+        #if the canvas is populated then wipe it
         if self.canvas.find_all():
             self.instructions_label.configure(text="Training is completed!")
             self.canvas.delete("all")
             open('tempVal.txt', 'w').close()
 
+    '''function used to shuffle movements'''
     def shuffle_movements(self):
         random.shuffle(self.movements)
 
+    '''Function used to prompt the next movement in the list of movements'''
     def prompt_next_movement(self):
+        #if the prompt_count is less than the total amount of prompts and is prompting is true
         if self.prompt_count < self.total_prompts and self.is_prompting:
+            #throw text "prepare for next movement"
             self.instructions_label.configure(text="Prepare for the next movement...")
+            #delete the movement in the canvas
             self.canvas.delete("all")
+            #after 5 seconds show the next movement using the show_movement_instruction function
             self.canvas.after(1000 * self.prepare_time, self.show_movement_instruction)
+        #else, end prompting
         else:
-            self.instructions_label.configure(text="Training maybe completed!")
             self.end_prompting()
             open('tempVal.txt', 'w').close()
 
+    '''Function used to show the instructions for the next movement'''
     def show_movement_instruction(self):
+        #if is prompting is true throw text "Hold the movement for {specified time} seconds"
         if self.is_prompting:
             self.instructions_label.configure(text="Hold the movement for {} seconds".format(self.hold_time))
+            #if the user did not input movements into the entry box set to default movements
             if self.movement_activated == 0:
                 self.movements = self.default_movements
+            #the current movement is set to the idx of the current movement idx
             self.current_movement = self.movements[self.current_movement_index]
+            #after 2 seconds being writing labels to the temp val file to append to data
             self.after(2000, self.start_writing_to_file)
+            #after 6 secconds stop writing the data to the temp val
             self.after(6000, self.stop_writing_to_file)
+            #Show the current movement in the prompting canvas
             self.canvas.create_text(100, 100, text=self.current_movement, font=("Helvetica", 30))
+            #after the specified hold movement time (10 seconds) show the rest period
             self.canvas.after(1000 * self.hold_time, self.show_rest_period)
+        #if we aren't prompting close temp val and close canvas
         else:
             open('tempVal.txt', 'w').close()
             self.instructions_label.configure(text="Training canceled!")
             self.canvas.delete("all")
 
+    '''Function used to start writing to the tempVal file, used to append labels to data'''
     def start_writing_to_file(self):
-        # Open the file for writing after 2 seconds
+        # close the file if open then reopen and write the current movement
         open('tempVal.txt', 'w').close()
         f = open("tempVal.txt", "a")
         f.write(self.current_movement)
         f.close()
     
+    '''Function used to ensure that the tempVal file is closed'''
     def stop_writing_to_file(self):
         # Close the file when the middle 7 seconds end
         open('tempVal.txt', 'a').close()  # Make sure the file is closed
 
+    '''Function used to show the rest period in between movements'''
     def show_rest_period(self):
+        #if is prompting is true
         if self.is_prompting:
+            #give message "Rest for {10} seconds"
             self.instructions_label.configure(text="Rest for {} seconds".format(self.rest_time))
+            #delete the movement in the canvas
             self.canvas.delete("all")
+            #ensure tempVal file is closed
             open('tempVal.txt', 'w').close()
+            #increment the prompt count
             self.prompt_count += 1
+            #moves the current movement index by one and wraps around to the beginning if the end of list is reached
             self.current_movement_index = (self.current_movement_index + 1) % len(self.movements)
+            #if current movement idx is zero shuffle the movements
             if self.current_movement_index == 0:
                 self.shuffle_movements()
+            #after 5 seconds prompt the next movement using the prompt next movement function
             self.canvas.after(1000 * self.rest_time, self.prompt_next_movement)
     
     '''Thread for recording EEG data'''
