@@ -1732,42 +1732,48 @@ class SnakeGame(ctk.CTkFrame):
 '''Robotic Wheel Chair Control Page'''
 #------------------ USB Output Page ---------------------
 class USBOutput(ctk.CTkFrame):
+    """
+    This class is the USB Output page class that will be used to display the USB Output page of the application.
+    """
     def __init__(self, parent, controller):
+        """
+        This function initializes the USB Output page class and creates the USB Output page.
+
+        Parameters:
+            parent: The parent class of the current class.
+            controller: The controller class that controls the current class.
+
+        Returns:
+            None
+        """
         ctk.CTkFrame.__init__(self, parent)
+        #label for the page
         label = ctk.CTkLabel(self, text ="USB Output", font = LARGEFONT)
         label.grid(row = 0, column = 4, padx = 100, pady = 10)
-        #button to return to home page
+        #Home button
         button1 = ctk.CTkButton(self, text ="Home",corner_radius=25,
                             command = lambda : controller.show_frame(Home))
-        # putting the button in its place by
-        # using grid
         button1.grid(row = 1, column = 1, padx = 10, pady = 30)
-        
-        # button sends "foreward" request directly to ESP via IP
+        #button sends "foreward" request directly to ESP via IP
         buttonForeward = ctk.CTkButton(self, text ="Forward",
                             command = lambda : wcc.motorForward())
         buttonForeward.grid(row = 2, column = 4, pady = 12)
-        
-        # button sends "left" request directly to ESP via IP
+        #button sends "left" request directly to ESP via IP
         buttonLeft = ctk.CTkButton(self, text ="Left",
                             command = lambda : wcc.turnLeft())
         buttonLeft.grid(row = 3, column = 3)
-
-        # button sends "stop" request directly to ESP via IP
+        #button sends "stop" request directly to ESP via IP
         buttonStop = ctk.CTkButton(self, text ="Stop",
                             command = lambda : wcc.motorStop())
         buttonStop.grid(row = 3, column = 4, pady = 12)
-
-        # button sends "right" request directly to ESP via IP
+        #button sends "right" request directly to ESP via IP
         buttonRight = ctk.CTkButton(self, text ="Right",
                             command = lambda : wcc.turnRight())
         buttonRight.grid(row = 3, column = 5)
-
-        # button sends "backward" request directly to ESP via IP
+        #button sends "backward" request directly to ESP via IP
         buttonBackward = ctk.CTkButton(self, text ="Backward",
                             command = lambda : wcc.motorBackward())
         buttonBackward.grid(row = 4, column = 4, pady = 12)
-
         #dropbox for models        
         self.modelDropdown = ctk.CTkComboBox(self, values = modelFiles)
         self.modelDropdown.grid(row=5, column = 1, padx=10, pady=10)
@@ -1775,7 +1781,6 @@ class USBOutput(ctk.CTkFrame):
         update_button = ctk.CTkButton(self, text="Update Model Lists", command = self.updateFiles)
         update_button.grid(row=6, column=1, columnspan=1, sticky="news", padx=10, pady=10)
         #button for model selection
-
         self.model = False
         self.update()
         '''Bind keys to functions that send requests to ESP'''
@@ -1787,21 +1792,17 @@ class USBOutput(ctk.CTkFrame):
         #button to select the model
         select_button = ctk.CTkButton(self, text="Select Model", corner_radius=25, command = self.modelSelection)
         select_button.grid(row=9, column=1, padx=10, pady=20)
-
         #button to start playing with predictions
         play_button = ctk.CTkButton(self, text="Play with Predictions", corner_radius=25, command = self.start_stream_thread)
         play_button.grid(row=10, column=1, padx=10, pady=20)
-
         #button to stop playing with predictions
         stop_button = ctk.CTkButton(self, text="Stop Predictions", corner_radius=25, command = self.stop_stream)
         stop_button.grid(row=11, column=1, padx=10, pady=20)
-
         #checkbox to select electrode data for graph
         self.check1Var = ctk.IntVar(value=1)
         self.check1 = ctk.CTkCheckBox(self, text = "Electrode Readings", onvalue=1, offvalue=0, corner_radius=5, variable=self.check1Var)
         self.check1.grid(row=7, column=1, padx=20, pady=10)
-
-        #checkboc to select alpha values for graph
+        #checkbox to select alpha values for graph
         self.check2Var = ctk.IntVar(value=1)
         self.check2 = ctk.CTkCheckBox(self, text = "Alpha Values", onvalue=1, offvalue=0, corner_radius=5, variable=self.check2Var)
         self.check2.grid(row=8, column=1, padx=10, pady=10)
@@ -1814,6 +1815,18 @@ class USBOutput(ctk.CTkFrame):
 
     '''Update list of models'''
     def updateFiles(self):
+        """
+        Updates the list of models.
+
+        This method updates the list of models by getting the files in the model path and updating the model dropdown menu
+        with the files.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         #this searches the given directory and checks if it is a file
         #if it is a file then it is added to the data file list
         modelFiles = [f for f in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath, f))]
@@ -1830,6 +1843,18 @@ class USBOutput(ctk.CTkFrame):
 
     '''Unpackages model selected by user'''        
     def modelSelection(self):
+        """
+        Unpackages the model selected.
+
+        This method unpackages the model selected by getting the model selected from the model dropdown menu and unpackages
+        the model based on the model type.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         modelSelected = self.modelDropdown.get()
         print(modelSelected[-3:])
         #unpackages model based on model type
@@ -1842,17 +1867,61 @@ class USBOutput(ctk.CTkFrame):
 
     '''Thread for recording EEG data'''
     def start_record(self):
+        """
+        Starts the recording of EEG data.
+        
+        This method starts the recording of EEG data by creating a new thread and calling the `record_data` function.
+        
+        Args:
+            None
+            
+        Returns:
+            None
+        """
         if self.record_thread is None or not self.record_thread.is_alive():
             self.record_thread = threading.Thread(target=self.record_data)
             self.record_thread.start()
     def stop_record(self):
+        """
+        Stops the recording of EEG data.
+
+        This method stops the recording of EEG data by joining the record thread if it is alive.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         if self.record_thread is not None and self.record_thread.is_alive():
             self.record_thread.join()
     def record_data(self):
+        """
+        Records the EEG data.
+
+        This method records the EEG data by calling the `record` function from the connect.py.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         record(self)
 
     '''Thread for making predictions with the model selected and outputting to a temp file'''
     def start_predictions(self):
+        """
+        Starts making predictions with the model selected and outputting to a temp file.
+
+        This method starts making predictions with the model selected and outputting to a temp file by reading the newest
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         modelSelected = self.modelDropdown.get()
         while self.stop_predict is True:
             stream = pd.read_csv('newest_rename.csv')
@@ -1879,21 +1948,55 @@ class USBOutput(ctk.CTkFrame):
             file.write(str(int(prediction[0])))
             file.close()
     def start_prediction_thread(self):
+        """
+        Starts the prediction thread.
+        
+        This method starts the prediction thread by creating a new thread and calling the `start_predictions` function.
+        
+        Args:
+            None
+            
+        Returns:
+            None
+        """
         if self.predict_thread is None or not self.predict_thread.is_alive():
             self.predict_thread = threading.Thread(target=self.start_predictions)
             self.predict_thread.start()
     def stop_predictions(self):
+        """
+        Stops the predictions.
+
+        This method stops the predictions by setting the stop predict variable to false and joining the prediction thread
+        if it is alive.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.stop_predict = False
         if self.predict_thread is not None and self.predict_thread.is_alive():
             self.predict_thread.join()
 
     '''Thread for sending predictions to the wheelchair as commands'''
     def predictStream(self):
+        """
+        Sends predictions to the snake game as keypresses.
+
+        This method sends predictions to the snake game as keypresses by reading the prediction from the temp file and
+        sending the corresponding keypress to the snake game.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.start_record()
         #Allow stream to start before prompting
         time.sleep(15)
         self.start_prediction_thread()
-
         while self.stop_predict is True:
             pred_file = open("tempPred.txt", "r")
             #Continue if the file is empty
@@ -1919,10 +2022,32 @@ class USBOutput(ctk.CTkFrame):
                 wcc.motorStop()
                 self.stop_record()
     def start_stream_thread(self):
+        """
+        Starts the stream thread.
+
+        This method starts the stream thread by creating a new thread and calling the `predictStream` function.
+        
+        Args:
+            None
+        Returns:
+            None
+        """
         if self.stream_thread is None or not self.stream_thread.is_alive():
             self.stream_thread = threading.Thread(target=self.predictStream)
             self.stream_thread.start()
     def stop_stream(self):
+        """
+        Stops the stream.
+
+        This method stops the stream by setting the stop predict variable to false and joining the stream thread if it is
+        alive.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.stop_predict = False
         if self.stream_thread is not None and self.stream_thread.is_alive():
             self.stream_thread.join()
